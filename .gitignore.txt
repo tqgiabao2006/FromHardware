@@ -1,0 +1,54 @@
+# Build files
+bin/
+obj/
+*.suo
+*.user
+*.userosscache
+*.sln.cache
+*.csproj.user
+*.vs/
+
+# Packages
+packages/
+*.nupkg
+project.lock.json
+project.assets.json
+
+# Logs
+*.log
+*.tlog
+*.log.*
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# MonoGame Pipeline Tool
+*.mgcb~
+*.mgcontent
+
+# Rider and Visual Studio Code
+.idea/
+.vscode/
+.vs/
+*.sln.DotSettings.user
+
+# Temporary files
+*.bak
+*.tmp
+*.temp
+
+# Compiled DLLs
+*.dll
+*.exe
+*.pdb
+
+# NuGet
+*.nuget
+.nuget/
+
+# Generated Content
+Content/bin/
+Content/obj/
