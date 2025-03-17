@@ -1,11 +1,15 @@
 {
   "version": 2,
-  "dgSpecHash": "mrZl9Uiu3vE=",
+  "dgSpecHash": "QbM1Rjk2JGQ=",
   "success": true,
-  "projectFilePath": "C:\\Users\\slimj\\OneDrive\\Documents\\GitHub\\FromHardware\\Lethal Organization\\Game_Lethal_Organization\\Game_Lethal_Organization.csproj",
+  "projectFilePath": "C:\\Users\\Silent B\\Documents\\GitHub\\FromHardware\\Lethal Organization\\Game_Lethal_Organization\\Game_Lethal_Organization.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\slimj\\.nuget\\packages\\monogame.content.builder.task\\3.8.1.303\\monogame.content.builder.task.3.8.1.303.nupkg.sha512",
-    "C:\\Users\\slimj\\.nuget\\packages\\monogame.framework.desktopgl\\3.8.1.303\\monogame.framework.desktopgl.3.8.1.303.nupkg.sha512"
+    "C:\\Users\\Silent B\\.nuget\\packages\\monogame.content.builder.task\\3.8.1.303\\monogame.content.builder.task.3.8.1.303.nupkg.sha512",
+    "C:\\Users\\Silent B\\.nuget\\packages\\monogame.framework.desktopgl\\3.8.1.303\\monogame.framework.desktopgl.3.8.1.303.nupkg.sha512",
+    "C:\\Users\\Silent B\\.nuget\\packages\\microsoft.netcore.app.ref\\6.0.36\\microsoft.netcore.app.ref.6.0.36.nupkg.sha512",
+    "C:\\Users\\Silent B\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\6.0.36\\microsoft.windowsdesktop.app.ref.6.0.36.nupkg.sha512",
+    "C:\\Users\\Silent B\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\6.0.36\\microsoft.aspnetcore.app.ref.6.0.36.nupkg.sha512",
+    "C:\\Users\\Silent B\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\6.0.36\\microsoft.netcore.app.host.win-x64.6.0.36.nupkg.sha512"
   ],
   "logs": []
 }
