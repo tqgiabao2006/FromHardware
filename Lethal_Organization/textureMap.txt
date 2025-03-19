@@ -1,0 +1,17 @@
+// Use sprite sheet: "TileSpriteSheet.png"
+// Format: 
+// Size
+// String name (defined in csv file), row index, col index,each row, col is 16 pixel
+=============================================================
+16,16
+=============================================================
+Main_Rock_Up,0,3
+Main_Rock_Bot,2,3
+Main_Floor_Top,4,3
+Main_Floor_Bot,6,3
+=============================================================
+32,32
+=============================================================
+Main_Block,0,0
+Main_SpikeBlock,3,0
+
