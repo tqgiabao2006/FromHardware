@@ -13,7 +13,11 @@
 
 #---------------------------------- Content ---------------------------------#
 
+<<<<<<< HEAD
 #begin TestEnemy.png
+=======
+#begin TempTexture.png
+>>>>>>> 3a8cc8af5b3ba7c7df870201af8d4058973e1c55
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -23,7 +27,11 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
+<<<<<<< HEAD
 /build:TestEnemy.png
+=======
+/build:TempTexture.png
+>>>>>>> 3a8cc8af5b3ba7c7df870201af8d4058973e1c55
 
 #begin TileSpriteSheet.png
 /importer:TextureImporter
