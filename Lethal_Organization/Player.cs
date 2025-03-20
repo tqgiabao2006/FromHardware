@@ -23,6 +23,7 @@ namespace Lethal_Organization
         //Fields
         private KeyboardState currentKb;
         private KeyboardState prevKb;
+        private MouseState mouse;
         private PlayerState playerState;
         private bool airborne;
 
@@ -37,6 +38,9 @@ namespace Lethal_Organization
             set { airborne = value; }
         }
 
+        /// <summary>
+        /// Read only position property for use with enemy patrol
+        /// </summary>
         public Rectangle Position
         {
             get { return position; }
@@ -45,6 +49,7 @@ namespace Lethal_Organization
         public override void Update(GameTime gameTime)
         {
             currentKb = Keyboard.GetState();
+            mouse = Mouse.GetState();
             Move();
             prevKb = Keyboard.GetState();
         }
@@ -57,28 +62,52 @@ namespace Lethal_Organization
             if (currentKb.IsKeyDown(Keys.A) || currentKb.IsKeyDown(Keys.Left))
             {
                 position.X -= (int)speed.X;
+                playerState = PlayerState.Run;
             }
             if (currentKb.IsKeyDown(Keys.D) || currentKb.IsKeyDown(Keys.Right))
             {
                 position.X += (int)speed.X;
+                playerState = PlayerState.Run;
             }
             if ((currentKb.IsKeyDown(Keys.W) || currentKb.IsKeyDown(Keys.Up) || currentKb.IsKeyDown(Keys.Space)) && !airborne)
             {
                 position.Y -= (int)speed.Y;
                 playerState = PlayerState.Jump;
             }
+            if (mouse.LeftButton == ButtonState.Pressed)
+            {
+                Attack();
+                playerState = PlayerState.Attack;
+            }
+            if (airborne)
+            {
+                position.Y -= (int)speed.Y / 5;
+            }
+            if (currentKb.GetPressedKeyCount() == 0 && !airborne)
+            {
+                playerState = PlayerState.Idle;
+            }
         }
 
+        /// <summary>
+        /// Jump relevant logic and animation
+        /// </summary>
         private void Jump()
         {
 
         }
 
+        /// <summary>
+        /// Attack relevant logic and animation
+        /// </summary>
         private void Attack()
         {
 
         }
 
+        /// <summary>
+        /// NOt sure what this is supposed to be
+        /// </summary>
         private void SpecialAttack()
         {
 
