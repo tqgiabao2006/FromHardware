@@ -11,6 +11,7 @@ public class Game1 : Game
     
     //Level:
     private Texture2D _tileSpriteSheet;
+    private Level _level;
 
     public Game1()
     {
@@ -31,7 +32,14 @@ public class Game1 : Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         //Test-only
         _tileSpriteSheet = Content.Load<Texture2D>("TileSpriteSheet");
-        Level level = new Level(_tileSpriteSheet, "../../../Content/textureMap.txt", 1,1, _spriteBatch);
+        _level = new Level(
+            _tileSpriteSheet, //Sprite sheet
+            "../../../Content/textureMap.txt",  //Texture map file path
+            "../../../Content/LevelDesign.csv", //Level design file path
+            3, //Draw height scale
+            3,  //Draw width scale
+            _spriteBatch);
+        
     }
 
     protected override void Update(GameTime gameTime)
@@ -46,8 +54,16 @@ public class Game1 : Game
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
+        _spriteBatch.Begin(
+            SpriteSortMode.Deferred, 
+            null, 
+            SamplerState.PointClamp, // Prevents texture blurring because we do pixel art
+            null,
+            null  
+        );
 
-
+        _level.Draw(_spriteBatch);
+        _spriteBatch.End();
         base.Draw(gameTime);
     }
 }

@@ -21,14 +21,26 @@ public class Level
     private int _drawWidthScale;
 
     private Dictionary<string, Rectangle> _textureMap;
-
-    public Level(Texture2D spriteSheet, string textureMapFile, int drawnHeightScale, int drawWidthScale, SpriteBatch spriteBatch)
+    private Tile[,] _levelDesign;
+    public Level(Texture2D spriteSheet, string textureMapFile, string levelDesignFile, int drawnHeightScale, int drawWidthScale, SpriteBatch spriteBatch)
     {
         this._spriteSheet = spriteSheet;
         this._spriteBatch = spriteBatch;
+        this._drawWidthScale = drawWidthScale;
+        this._drawHeightScale = drawnHeightScale;
         
         _textureMap = new Dictionary<string, Rectangle>();
-
+        
+        InitializeTextureMap(textureMapFile);
+        InitializeMapDesign(levelDesignFile);
+    }
+    
+    /// <summary>
+    /// Read and save each sprite to dictionary as a rectangle 
+    /// </summary>
+    /// <param name="textureMapFile"></param>
+    private void InitializeTextureMap(string textureMapFile)
+    {
         StreamReader reader = null;
         try
         {
@@ -58,11 +70,11 @@ public class Level
                 {
                     _textureMap.Add(
                         data[0], //Tile Name
-                        new Rectangle(
+                        new Rectangle( //Source Rect
                             int.Parse(data[2]) * 16, //X-pivot = ColIndex * 16 (16 is standard pixel scale, no space between tile)
                             int.Parse(data[1]) * 16, //Y-pivot = RowIndex * 16 
-                            int.Parse(data[2]) * 16 + currentWidth, //Width = X-pivot + current width
-                            int.Parse(data[1]) * 16 + currentWidth) //Height = Y-Pivot + current height
+                            currentWidth, 
+                            currentHeight)
                     );
                 }
             }
@@ -78,5 +90,91 @@ public class Level
                 reader.Close();
             }
         }
+    }
+
+    /// <summary>
+    /// Read csv file to initialize the tile() object, save to array[,] map, ready to drawn in the window
+    /// </summary>
+    private void InitializeMapDesign(string levelDesignFile)
+    {
+        StreamReader reader = null;
+        
+        try
+        {
+            int currentRow = 0;
+            reader = new StreamReader(levelDesignFile);
+
+            string line = "";
+            while ((line = reader.ReadLine()) != null)
+            {
+                if (line[0] == '/' || line[0] == '=')
+                {
+                    continue;
+                }
+                
+                string[] data = line.Split(',');
+                if (data.Length == 2 && _levelDesign == null)
+                {
+                    _levelDesign = new Tile[int.Parse(data[0]), int.Parse(data[1])]; //Initialize with 2D array row x col
+                }
+                else if(data.Length > 2)
+                {
+                    for (int col = 0; col < data.Length; col++)
+                    {
+                        if (data[col] != "")
+                        {
+                            Rectangle sourceRec = _textureMap[data[col]];
+                            _levelDesign[currentRow, col] = new Tile
+                            (
+                                //PosRec
+                                new Rectangle(col * 16 * _drawHeightScale, 
+                                                     currentRow * 16 * _drawHeightScale, 
+                                                     sourceRec.Width *_drawWidthScale,
+                                                     sourceRec.Height * _drawHeightScale),
+                                sourceRec,
+                                _spriteSheet
+                            );
+                        }
+                    }
+                    
+                    currentRow++;
+                }
+                
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            throw;
+        }
+      finally
+      {
+          if (reader != null)
+          {
+              reader.Close();
+          }
+      }           
+    }
+
+    /// <summary>
+    /// Draw tile
+    /// Expected to call sb.Begin()/End() elsewhere
+    /// </summary>
+    /// <param name="spriteBatch"></param>
+    public void Draw(SpriteBatch spriteBatch)
+    {
+        if (_levelDesign == null || _levelDesign.GetLength(0) == 0) return;
+
+        for (int i = 0; i < _levelDesign.GetLength(0); i++)
+        {
+            for (int j = 0; j < _levelDesign.GetLength(1); j++)
+            {
+                if (_levelDesign[i, j] != null)
+                {
+                    _levelDesign[i, j].Draw(spriteBatch);
+                }
+            }
+        }
+        
     }
 }

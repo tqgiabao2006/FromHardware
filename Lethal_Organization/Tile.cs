@@ -17,32 +17,13 @@ public class Tile
     /// <param name="colIndex">Which column is the source tile in the sprite sheet?</param>
     /// <param name = "width" > Pixel width of the tile
     /// <param name = "height" > Pixel height of the tile
-    public Tile(Rectangle posRect, Texture2D spriteSheet, int rowIndex, int colIndex, int width, int height)
+    public Tile(Rectangle posRect, Rectangle sourceRect,Texture2D spriteSheet)
    {
        this._spriteSheet = spriteSheet;
        this._posRect = posRect;
-       this._sourceRect = CalculateSourceRect(spriteSheet, rowIndex, colIndex, width, height);
+       this._sourceRect = sourceRect;
    }
-
     
-    /// <summary>
-    /// STANDARD PIXEL OF COLUMNS AND ROWS: 16X16
-    /// CalculateSourceRect base on row index, col index, pixel rate
-    /// No space between each tile
-    /// </summary>
-    /// <param name="spriteSheet"></param>
-    /// <param name="rowIndex"></param>
-    /// <param name="colIndex"></param>
-    /// <returns></returns>
-    private Rectangle CalculateSourceRect(Texture2D spriteSheet, int rowIndex, int colIndex, int width, int height)
-    {
-        return new Rectangle
-        (rowIndex * 16   //Standard pixel in sprite sheet is 16x16
-        , colIndex * 16
-        , width, height);
-    }
-
-
 
     /// <summary>
     /// Draw tile
