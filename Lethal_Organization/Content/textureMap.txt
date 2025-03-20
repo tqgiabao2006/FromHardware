@@ -1,5 +1,5 @@
 // Use sprite sheet: "TileSpriteSheet.png"
-// Format: 
+// Naming convention: Main(The package used: Main, Boss, or Deco)_Description_Direction,Row Index, Col Index 
 // Size
 // String name (defined in csv file), row index, col index,each row, col is 16 pixel
 // Pixel is Row x Column: 16 x 32 = 16 width, 32 length
