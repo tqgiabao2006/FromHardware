@@ -43,6 +43,9 @@ public class Game1 : Game
             1, //Draw height scale
            1,  //Draw width scale
             _spriteBatch);
+
+        //test enemy
+        
     }
 
     protected override void Update(GameTime gameTime)
