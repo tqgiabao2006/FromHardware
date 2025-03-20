@@ -18,6 +18,7 @@ namespace Lethal_Organization
         private EnemyState _state = EnemyState.Patrol;
         // false : left, true : right
         private bool _enemyDirection = false;
+        private int _playerXPos;
         public override void Update(GameTime gameTime)
         {
             switch(_state)
@@ -26,8 +27,13 @@ namespace Lethal_Organization
                     Patrol();
                     if (_enemyDirection)
                     {
-                        //position.X += speed.X;
+                        position.X += (int)speed.X;
                     }
+                    if (!_enemyDirection)
+                    {
+                        position.X -= (int)speed.X;
+                    }
+                    //if ()
                     break;
 
                 case EnemyState.Chase:
