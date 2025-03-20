@@ -34,12 +34,12 @@ namespace Lethal_Organization
 
         public bool CollisionWith(GameObject other)
         {
-            return true;
+            return position.Intersects(other.position);
         }
 
-        public Rectangle CollisionWith(Rectangle offset)
+        public Rectangle CollisionWith(Rectangle other)
         {
-            return new Rectangle(0, 0, 0, 0);
+            return Rectangle.Intersect(position, other);
         }
 
         protected void DealDamage(IGetHit iCanGetHit)
