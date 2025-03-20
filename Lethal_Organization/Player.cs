@@ -46,12 +46,24 @@ namespace Lethal_Organization
             get { return position; }
         }
 
+        public Player(Texture2D sprite)
+        {
+            texture = sprite;
+            position = new Rectangle(0, 0, 75, 48);
+            airborne = true;
+        }
+
         public override void Update(GameTime gameTime)
         {
             currentKb = Keyboard.GetState();
             mouse = Mouse.GetState();
             Move();
             prevKb = Keyboard.GetState();
+        }
+
+        public override void Draw(SpriteBatch sb)
+        {
+            sb.Draw(texture, position, Color.White);
         }
 
         /// <summary>
