@@ -8,7 +8,11 @@ public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
-    
+    private Player player;
+
+    //Test Player Sprite
+    private Texture2D playerSprite;
+
     //Level:
     private Texture2D _tileSpriteSheet;
     private Level _level;
@@ -36,10 +40,13 @@ public class Game1 : Game
             _tileSpriteSheet, //Sprite sheet
             "../../../Content/textureMap.txt",  //Texture map file path
             "../../../Content/LevelDesign.csv", //Level design file path
-            3, //Draw height scale
-            3,  //Draw width scale
+            1, //Draw height scale
+           1,  //Draw width scale
             _spriteBatch);
-        
+
+        playerSprite = Content.Load<Texture2D>("TempTexture");
+
+        player = new Player(playerSprite);
     }
 
     protected override void Update(GameTime gameTime)
@@ -47,7 +54,7 @@ public class Game1 : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
-
+        player.Update(gameTime);
         base.Update(gameTime);
     }
 
@@ -61,7 +68,7 @@ public class Game1 : Game
             null,
             null  
         );
-
+        player.Draw(_spriteBatch);
         _level.Draw(_spriteBatch);
         _spriteBatch.End();
         base.Draw(gameTime);
