@@ -52,6 +52,7 @@ namespace Lethal_Organization
             position = new Rectangle(0, 0, 75, 48);
             sourceImg = new Rectangle(0, 0, 75, 48);
             airborne = true;
+            speed = new Vector2(10, 3);
         }
 
         public override void Update(GameTime gameTime)
@@ -79,7 +80,7 @@ namespace Lethal_Organization
             }
             if (currentKb.IsKeyDown(Keys.D) || currentKb.IsKeyDown(Keys.Right))
             {
-                position.X += (int)speed.X;
+                this.position.X += (int)speed.X;
                 playerState = PlayerState.Run;
             }
             if ((currentKb.IsKeyDown(Keys.W) || currentKb.IsKeyDown(Keys.Up) || currentKb.IsKeyDown(Keys.Space)) && !airborne)
@@ -94,7 +95,7 @@ namespace Lethal_Organization
             }
             if (airborne)
             {
-                position.Y -= (int)speed.Y / 5;
+                position.Y += (int)speed.Y / 2;
             }
             if (currentKb.GetPressedKeyCount() == 0 && !airborne)
             {
