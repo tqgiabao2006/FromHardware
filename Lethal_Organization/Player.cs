@@ -50,6 +50,7 @@ namespace Lethal_Organization
         {
             texture = sprite;
             position = new Rectangle(0, 0, 75, 48);
+            sourceImg = new Rectangle(0, 0, 75, 48);
             airborne = true;
         }
 

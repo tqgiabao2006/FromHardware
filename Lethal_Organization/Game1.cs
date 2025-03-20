@@ -44,15 +44,15 @@ public class Game1 : Game
            1,  //Draw width scale
             _spriteBatch);
 
-        //test enemy
-        
+        playerSprite = Content.Load<Texture2D>("TempTexture");
+        player = new Player(playerSprite);
     }
 
     protected override void Update(GameTime gameTime)
     {
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
-
+        player.Update(gameTime);
         base.Update(gameTime);
     }
 
@@ -67,6 +67,7 @@ public class Game1 : Game
             null  
         );
         _level.Draw(_spriteBatch);
+        player.Draw(_spriteBatch);
         _spriteBatch.End();
         base.Draw(gameTime);
     }
