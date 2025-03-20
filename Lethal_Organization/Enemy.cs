@@ -19,6 +19,7 @@ namespace Lethal_Organization
         // false : left, true : right
         private bool _enemyDirection = false;
         private int _playerXPos;
+        private Rectangle _tempPlatform;
         public override void Update(GameTime gameTime)
         {
             switch(_state)
@@ -33,7 +34,14 @@ namespace Lethal_Organization
                     {
                         position.X -= (int)speed.X;
                     }
-                    //if ()
+                    if (position.X <= _tempPlatform.X)
+                    {
+                        _enemyDirection = true;
+                    }
+                    if (position.X + position.Width >= _tempPlatform.X + _tempPlatform.Width)
+                    {
+                        _enemyDirection = false;
+                    }
                     break;
 
                 case EnemyState.Chase:

@@ -45,6 +45,9 @@ public class Game1 : Game
            1,  //Draw width scale
             _spriteBatch);
 
+        playerSprite = Content.Load<Texture2D>("TempTexture");
+        player = new Player(playerSprite);
+
         // Load and initialize the test button
         _testButton = new Button(Content, new Vector2(100, 100));
     }
@@ -53,6 +56,7 @@ public class Game1 : Game
     {
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
+        player.Update(gameTime);
 
         // Update button state
         _testButton.Update(gameTime);
@@ -71,6 +75,7 @@ public class Game1 : Game
             null  
         );
         _level.Draw(_spriteBatch);
+        player.Draw(_spriteBatch);
 
         // Draw the test button
         _testButton.Draw(_spriteBatch);
