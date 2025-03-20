@@ -8,7 +8,11 @@ public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
-    
+    private Player player;
+
+    //Test Player Sprite
+    private Texture2D playerSprite;
+
     //Level:
     private Texture2D _tileSpriteSheet;
     private Level _level;
@@ -39,6 +43,8 @@ public class Game1 : Game
             3, //Draw height scale
             3,  //Draw width scale
             _spriteBatch);
+
+        
         
     }
 
