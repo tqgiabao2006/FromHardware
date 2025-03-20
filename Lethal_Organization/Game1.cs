@@ -10,6 +10,7 @@ public class Game1 : Game
     private SpriteBatch _spriteBatch;
     private Player player;
     private Enemy testEnemy;
+    private Button _testButton;
 
     //Test Player Sprite
     private Texture2D playerSprite;
@@ -50,6 +51,9 @@ public class Game1 : Game
         playerSprite = Content.Load<Texture2D>("TempTexture");
         player = new Player(playerSprite);
 
+        // Load and initialize the test button
+        _testButton = new Button(Content, new Vector2(100, 100));
+
         enemySprite = Content.Load<Texture2D>("TestEnemy");
         testEnemy = new Enemy(enemySprite);
     }
@@ -59,6 +63,10 @@ public class Game1 : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
         player.Update(gameTime);
+
+        // Update button state
+        _testButton.Update(gameTime);
+
         testEnemy.Update(gameTime);
         base.Update(gameTime);
     }
@@ -75,6 +83,10 @@ public class Game1 : Game
         );
         _level.Draw(_spriteBatch);
         player.Draw(_spriteBatch);
+
+        // Draw the test button
+        _testButton.Draw(_spriteBatch);
+
         testEnemy.Draw(_spriteBatch);
         _spriteBatch.End();
         base.Draw(gameTime);
