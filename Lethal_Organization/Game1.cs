@@ -9,9 +9,12 @@ public class Game1 : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private Player player;
+    private Enemy testEnemy;
 
     //Test Player Sprite
     private Texture2D playerSprite;
+
+    private Texture2D enemySprite;
 
     //Level:
     private Texture2D _tileSpriteSheet;
@@ -46,6 +49,9 @@ public class Game1 : Game
 
         playerSprite = Content.Load<Texture2D>("TempTexture");
         player = new Player(playerSprite);
+
+        enemySprite = Content.Load<Texture2D>("TestEnemy");
+        testEnemy = new Enemy(enemySprite);
     }
 
     protected override void Update(GameTime gameTime)
@@ -53,6 +59,7 @@ public class Game1 : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
         player.Update(gameTime);
+        testEnemy.Update(gameTime);
         base.Update(gameTime);
     }
 
@@ -68,6 +75,7 @@ public class Game1 : Game
         );
         _level.Draw(_spriteBatch);
         player.Draw(_spriteBatch);
+        testEnemy.Draw(_spriteBatch);
         _spriteBatch.End();
         base.Draw(gameTime);
     }
