@@ -44,8 +44,9 @@ public class Game1 : Game
             3,  //Draw width scale
             _spriteBatch);
 
-        
-        
+        playerSprite = Content.Load<Texture2D>("TempTexture");
+
+        player = new Player(playerSprite);
     }
 
     protected override void Update(GameTime gameTime)
@@ -53,7 +54,7 @@ public class Game1 : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
-
+        player.Update(gameTime);
         base.Update(gameTime);
     }
 
@@ -67,7 +68,7 @@ public class Game1 : Game
             null,
             null  
         );
-
+        player.Draw(_spriteBatch);
         _level.Draw(_spriteBatch);
         _spriteBatch.End();
         base.Draw(gameTime);
