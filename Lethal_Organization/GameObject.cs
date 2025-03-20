@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Lethal_Organization
 {
-    internal abstract class GameObject : IGetHit
+    internal abstract class GameObject : IGetHit, IDrawable, IUpdateable
     {
         protected int hp;
         public int HP
@@ -27,7 +27,16 @@ namespace Lethal_Organization
 
         public virtual void Draw(SpriteBatch sb)
         {
-
+            sb.Draw(
+            texture,
+            position,
+            sourceImg,
+            Color.White,
+            0,
+            Vector2.Zero,
+            SpriteEffects.None,
+            0
+            );
         }
 
         public abstract void Update(GameTime gameTime);
