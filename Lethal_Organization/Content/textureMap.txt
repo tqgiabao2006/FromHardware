@@ -32,8 +32,6 @@ Main_Block_TopLeft,0,11
 Main_Block_BotLeft,3,11
 Main_Block_TopRight,0,17
 Main_Block_BotRight,3,17
-Main_SpikeBlock_Right,13,7
-Main_SpikeBlock_Left,13,10
 =============================================================
 32,64
 =============================================================
