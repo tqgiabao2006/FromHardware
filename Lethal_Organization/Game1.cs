@@ -40,8 +40,8 @@ public class Game1 : Game
             _tileSpriteSheet, //Sprite sheet
             "../../../Content/textureMap.txt",  //Texture map file path
             "../../../Content/LevelDesign.csv", //Level design file path
-            3, //Draw height scale
-            3,  //Draw width scale
+            1, //Draw height scale
+           1,  //Draw width scale
             _spriteBatch);
 
         
@@ -67,7 +67,6 @@ public class Game1 : Game
             null,
             null  
         );
-
         _level.Draw(_spriteBatch);
         _spriteBatch.End();
         base.Draw(gameTime);
