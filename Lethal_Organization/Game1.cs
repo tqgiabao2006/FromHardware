@@ -9,6 +9,7 @@ public class Game1 : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private Player player;
+    private Button _testButton;
 
     //Test Player Sprite
     private Texture2D playerSprite;
@@ -43,12 +44,18 @@ public class Game1 : Game
             1, //Draw height scale
            1,  //Draw width scale
             _spriteBatch);
+
+        // Load and initialize the test button
+        _testButton = new Button(Content, new Vector2(100, 100));
     }
 
     protected override void Update(GameTime gameTime)
     {
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
+
+        // Update button state
+        _testButton.Update(gameTime);
 
         base.Update(gameTime);
     }
@@ -64,6 +71,10 @@ public class Game1 : Game
             null  
         );
         _level.Draw(_spriteBatch);
+
+        // Draw the test button
+        _testButton.Draw(_spriteBatch);
+
         _spriteBatch.End();
         base.Draw(gameTime);
     }

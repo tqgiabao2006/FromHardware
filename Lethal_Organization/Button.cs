@@ -1,9 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,45 +25,51 @@ namespace Lethal_Organization
         private bool _isHovered;
         private bool _isPressed;
 
+        private Rectangle _buttonRect;  // To store button dimensions
 
-        public Button(Texture2D menuButtonTexture, Texture2D smollButtonTexture, Vector2 position)
+        public Button(ContentManager content, Vector2 position)
         {
-            _menuButtonTexture = menuButtonTexture;
-            _smollButtonTexture = smollButtonTexture;
+            _menuButtonTexture = content.Load<Texture2D>("menu_button01");
+            _smollButtonTexture = content.Load<Texture2D>("Smoll_Button");
             _position = position;
 
-            _bounds = new Rectangle((int)position.X, (int)position.Y, menuButtonTexture.Width, menuButtonTexture.Height);
+            // Initialize the button rectangle for size detection
+            _buttonRect = new Rectangle((int)_position.X, (int)_position.Y, _menuButtonTexture.Width, _menuButtonTexture.Height);
         }
 
         public void Draw(SpriteBatch sb)
         {
-            Texture2D textureToDraw;
-            Color colorToUse;
-
-            if (_isHovered)
+            // Draw the appropriate button texture depending on whether it's clicked or not
+            if (_isPressed)
             {
-                textureToDraw = _smollButtonTexture;
-                colorToUse = _hoveredColor;
+                sb.Draw(_smollButtonTexture, _position, _clickedColor);
+            }
+            else if (_isHovered)
+            {
+                sb.Draw(_smollButtonTexture, _position, _hoveredColor);
             }
             else
             {
-                textureToDraw = _menuButtonTexture;
-                colorToUse = _defaultColor;
+                sb.Draw(_menuButtonTexture, _position, Color.White);
             }
-
-            if (_isPressed)
-            {
-                colorToUse = _clickedColor;
-            }
-
-            sb.Draw(textureToDraw, _position, colorToUse);
         }
 
         public void Update(GameTime gameTime)
-        {
-            MouseState mouse = Mouse.GetState();
-            _isHovered = _bounds.Contains(mouse.Position);
-            _isPressed = _isHovered && mouse.LeftButton == ButtonState.Pressed;
+        { // Get current mouse state
+            MouseState mouseState = Mouse.GetState();
+
+            // Check if the mouse is hovering over the button
+            _isHovered = _buttonRect.Contains(mouseState.Position);
+
+            // Handle mouse click
+            if (_isHovered && mouseState.LeftButton == ButtonState.Pressed)
+            {
+                _isPressed = true;
+            }
+            else if (mouseState.LeftButton == ButtonState.Released)
+            {
+                _isPressed = false;
+            }
         }
 
         private bool isPressed()
