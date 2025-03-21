@@ -17,12 +17,12 @@ namespace Lethal_Organization
     internal class Enemy : GameObject
     {
         private EnemyState _state = EnemyState.Patrol;
-        // false : left, true : right
+        // false : left  ,  true : right
         private bool _enemyDirection = true;
 
         //temp values
         private int _playerXPos;
-        private Rectangle _tempPlatform = new Rectangle(200, 200, 200, 10);
+        private Rectangle _tempPlatform = new Rectangle(50, 200, 200, 10);
 
 
         public Enemy(Texture2D sprite)
