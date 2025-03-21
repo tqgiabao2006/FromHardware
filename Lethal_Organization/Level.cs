@@ -11,7 +11,7 @@ namespace Lethal_Organization;
 /// Save to fileIO the layout of level
 /// 
 /// </summary>
-public class Level
+public class Level: IDrawable
 {
     private SpriteBatch _spriteBatch; 
         
@@ -167,7 +167,7 @@ public class Level
     /// Expected to call sb.Begin()/End() elsewhere
     /// </summary>
     /// <param name="spriteBatch"></param>
-    public void Draw(SpriteBatch spriteBatch)
+    public void Draw(SpriteBatch spriteBatch, bool isDebug)
     {
         if (_levelDesign == null || _levelDesign.GetLength(0) == 0) return;
 
@@ -177,7 +177,7 @@ public class Level
             {
                 if (_levelDesign[i, j] != null)
                 {
-                    _levelDesign[i, j].Draw(spriteBatch);
+                    _levelDesign[i, j].Draw(spriteBatch, isDebug); 
                 }
             }
         }

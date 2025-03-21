@@ -44,8 +44,8 @@ public class Game1 : Game
             _tileSpriteSheet, //Sprite sheet
             "../../../Content/textureMap.txt",  //Texture map file path
             "../../../Content/LevelDesign.csv", //Level design file path
-            1, //Draw height scale
-           1,  //Draw width scale
+            3, //Draw height scale
+           3,  //Draw width scale
             _spriteBatch);
 
         playerSprite = Content.Load<Texture2D>("TempTexture");
@@ -81,13 +81,13 @@ public class Game1 : Game
             null,
             null  
         );
-        _level.Draw(_spriteBatch);
-        player.Draw(_spriteBatch);
+        _level.Draw(_spriteBatch, true);
+        player.Draw(_spriteBatch, true);
 
         // Draw the test button
-        _testButton.Draw(_spriteBatch);
+        _testButton.Draw(_spriteBatch, true);
 
-        testEnemy.Draw(_spriteBatch);
+        testEnemy.Draw(_spriteBatch, true);
         _spriteBatch.End();
         base.Draw(gameTime);
     }

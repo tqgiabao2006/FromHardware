@@ -25,7 +25,7 @@ namespace Lethal_Organization
         protected Vector2 speed;
         protected int damage;
 
-        public virtual void Draw(SpriteBatch sb)
+        public virtual void Draw(SpriteBatch sb, bool isDebug)
         {
             sb.Draw(
             texture,

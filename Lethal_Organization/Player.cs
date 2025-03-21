@@ -41,7 +41,7 @@ namespace Lethal_Organization
             texture = sprite;
             position = new Rectangle(0, 0, 75, 48);
             sourceImg = new Rectangle(0, 0, 75, 48);
-           
+            _level = tile;
             speed = new Vector2(10, 3);
         }
 
@@ -53,9 +53,10 @@ namespace Lethal_Organization
             prevKb = Keyboard.GetState();
         }
 
-        public override void Draw(SpriteBatch sb)
+        public override void Draw(SpriteBatch sb, bool isDebug)
         {
             sb.Draw(texture, position, Color.White);
+            CustomDebug.DrawRectOutline(sb, position, 3, Color.Blue);
         }
 
         /// <summary>
@@ -124,11 +125,17 @@ namespace Lethal_Organization
                 for(int j = 0; j < _level.GetLength(1); j++)
                 {
                     //Check collision
+                    if (_level[i,j] == null)
+                    {
+                        continue;
+                    }
                     if (this.Collides(_level[i,j].PosRect))
                     {
                         //Check player stand on the collider
-                        if (this.position.Y > this.CollisionWith(_level[i,j].PosRect).Y)
+                        Rectangle collidedObj = this.CollisionWith(_level[i, j].PosRect);
+                        if (this.position.Y > collidedObj.Y)
                         {
+                            this.position.Y += collidedObj.Y;
                             return true;
                         }
                     }

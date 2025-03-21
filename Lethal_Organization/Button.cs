@@ -37,7 +37,7 @@ namespace Lethal_Organization
             _buttonRect = new Rectangle((int)_position.X, (int)_position.Y, _menuButtonTexture.Width, _menuButtonTexture.Height);
         }
 
-        public void Draw(SpriteBatch sb)
+        public void Draw(SpriteBatch sb, bool isDebug)
         {
             // Draw the appropriate button texture depending on whether it's clicked or not
             if (_isPressed)

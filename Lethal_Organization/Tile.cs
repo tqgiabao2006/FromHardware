@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Lethal_Organization;
 
-public class Tile
+public class Tile: IDrawable
 {
    private Rectangle _posRect;
    private Rectangle _sourceRect;
@@ -35,8 +35,9 @@ public class Tile
     /// Expected to call sb.Begin()/End() elsewhere
     /// </summary>
     /// <param name="spriteBatch"></param>
-    public void Draw(SpriteBatch spriteBatch)
+    public void Draw(SpriteBatch spriteBatch, bool isDebug)
     {
+       
         spriteBatch.Draw(
             _spriteSheet,
             _posRect,
@@ -47,6 +48,11 @@ public class Tile
             SpriteEffects.None,
             0
             );
+
+        if (isDebug)
+        {
+            CustomDebug.DrawRectOutline(spriteBatch, this._posRect, 3, Color.Blue);
+        }
     }
    
 

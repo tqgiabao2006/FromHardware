@@ -66,7 +66,7 @@ namespace Lethal_Organization
             }
         }
 
-        public override void Draw(SpriteBatch sb)
+        public override void Draw(SpriteBatch sb, bool isDebug)
         {
             sb.Draw(
                 texture,
