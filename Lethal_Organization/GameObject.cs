@@ -41,9 +41,9 @@ namespace Lethal_Organization
 
         public abstract void Update(GameTime gameTime);
 
-        public bool CollisionWith(GameObject other)
+        public bool Collides (Rectangle other)
         {
-            return position.Intersects(other.position);
+            return position.Intersects(other);
         }
 
         public Rectangle CollisionWith(Rectangle other)

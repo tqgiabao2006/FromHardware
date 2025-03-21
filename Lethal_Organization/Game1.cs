@@ -49,7 +49,7 @@ public class Game1 : Game
             _spriteBatch);
 
         playerSprite = Content.Load<Texture2D>("TempTexture");
-        player = new Player(playerSprite);
+        player = new Player(playerSprite, _level.LevelDesign);
 
         // Load and initialize the test button
         _testButton = new Button(Content, new Vector2(100, 100));

@@ -25,18 +25,8 @@ namespace Lethal_Organization
         private KeyboardState prevKb;
         private MouseState mouse;
         private PlayerState playerState;
-        private bool airborne;
 
-        /// <summary>
-        /// Determines whether the player
-        /// is airborne and whether they 
-        /// can jump currently
-        /// </summary>
-        public bool Airborne
-        {
-            get { return airborne; }
-            set { airborne = value; }
-        }
+        private Tile[,] _level;
 
         /// <summary>
         /// Read only position property for use with enemy patrol
@@ -46,12 +36,12 @@ namespace Lethal_Organization
             get { return position; }
         }
 
-        public Player(Texture2D sprite)
+        public Player(Texture2D sprite, Tile[,] tile)
         {
             texture = sprite;
             position = new Rectangle(0, 0, 75, 48);
             sourceImg = new Rectangle(0, 0, 75, 48);
-            airborne = true;
+           
             speed = new Vector2(10, 3);
         }
 
@@ -83,7 +73,7 @@ namespace Lethal_Organization
                 this.position.X += (int)speed.X;
                 playerState = PlayerState.Run;
             }
-            if ((currentKb.IsKeyDown(Keys.W) || currentKb.IsKeyDown(Keys.Up) || currentKb.IsKeyDown(Keys.Space)) && !airborne)
+            if ((currentKb.IsKeyDown(Keys.W) || currentKb.IsKeyDown(Keys.Up) || currentKb.IsKeyDown(Keys.Space)) && OnGround())
             {
                 position.Y -= (int)speed.Y;
                 playerState = PlayerState.Jump;
@@ -93,11 +83,11 @@ namespace Lethal_Organization
                 Attack();
                 playerState = PlayerState.Attack;
             }
-            if (airborne)
+            if (!OnGround())
             {
                 position.Y += (int)speed.Y / 2;
             }
-            if (currentKb.GetPressedKeyCount() == 0 && !airborne)
+            if (currentKb.GetPressedKeyCount() == 0 && OnGround())
             {
                 playerState = PlayerState.Idle;
             }
@@ -125,6 +115,26 @@ namespace Lethal_Organization
         private void SpecialAttack()
         {
 
+        }
+
+        private bool OnGround()
+        {
+            for(int i= 0; i < _level.GetLength(0); i++)
+            {
+                for(int j = 0; j < _level.GetLength(1); j++)
+                {
+                    //Check collision
+                    if (this.Collides(_level[i,j].PosRect))
+                    {
+                        //Check player stand on the collider
+                        if (this.position.Y > this.CollisionWith(_level[i,j].PosRect).Y)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
     }
 }

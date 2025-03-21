@@ -16,12 +16,18 @@ public class Level
     private SpriteBatch _spriteBatch; 
         
     private Texture2D _spriteSheet;
-    private Tile[,] _map;
     private int _drawHeightScale; //Scale of the real image drawn in window for each tile. If tile 16x32, scale 2 => 32x64
     private int _drawWidthScale;
 
     private Dictionary<string, Rectangle> _textureMap;
     private Tile[,] _levelDesign;
+
+    public Tile[,] LevelDesign
+    {
+        get { return _levelDesign; }
+    }
+
+
     public Level(Texture2D spriteSheet, string textureMapFile, string levelDesignFile, int drawnHeightScale, int drawWidthScale, SpriteBatch spriteBatch)
     {
         this._spriteSheet = spriteSheet;

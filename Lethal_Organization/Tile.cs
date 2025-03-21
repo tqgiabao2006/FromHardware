@@ -8,6 +8,11 @@ public class Tile
    private Rectangle _posRect;
    private Rectangle _sourceRect;
    private Texture2D _spriteSheet;
+
+    public Rectangle PosRect
+    {
+        get { return _posRect; }
+    }
        
     /// <summary>
     /// Constructs a LevelTile object
