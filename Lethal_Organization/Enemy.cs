@@ -19,8 +19,10 @@ namespace Lethal_Organization
         private EnemyState _state = EnemyState.Patrol;
         // false : left, true : right
         private bool _enemyDirection = true;
+
+        //temp values
         private int _playerXPos;
-        private Rectangle _tempPlatform;
+        private Rectangle _tempPlatform = new Rectangle(200, 200, 200, 10);
 
 
         public Enemy(Texture2D sprite)
@@ -37,6 +39,7 @@ namespace Lethal_Organization
             {
                 case EnemyState.Patrol:
                     Patrol();
+                    //moves enemy based on which way it's facing
                     if (_enemyDirection)
                     {
                         position.X += (int)speed.X;
@@ -45,7 +48,7 @@ namespace Lethal_Organization
                     {
                         position.X -= (int)speed.X;
                     }
-                    /*
+                    //turns enemy around at the edge of a platform
                     if (position.X <= _tempPlatform.X)
                     {
                         _enemyDirection = true;
@@ -54,7 +57,7 @@ namespace Lethal_Organization
                     {
                         _enemyDirection = false;
                     }
-                    */
+                    
                     break;
 
                 case EnemyState.Chase:
