@@ -8,14 +8,14 @@ public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
-    private Player player;
-    private Enemy testEnemy;
+    private Player _player;
+    private Enemy _testEnemy;
     private Button _testButton;
 
     //Test Player Sprite
-    private Texture2D playerSprite;
+    private Texture2D _playerSprite;
 
-    private Texture2D enemySprite;
+    private Texture2D _enemySprite;
 
     //Level:
     private Texture2D _tileSpriteSheet;
@@ -48,26 +48,26 @@ public class Game1 : Game
            3,  //Draw width scale
             _spriteBatch);
 
-        playerSprite = Content.Load<Texture2D>("TempTexture");
-        player = new Player(playerSprite, _level.LevelDesign);
+        _playerSprite = Content.Load<Texture2D>("TempTexture");
+        _player = new Player(_playerSprite, _level.LevelDesign);
 
         // Load and initialize the test button
         _testButton = new Button(Content, new Vector2(100, 100));
 
-        enemySprite = Content.Load<Texture2D>("TestEnemy");
-        testEnemy = new Enemy(enemySprite);
+        _enemySprite = Content.Load<Texture2D>("TestEnemy");
+        _testEnemy = new Enemy(_enemySprite);
     }
 
     protected override void Update(GameTime gameTime)
     {
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
-        player.Update(gameTime);
+        _player.Update(gameTime);
 
         // Update button state
         _testButton.Update(gameTime);
 
-        testEnemy.Update(gameTime);
+        _testEnemy.Update(gameTime);
         base.Update(gameTime);
     }
 
@@ -82,12 +82,12 @@ public class Game1 : Game
             null  
         );
         _level.Draw(_spriteBatch, true);
-        player.Draw(_spriteBatch, true);
+        _player.Draw(_spriteBatch, true);
 
         // Draw the test button
         _testButton.Draw(_spriteBatch, true);
 
-        testEnemy.Draw(_spriteBatch, true);
+        _testEnemy.Draw(_spriteBatch, true);
         _spriteBatch.End();
         base.Draw(gameTime);
     }
