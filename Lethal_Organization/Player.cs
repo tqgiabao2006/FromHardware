@@ -62,7 +62,11 @@ namespace Lethal_Organization
         public override void Draw(SpriteBatch sb, bool isDebug)
         {
             sb.Draw(texture, position, Color.White);
-            CustomDebug.DrawRectOutline(sb, position, 3, Color.Blue);
+
+            if (isDebug)
+            {
+                CustomDebug.DrawWireRectangle(sb, position, 0.5f, Color.Red);
+            }
         }
 
         /// <summary>

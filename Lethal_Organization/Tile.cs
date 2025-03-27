@@ -34,11 +34,11 @@ public class Tile: IDrawable
     /// Draw tile
     /// Expected to call sb.Begin()/End() elsewhere
     /// </summary>
-    /// <param name="spriteBatch"></param>
-    public void Draw(SpriteBatch spriteBatch, bool isDebug)
+    /// <param name="sb"></param>
+    public void Draw(SpriteBatch sb, bool isDebug)
     {
        
-        spriteBatch.Draw(
+        sb.Draw(
             _spriteSheet,
             _posRect,
             _sourceRect,
@@ -51,7 +51,7 @@ public class Tile: IDrawable
 
         if (isDebug)
         {
-            CustomDebug.DrawRectOutline(spriteBatch, this._posRect, 3, Color.Blue);
+            CustomDebug.DrawWireRectangle(sb, _posRect, 0.5f, Color.Aqua);
         }
     }
    
