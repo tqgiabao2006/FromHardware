@@ -24,9 +24,14 @@ namespace Lethal_Organization
         private KeyboardState currentKb;
         private KeyboardState prevKb;
         private MouseState mouse;
-        private PlayerState playerState;
+        private bool _isGround;
+        public PlayerState playerState;
 
         private Tile[,] _level;
+
+        private Vector2 playerVelocity = Vector2.Zero;
+        private Vector2 jumpVelocity = new Vector2(0, -15.0f);
+        private Vector2 gravity = new Vector2(0, 0.5f);
 
         /// <summary>
         /// Read only position property for use with enemy patrol
@@ -51,6 +56,7 @@ namespace Lethal_Organization
             mouse = Mouse.GetState();
             Move();
             prevKb = Keyboard.GetState();
+
         }
 
         public override void Draw(SpriteBatch sb, bool isDebug)
@@ -75,8 +81,10 @@ namespace Lethal_Organization
                 playerState = PlayerState.Run;
             }
             if ((currentKb.IsKeyDown(Keys.W) || currentKb.IsKeyDown(Keys.Up) || currentKb.IsKeyDown(Keys.Space)) && OnGround())
+
             {
-                position.Y -= (int)speed.Y;
+                playerVelocity = jumpVelocity;
+                position.Y += (int)playerVelocity.Y;
                 playerState = PlayerState.Jump;
             }
             if (mouse.LeftButton == ButtonState.Pressed)
@@ -84,9 +92,11 @@ namespace Lethal_Organization
                 Attack();
                 playerState = PlayerState.Attack;
             }
+
             if (!OnGround())
             {
-                position.Y += (int)speed.Y / 2;
+                playerVelocity += gravity;
+                position.Y += (int)playerVelocity.Y;
             }
             if (currentKb.GetPressedKeyCount() == 0 && OnGround())
             {
@@ -118,7 +128,7 @@ namespace Lethal_Organization
 
         }
 
-        private bool OnGround()
+        public bool OnGround()
         {
             for(int i= 0; i < _level.GetLength(0); i++)
             {
@@ -133,11 +143,12 @@ namespace Lethal_Organization
                     {
                         //Check player stand on the collider
                         Rectangle collidedObj = this.CollisionWith(_level[i, j].PosRect);
-                        if (this.position.Y > collidedObj.Y)
+                        if (position.Y + position.Height >= collidedObj.Y)
                         {
-                            this.position.Y += collidedObj.Y;
-                            return true;
+                            position.Y -= collidedObj.Height;
                         }
+                        return true;
+
                     }
                 }
             }

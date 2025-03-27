@@ -12,6 +12,8 @@ public class Game1 : Game
     private Enemy _testEnemy;
     private Button _testButton;
 
+    private SpriteFont _font;
+
     //Test Player Sprite
     private Texture2D _playerSprite;
 
@@ -47,6 +49,8 @@ public class Game1 : Game
             3, //Draw height scale
            3,  //Draw width scale
             _spriteBatch);
+
+        _font = Content.Load<SpriteFont>("Arial20");
 
         _playerSprite = Content.Load<Texture2D>("TempTexture");
         _player = new Player(_playerSprite, _level.LevelDesign);
@@ -87,7 +91,24 @@ public class Game1 : Game
         // Draw the test button
         _testButton.Draw(_spriteBatch, true);
 
-        _testEnemy.Draw(_spriteBatch, true);
+        if (_player.OnGround())
+        {
+            _spriteBatch.DrawString(
+                _font,
+                "On ground: True",
+                new Vector2(10, 10),
+                Color.White);
+        }
+        else
+        {
+            _spriteBatch.DrawString(
+                _font,
+                "On ground: False",
+                new Vector2(10, 10),
+                Color.White);
+        }
+
+            _testEnemy.Draw(_spriteBatch, true);
         _spriteBatch.End();
         base.Draw(gameTime);
     }
