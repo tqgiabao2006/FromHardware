@@ -22,7 +22,7 @@ namespace Lethal_Organization
         protected Rectangle position;
         protected Rectangle sourceImg;
         protected Texture2D texture;
-        protected Vector2 speed;
+        protected float speed;
         protected int damage;
 
         public virtual void Draw(SpriteBatch sb, bool isDebug)

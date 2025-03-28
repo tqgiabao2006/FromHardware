@@ -113,20 +113,16 @@ public class Game1 : Game
             _player._playerState.ToString(),
             new Vector2(_player.Position.X, _player.Position.Y),
             Color.Red);
-        
-        CustomDebug.DrawLine(
-            _spriteBatch,
-            new Vector2(_player.Position.X + _player.Position.Width/2f, _player.Position.Y + _player.Position.Height/2f),
-            new Vector2(_player.Position.X + _player.Position.Width/2f, _player.Position.Y + _player.Position.Height/2f + 40),
-            1f, Color.Red);
-        
-        _spriteBatch.DrawString(
-            _font,
-            "*", 
-            new Vector2(_player.Position.X + _player.Position.Width/2f,  _player.Position.Y + _player.Position.Height/2f + 40),
-            Color.DarkBlue);
 
-            _testEnemy.Draw(_spriteBatch, true);
+        _spriteBatch.DrawString(
+                     _font,
+                    $"Velocity: {_player.Velocity.X}, {_player.Velocity.Y}",
+                     new Vector2(10, 50),
+                     Color.White);
+
+
+
+        _testEnemy.Draw(_spriteBatch, true);
         _spriteBatch.End();
         base.Draw(gameTime);
     }

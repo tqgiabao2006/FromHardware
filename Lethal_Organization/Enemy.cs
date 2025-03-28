@@ -23,18 +23,22 @@ namespace Lethal_Organization
         //temp values
         private int _playerXPos;
         private Rectangle _tempPlatform = new Rectangle(50, 200, 200, 10);
+        private Vector2 _velocity;
 
 
         public Enemy(Texture2D sprite)
         {
             texture = sprite;
             position = new Rectangle(10, 10, 48, 48);
-            speed = new Vector2(3, 3);
+            speed = 5;
+            _velocity = Vector2.Zero;
         }
 
 
         public override void Update(GameTime gameTime)
         {
+            position.X +=(int)_velocity.X;
+            position.Y += (int)_velocity.Y;
             switch(_state)
             {
                 case EnemyState.Patrol:
@@ -42,11 +46,11 @@ namespace Lethal_Organization
                     //moves enemy based on which way it's facing
                     if (_enemyDirection)
                     {
-                        position.X += (int)speed.X;
+                        _velocity.X = speed;
                     }
                     if (!_enemyDirection)
                     {
-                        position.X -= (int)speed.X;
+                        _velocity.X = -speed;
                     }
                     //turns enemy around at the edge of a platform
                     if (position.X <= _tempPlatform.X)
