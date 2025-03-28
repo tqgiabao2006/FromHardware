@@ -46,6 +46,7 @@ namespace Lethal_Organization
             return position.Intersects(other);
         }
 
+
         public Rectangle CollisionWith(Rectangle other)
         {
             return Rectangle.Intersect(position, other);

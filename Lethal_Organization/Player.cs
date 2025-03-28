@@ -20,26 +20,17 @@ namespace Lethal_Organization
 
     internal class Player : GameObject
     {
-        //Fields
-        private KeyboardState currentKb;
-        private KeyboardState prevKb;
-        private MouseState mouse;
-        private bool _isGround;
-        public PlayerState playerState;
-
+        private KeyboardState _currentKb, _prevKb;
+        private MouseState _mouse;
+        public bool _onGround;
+        public PlayerState _playerState;
+        public float _rayCastLength;
         private Tile[,] _level;
+        private Vector2 _playerVelocity = Vector2.Zero;
+        private Vector2 _jumpVelocity = new Vector2(0, -15.0f);
+        private Vector2 _gravity = new Vector2(0, 0.5f);
 
-        private Vector2 playerVelocity = Vector2.Zero;
-        private Vector2 jumpVelocity = new Vector2(0, -15.0f);
-        private Vector2 gravity = new Vector2(0, 0.5f);
-
-        /// <summary>
-        /// Read only position property for use with enemy patrol
-        /// </summary>
-        public Rectangle Position
-        {
-            get { return position; }
-        }
+        public Rectangle Position => position;
 
         public Player(Texture2D sprite, Tile[,] tile)
         {
@@ -47,116 +38,87 @@ namespace Lethal_Organization
             position = new Rectangle(0, 0, 75, 48);
             sourceImg = new Rectangle(0, 0, 75, 48);
             _level = tile;
-            speed = new Vector2(10, 3);
+            _playerState = PlayerState.Jump;
+            _rayCastLength = 40f;
+            speed = new Vector2(5, 0);
         }
 
         public override void Update(GameTime gameTime)
         {
-            currentKb = Keyboard.GetState();
-            mouse = Mouse.GetState();
+            _currentKb = Keyboard.GetState();
+            _mouse = Mouse.GetState();
             Move();
-            prevKb = Keyboard.GetState();
-
+            _playerVelocity += _gravity;
+            position.Y += (int)_playerVelocity.Y;
+            _prevKb = _currentKb;
         }
 
         public override void Draw(SpriteBatch sb, bool isDebug)
         {
             sb.Draw(texture, position, Color.White);
-
-            if (isDebug)
-            {
-                CustomDebug.DrawWireRectangle(sb, position, 0.5f, Color.Red);
-            }
+            if (isDebug) CustomDebug.DrawWireRectangle(sb, position, 0.5f, Color.Red);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void Move()
         {
-            if (currentKb.IsKeyDown(Keys.A) || currentKb.IsKeyDown(Keys.Left))
+            _onGround = OnGround();
+            switch (_playerState)
             {
-                position.X -= (int)speed.X;
-                playerState = PlayerState.Run;
+                case PlayerState.Idle:
+                    if ((_currentKb.IsKeyDown(Keys.A) || _currentKb.IsKeyDown(Keys.Left) ||
+                         _currentKb.IsKeyDown(Keys.D) || _currentKb.IsKeyDown(Keys.Right)) && _onGround)
+                        _playerState = PlayerState.Run;
+                    else if ((_currentKb.IsKeyDown(Keys.W) || _currentKb.IsKeyDown(Keys.Up) || _currentKb.IsKeyDown(Keys.Space)) && _onGround)
+                    {
+                        _playerVelocity = _jumpVelocity;
+                        _playerState = PlayerState.Jump;
+                    }
+                    break;
+                case PlayerState.Run:
+                    if (_currentKb.IsKeyDown(Keys.A) || _currentKb.IsKeyDown(Keys.Left))
+                        position.X -= (int)speed.X;
+                    else if (_currentKb.IsKeyDown(Keys.D) || _currentKb.IsKeyDown(Keys.Right))
+                        position.X += (int)speed.X;
+                    if (_currentKb.GetPressedKeyCount() == 0) _playerState = PlayerState.Idle;
+                    else if ((_currentKb.IsKeyDown(Keys.W) || _currentKb.IsKeyDown(Keys.Up) || _currentKb.IsKeyDown(Keys.Space)) && _onGround)
+                    {
+                        _playerVelocity = _jumpVelocity;
+                        _playerState = PlayerState.Jump;
+                    }
+                    break;
+                case PlayerState.Jump:
+                    if (_onGround)
+                    {
+                        StayOnGround();
+                        _playerState = PlayerState.Idle;
+                    }
+                    break;
             }
-            if (currentKb.IsKeyDown(Keys.D) || currentKb.IsKeyDown(Keys.Right))
-            {
-                this.position.X += (int)speed.X;
-                playerState = PlayerState.Run;
-            }
-            if ((currentKb.IsKeyDown(Keys.W) || currentKb.IsKeyDown(Keys.Up) || currentKb.IsKeyDown(Keys.Space)) && OnGround())
-
-            {
-                playerVelocity = jumpVelocity;
-                position.Y += (int)playerVelocity.Y;
-                playerState = PlayerState.Jump;
-            }
-            if (mouse.LeftButton == ButtonState.Pressed)
-            {
-                Attack();
-                playerState = PlayerState.Attack;
-            }
-
-            if (!OnGround())
-            {
-                playerVelocity += gravity;
-                position.Y += (int)playerVelocity.Y;
-            }
-            if (currentKb.GetPressedKeyCount() == 0 && OnGround())
-            {
-                playerState = PlayerState.Idle;
-            }
-        }
-
-        /// <summary>
-        /// Jump relevant logic and animation
-        /// </summary>
-        private void Jump()
-        {
-
-        }
-
-        /// <summary>
-        /// Attack relevant logic and animation
-        /// </summary>
-        private void Attack()
-        {
-
-        }
-
-        /// <summary>
-        /// NOt sure what this is supposed to be
-        /// </summary>
-        private void SpecialAttack()
-        {
-
         }
 
         public bool OnGround()
         {
-            for(int i= 0; i < _level.GetLength(0); i++)
+            foreach (var tile in _level)
             {
-                for(int j = 0; j < _level.GetLength(1); j++)
-                {
-                    //Check collision
-                    if (_level[i,j] == null)
-                    {
-                        continue;
-                    }
-                    if (this.Collides(_level[i,j].PosRect))
-                    {
-                        //Check player stand on the collider
-                        Rectangle collidedObj = this.CollisionWith(_level[i, j].PosRect);
-                        if (position.Y + position.Height >= collidedObj.Y)
-                        {
-                            position.Y -= collidedObj.Height;
-                        }
-                        return true;
-
-                    }
-                }
+                if (tile == null) continue;
+                if (OnHead(tile.PosRect)) return true;
             }
             return false;
         }
+
+        public void StayOnGround()
+        {
+            foreach (var tile in _level)
+            {
+                if (tile == null) continue;
+                if (Collides(tile.PosRect))
+                {
+                    Rectangle collidedObj = CollisionWith(tile.PosRect);
+                    if (position.Y + position.Height >= collidedObj.Y)
+                        position.Y = collidedObj.Y - position.Height;
+                }
+            }
+        }
     }
 }
+

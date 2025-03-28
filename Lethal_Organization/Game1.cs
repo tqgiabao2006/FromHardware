@@ -91,7 +91,7 @@ public class Game1 : Game
         // Draw the test button
         _testButton.Draw(_spriteBatch, true);
 
-        if (_player.OnGround())
+        if (_player._onGround)
         {
             _spriteBatch.DrawString(
                 _font,
@@ -107,6 +107,24 @@ public class Game1 : Game
                 new Vector2(10, 10),
                 Color.White);
         }
+        
+        _spriteBatch.DrawString(
+            _font,
+            _player._playerState.ToString(),
+            new Vector2(_player.Position.X, _player.Position.Y),
+            Color.Red);
+        
+        CustomDebug.DrawLine(
+            _spriteBatch,
+            new Vector2(_player.Position.X + _player.Position.Width/2f, _player.Position.Y + _player.Position.Height/2f),
+            new Vector2(_player.Position.X + _player.Position.Width/2f, _player.Position.Y + _player.Position.Height/2f + 40),
+            1f, Color.Red);
+        
+        _spriteBatch.DrawString(
+            _font,
+            "*", 
+            new Vector2(_player.Position.X + _player.Position.Width/2f,  _player.Position.Y + _player.Position.Height/2f + 40),
+            Color.DarkBlue);
 
             _testEnemy.Draw(_spriteBatch, true);
         _spriteBatch.End();
