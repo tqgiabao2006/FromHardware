@@ -49,8 +49,9 @@ namespace Lethal_Organization
             position = new Rectangle(0, 0, 75, 48);
             sourceImg = new Rectangle(0, 0, 75, 48);
             _level = tile;
-            _playerState = PlayerState.Jump;
+            _playerState = PlayerState.Idle;
             _rayCastLength = 40f;
+            speed.X = 5;
         }
 
         public override void Update(GameTime gameTime)
@@ -77,22 +78,25 @@ namespace Lethal_Organization
         /// </summary>
         private void Move()
         {
-            _onGround = OnGround();
+            _playerVelocity += _gravity;
+            position.Y += (int)_playerVelocity.Y;
+
+            Collisions();
+
             switch(_playerState)
             {
                 case PlayerState.Idle:
 
                     if ((_currentKb.IsKeyDown(Keys.A) || _currentKb.IsKeyDown(Keys.Left) 
-                        || (_currentKb.IsKeyDown(Keys.D) || _currentKb.IsKeyDown(Keys.Right))
-                        && _onGround))
+                        || _currentKb.IsKeyDown(Keys.D) || _currentKb.IsKeyDown(Keys.Right))
+                        )
                     {
                         _playerState = PlayerState.Run;
 
                     } else if((_currentKb.IsKeyDown(Keys.W) || _currentKb.IsKeyDown(Keys.Up) || _currentKb.IsKeyDown(Keys.Space)) 
                         && _onGround)
                     {
-                         _playerVelocity = _jumpVelocity;
-                         position.Y += (int)_playerVelocity.Y;
+                         
                         _playerState = PlayerState.Jump;
                         
                     } 
@@ -115,8 +119,7 @@ namespace Lethal_Organization
                                _currentKb.IsKeyDown(Keys.Space))
                               && _onGround)
                     {
-                         _playerVelocity = _jumpVelocity;
-                         position.Y += (int)_playerVelocity.Y;
+                         
                         _playerState = PlayerState.Jump;
                     }
                     
@@ -126,14 +129,10 @@ namespace Lethal_Organization
                     break;
 
                 case PlayerState.Jump:
-
-                    _playerVelocity += _gravity;
+                    _onGround = false;
+                    _playerVelocity = _jumpVelocity;
                     position.Y += (int)_playerVelocity.Y;
-                    if (_onGround)
-                    {
-                        StayOnGround();
-                        _playerState = PlayerState.Idle;
-                    }
+                    _playerState = PlayerState.Idle;
                     break;
             }
            
@@ -222,5 +221,60 @@ namespace Lethal_Organization
                  }
              }
          }
+
+        public bool Collisions()
+        {
+            List<Rectangle> intersectedObj = new List<Rectangle>();
+            for (int i = 0; i < _level.GetLength(0); i++)
+            {
+                for (int j = 0; j < _level.GetLength(1); j++)
+                {
+                    if (_level[i, j] == null)
+                    {
+                        continue;
+                    }
+                    if (this.Collides(_level[i, j].PosRect))
+                    {
+                        intersectedObj.Add(_level[i, j].PosRect);
+                    }
+                }
+            }
+
+            
+
+
+            foreach (Rectangle rec in intersectedObj)
+            {
+                Rectangle intersect = Rectangle.Intersect(rec, position);
+                if (intersect.Height > intersect.Width)
+                {
+                    if (rec.X > position.X)
+                    {
+                        position.X -= intersect.Width;
+                    }
+                    else
+                    {
+                        position.X += intersect.Width;
+                    }
+
+                }
+                else
+                {
+                    if (rec.Y > position.Y)
+                    {
+                        position.Y -= intersect.Height;
+                    }
+                    else
+                    {
+
+                        position.Y += intersect.Height;
+                    }
+                    _playerVelocity.Y = 0;
+                    _onGround = true;
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }
