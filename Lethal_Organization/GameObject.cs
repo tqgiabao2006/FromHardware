@@ -46,6 +46,10 @@ namespace Lethal_Organization
             return position.Intersects(other);
         }
 
+        public bool OnHead(Rectangle other)
+        {
+            return  other.Y - position.Y  < 2 && position.Y + position.Height <= other.Y;
+        }
 
         public Rectangle CollisionWith(Rectangle other)
         {

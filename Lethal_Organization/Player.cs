@@ -20,17 +20,28 @@ namespace Lethal_Organization
 
     internal class Player : GameObject
     {
-        private KeyboardState _currentKb, _prevKb;
+        //Fields
+        private KeyboardState _currentKb;
+        private KeyboardState _prevKb;
         private MouseState _mouse;
         public bool _onGround;
         public PlayerState _playerState;
+
         public float _rayCastLength;
+
         private Tile[,] _level;
+
         private Vector2 _playerVelocity = Vector2.Zero;
         private Vector2 _jumpVelocity = new Vector2(0, -15.0f);
         private Vector2 _gravity = new Vector2(0, 0.5f);
 
-        public Rectangle Position => position;
+        /// <summary>
+        /// Read only position property for use with enemy patrol
+        /// </summary>
+        public Rectangle Position
+        {
+            get { return position; }
+        }
 
         public Player(Texture2D sprite, Tile[,] tile)
         {
@@ -40,7 +51,6 @@ namespace Lethal_Organization
             _level = tile;
             _playerState = PlayerState.Jump;
             _rayCastLength = 40f;
-            speed = new Vector2(5, 0);
         }
 
         public override void Update(GameTime gameTime)
@@ -48,45 +58,77 @@ namespace Lethal_Organization
             _currentKb = Keyboard.GetState();
             _mouse = Mouse.GetState();
             Move();
-            _playerVelocity += _gravity;
-            position.Y += (int)_playerVelocity.Y;
-            _prevKb = _currentKb;
+            _prevKb = Keyboard.GetState();
+
         }
 
         public override void Draw(SpriteBatch sb, bool isDebug)
         {
             sb.Draw(texture, position, Color.White);
-            if (isDebug) CustomDebug.DrawWireRectangle(sb, position, 0.5f, Color.Red);
+
+            if (isDebug)
+            {
+                CustomDebug.DrawWireRectangle(sb, position, 0.5f, Color.Red);
+            }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void Move()
         {
             _onGround = OnGround();
-            switch (_playerState)
+            switch(_playerState)
             {
                 case PlayerState.Idle:
-                    if ((_currentKb.IsKeyDown(Keys.A) || _currentKb.IsKeyDown(Keys.Left) ||
-                         _currentKb.IsKeyDown(Keys.D) || _currentKb.IsKeyDown(Keys.Right)) && _onGround)
-                        _playerState = PlayerState.Run;
-                    else if ((_currentKb.IsKeyDown(Keys.W) || _currentKb.IsKeyDown(Keys.Up) || _currentKb.IsKeyDown(Keys.Space)) && _onGround)
+
+                    if ((_currentKb.IsKeyDown(Keys.A) || _currentKb.IsKeyDown(Keys.Left) 
+                        || (_currentKb.IsKeyDown(Keys.D) || _currentKb.IsKeyDown(Keys.Right))
+                        && _onGround))
                     {
-                        _playerVelocity = _jumpVelocity;
+                        _playerState = PlayerState.Run;
+
+                    } else if((_currentKb.IsKeyDown(Keys.W) || _currentKb.IsKeyDown(Keys.Up) || _currentKb.IsKeyDown(Keys.Space)) 
+                        && _onGround)
+                    {
+                         _playerVelocity = _jumpVelocity;
+                         position.Y += (int)_playerVelocity.Y;
                         _playerState = PlayerState.Jump;
-                    }
+                        
+                    } 
                     break;
+
                 case PlayerState.Run:
                     if (_currentKb.IsKeyDown(Keys.A) || _currentKb.IsKeyDown(Keys.Left))
-                        position.X -= (int)speed.X;
-                    else if (_currentKb.IsKeyDown(Keys.D) || _currentKb.IsKeyDown(Keys.Right))
-                        position.X += (int)speed.X;
-                    if (_currentKb.GetPressedKeyCount() == 0) _playerState = PlayerState.Idle;
-                    else if ((_currentKb.IsKeyDown(Keys.W) || _currentKb.IsKeyDown(Keys.Up) || _currentKb.IsKeyDown(Keys.Space)) && _onGround)
                     {
-                        _playerVelocity = _jumpVelocity;
+                        position.X -= (int)speed.X;
+                    }else if (_currentKb.IsKeyDown(Keys.D) || _currentKb.IsKeyDown(Keys.Right))
+                    {
+                        position.X += (int)speed.X;
+                    }
+                    
+                    
+                    if (_currentKb.GetPressedKeyCount() == 0)
+                    {
+                        _playerState = PlayerState.Idle;
+                    }else if ((_currentKb.IsKeyDown(Keys.W) || _currentKb.IsKeyDown(Keys.Up) ||
+                               _currentKb.IsKeyDown(Keys.Space))
+                              && _onGround)
+                    {
+                         _playerVelocity = _jumpVelocity;
+                         position.Y += (int)_playerVelocity.Y;
                         _playerState = PlayerState.Jump;
                     }
+                    
                     break;
+                case PlayerState.Attack:
+                    
+                    break;
+
                 case PlayerState.Jump:
+
+                    _playerVelocity += _gravity;
+                    position.Y += (int)_playerVelocity.Y;
                     if (_onGround)
                     {
                         StayOnGround();
@@ -94,31 +136,91 @@ namespace Lethal_Organization
                     }
                     break;
             }
+           
         }
 
+        /// <summary>
+        /// Jump relevant logic and animation
+        /// </summary>
+        private void Jump()
+        {
+
+        }
+
+        /// <summary>
+        /// Attack relevant logic and animation
+        /// </summary>
+        private void Attack()
+        {
+
+        }
+
+        /// <summary>
+        /// NOt sure what this is supposed to be
+        /// </summary>
+        private void SpecialAttack()
+        {
+
+        }
         public bool OnGround()
         {
-            foreach (var tile in _level)
+            for(int i= 0; i < _level.GetLength(0); i++)
             {
-                if (tile == null) continue;
-                if (OnHead(tile.PosRect)) return true;
+                for(int j = 0; j < _level.GetLength(1); j++)
+                {
+                    //Check collision
+                    if (_level[i,j] == null)
+                    {
+                        continue;
+                    }
+                    if (this.Collides(_level[i,j].PosRect))
+                    {
+                        return true;
+
+                        //Check player stand on the collider
+                        Rectangle collidedObj = this.CollisionWith(_level[i, j].PosRect);
+                        if (position.Y + position.Height >= collidedObj.Y)
+                        {
+                            return true;
+                        }
+                        // //Check downward
+                        // Vector2 raycastPoint = new Vector2(position.X + position.Width/2f,  position.Y + position.Height/2f + _rayCastLength);
+                        //
+                        // if (collidedObj.X <= raycastPoint.X
+                        //     && collidedObj.X + collidedObj.Width >= raycastPoint.X
+                        //     && collidedObj.Y <= raycastPoint.Y
+                        //     & collidedObj.Y + collidedObj.Height >= raycastPoint.Y
+                        //    )
+                        // {
+                        //     return true;
+                        // }
+                    }
+                }
             }
             return false;
         }
-
-        public void StayOnGround()
-        {
-            foreach (var tile in _level)
-            {
-                if (tile == null) continue;
-                if (Collides(tile.PosRect))
-                {
-                    Rectangle collidedObj = CollisionWith(tile.PosRect);
-                    if (position.Y + position.Height >= collidedObj.Y)
-                        position.Y = collidedObj.Y - position.Height;
-                }
-            }
-        }
+         public void StayOnGround()
+         {
+             for(int i= 0; i < _level.GetLength(0); i++)
+             {
+                 for(int j = 0; j < _level.GetLength(1); j++)
+                 {
+                     //Check collision
+                     if (_level[i,j] == null)
+                     {
+                         continue;
+                     }
+                     if (this.Collides(_level[i,j].PosRect))
+                     {
+                         //Check player stand on the collider
+                         Rectangle collidedObj = this.CollisionWith(_level[i, j].PosRect);
+                         if (position.Y + position.Height >= collidedObj.Y)
+                         {
+                             position.Y = collidedObj.Y - position.Height;
+                         }
+                     }
+                 }
+             }
+         }
     }
 }
-
