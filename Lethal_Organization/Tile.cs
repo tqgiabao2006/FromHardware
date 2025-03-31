@@ -35,9 +35,10 @@ public class Tile: IDrawable
     /// Expected to call sb.Begin()/End() elsewhere
     /// </summary>
     /// <param name="sb"></param>
-    public void Draw(SpriteBatch sb, bool isDebug)
+    public void Draw(SpriteBatch sb, bool isDebug, Vector2 offset)
     {
-       
+        _posRect.X += (int)offset.X;
+        _posRect.Y += (int)offset.Y;
         sb.Draw(
             _spriteSheet,
             _posRect,
@@ -54,6 +55,15 @@ public class Tile: IDrawable
             CustomDebug.DrawWireRectangle(sb, _posRect, 0.5f, Color.Aqua);
         }
     }
-   
 
+    /// <summary>
+    /// Do not use
+    /// </summary>
+    /// <param name="sb"></param>
+    /// <param name="isDebug"></param>
+    /// <exception cref="System.NotImplementedException"></exception>
+    public void Draw(SpriteBatch sb, bool isDebug)
+    {
+        throw new System.NotImplementedException();
+    }
 }

@@ -18,6 +18,7 @@ public class Level: IDrawable
     private Texture2D _spriteSheet;
     private int _drawHeightScale; //Scale of the real image drawn in window for each tile. If tile 16x32, scale 2 => 32x64
     private int _drawWidthScale;
+    private Vector2 _offset;
 
     private Dictionary<string, Rectangle> _textureMap;
     private Tile[,] _levelDesign;
@@ -28,12 +29,13 @@ public class Level: IDrawable
     }
 
 
-    public Level(Texture2D spriteSheet, string textureMapFile, string levelDesignFile, int drawnHeightScale, int drawWidthScale, SpriteBatch spriteBatch)
+    public Level(Texture2D spriteSheet, string textureMapFile, string levelDesignFile, int drawnHeightScale, int drawWidthScale, SpriteBatch spriteBatch, Vector2 _offset)
     {
         this._spriteSheet = spriteSheet;
         this._spriteBatch = spriteBatch;
         this._drawWidthScale = drawWidthScale;
         this._drawHeightScale = drawnHeightScale;
+        this._offset = _offset;
         
         _textureMap = new Dictionary<string, Rectangle>();
         
@@ -177,7 +179,7 @@ public class Level: IDrawable
             {
                 if (_levelDesign[i, j] != null)
                 {
-                    _levelDesign[i, j].Draw(spriteBatch, isDebug); 
+                    _levelDesign[i, j].Draw(spriteBatch, isDebug, _offset); 
                 }
             }
         }
