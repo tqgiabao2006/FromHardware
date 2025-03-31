@@ -40,6 +40,8 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
+        _playerSprite = Content.Load<Texture2D>("TempTexture");
+        _player = new Player(_playerSprite, _graphics);
         //Test-only
         _tileSpriteSheet = Content.Load<Texture2D>("TileSpriteSheet");
         _level = new Level(
@@ -48,12 +50,12 @@ public class Game1 : Game
             "../../../Content/LevelDesign.csv", //Level design file path
             3, //Draw height scale
            3,  //Draw width scale
-            _spriteBatch);
+            _spriteBatch,
+            _player.CameraOffset);
 
         _font = Content.Load<SpriteFont>("Arial20");
 
-        _playerSprite = Content.Load<Texture2D>("TempTexture");
-        _player = new Player(_playerSprite, _level.LevelDesign);
+       
 
         // Load and initialize the test button
         _testButton = new Button(Content, new Vector2(100, 100));
@@ -66,7 +68,7 @@ public class Game1 : Game
     {
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
-        _player.Update(gameTime);
+        _player.Update(gameTime, _level.LevelDesign);
 
         // Update button state
         _testButton.Update(gameTime);

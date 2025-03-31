@@ -26,10 +26,11 @@ namespace Lethal_Organization
         private MouseState _mouse;
         public bool _onGround;
         public PlayerState _playerState;
+        private Rectangle worldPos;
+        private Vector2 cameraOffset;
 
         public float _rayCastLength;
 
-        private Tile[,] _level;
 
         private Vector2 _velocity = Vector2.Zero;
         private float _gravity;
@@ -50,13 +51,21 @@ namespace Lethal_Organization
         {
             get { return position; }
         }
+        public Rectangle WorldPos
+        {
+            get { return worldPos; }
+        }
+        public Vector2 CameraOffset
+        {
+            get { return cameraOffset; }
+        }
 
-        public Player(Texture2D sprite, Tile[,] tile)
+        public Player(Texture2D sprite,  GraphicsDeviceManager graphics)
         {
             texture = sprite;
-            position = new Rectangle(0, 0, 75, 48);
+            position = new Rectangle((graphics.PreferredBackBufferWidth - 75)/2, (graphics.PreferredBackBufferHeight - 48)/2, 75, 48);
             sourceImg = new Rectangle(0, 0, 75, 48);
-            _level = tile;
+            cameraOffset = new Vector2(0, 0);
             _playerState = PlayerState.Jump;
             _rayCastLength = 40f;
             speed = 1;
@@ -66,11 +75,13 @@ namespace Lethal_Organization
            
         }
 
-        public override void Update(GameTime gameTime)
+        public void Update(GameTime gameTime, Tile[,] tile)
         {
             _currentKb = Keyboard.GetState();
             _mouse = Mouse.GetState();
-            Move();
+            cameraOffset.X = position.X - worldPos.X;
+            cameraOffset.Y = position.Y - worldPos.Y;
+            Move(tile);
             _prevKb = Keyboard.GetState();
 
         }
@@ -86,9 +97,9 @@ namespace Lethal_Organization
         }
 
         /// <summary>
-        /// 
+        /// Movement logic for player 
         /// </summary>
-        private void Move()
+        private void Move(Tile[,] tile)
         {
 
             if (_onGround)
@@ -97,12 +108,12 @@ namespace Lethal_Organization
             }
            _velocity.Y += _gravity;
 
-            position.X += (int)_velocity.X;
+            worldPos.X += (int)_velocity.X;
 
-            position.Y += (int)_velocity.Y;
+            worldPos.Y += (int)_velocity.Y;
 
 
-            StayOnGround();
+            //StayOnGround(tile);
 
             switch (_playerState)
             {
@@ -224,7 +235,7 @@ namespace Lethal_Organization
 
 
         }
-        public void StayOnGround()
+        public void StayOnGround(Tile[,] _level)
         {
             bool hasCollided = false;
             for (int i = 0; i < _level.GetLength(0); i++)
@@ -268,5 +279,13 @@ namespace Lethal_Organization
             _onGround = hasCollided;
         }
 
+        /// <summary>
+        /// Currently useless
+        /// </summary>
+        /// <param name="gameTime"></param>
+        public override void Update(GameTime gameTime)
+        {
+           
+        }
     }
 }
