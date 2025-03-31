@@ -6,35 +6,51 @@ using System.Threading.Tasks;
 
 namespace Lethal_Organization
 {
-
-    public enum GameState
-    {
-
-    }
-
     internal class GameManager
     {
         private static GameManager _instance;
-        private static readonly object _lock = new object();
+        
+        public enum GameState
+        {
+            Menu,
+            Game,
+            Pause,
+            GameOver
+        }
+        
+        public event Action<GameState> StateChangedAction = delegate { };
+        private GameState _currentState;
 
-        private GameManager() { }
+        public GameState CurrentState
+        {
+            get
+            {
+                return _currentState;
+            }
+            set
+            {
+                _currentState = value;
+                StateChangedAction(_currentState);
+            }
+        }
+
+        private GameManager()
+        {
+
+        }
 
         public static GameManager Instance
         {
             get
             {
                 if (_instance == null)
-                {
-                    lock (_lock)
-                    {
-                        if (_instance == null)
-                        {
-                            _instance = new GameManager();
-                        }
-                    }
+                { 
+                   _instance = new GameManager();
                 }
                 return _instance;
             }
         }
+        
+        
     }
 }
