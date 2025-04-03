@@ -47,8 +47,8 @@ public class Game1 : Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _playerSprite = Content.Load<Texture2D>("TempTexture");
-        _playerSpriteSheet = Content.Load<Texture2D>("_playerSpriteSheet");
-        _player = new Player(_playerSprite, _graphics);
+        _playerSpriteSheet = Content.Load<Texture2D>("PlayerSpriteSheet");
+        _player = new Player(_playerSprite, _graphics, _level);
         //Test-only
         _tileSpriteSheet = Content.Load<Texture2D>("TileSpriteSheet");
         _level = new Level(

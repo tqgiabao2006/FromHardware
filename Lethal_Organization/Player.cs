@@ -29,6 +29,7 @@ namespace Lethal_Organization
         public PlayerState _playerState;
         private Rectangle worldPos;
         private Vector2 cameraOffset;
+        private Level level;
         private Dictionary<string, Rectangle> _playerSprites;
 
         public float _rayCastLength;
@@ -74,6 +75,7 @@ namespace Lethal_Organization
             _maxSpeed = 4;
             _jumpForce = -10;
             _gravity = 2;
+            this.level = level;
 
             InitializePlayerSprites("playerTileMap");
            
