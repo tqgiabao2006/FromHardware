@@ -19,7 +19,7 @@ namespace Lethal_Organization
             }
         }
 
-        protected Rectangle position;
+        protected Rectangle cameraPos;
         protected Rectangle sourceImg;
         protected Texture2D texture;
         protected float speed;
@@ -29,7 +29,7 @@ namespace Lethal_Organization
         {
             sb.Draw(
             texture,
-            position,
+            cameraPos,
             sourceImg,
             Color.White,
             0,
@@ -43,17 +43,17 @@ namespace Lethal_Organization
 
         public bool Collides (Rectangle other)
         {
-            return position.Intersects(other);
+            return cameraPos.Intersects(other);
         }
 
-        public bool OnHead(Rectangle other)
+        public bool OnHead(Rectangle screenPos)
         {
-            return  other.Y - position.Y  < 2 && position.Y + position.Height <= other.Y;
+            return  screenPos.Y - cameraPos.Y  < 2 && cameraPos.Y + cameraPos.Height <= screenPos.Y;
         }
 
-        public Rectangle CollisionWith(Rectangle other)
+        public Rectangle CollisionWith(Rectangle screenPos)
         {
-            return Rectangle.Intersect(position, other);
+            return Rectangle.Intersect(cameraPos, screenPos);
         }
 
         protected void DealDamage(IGetHit iCanGetHit)
