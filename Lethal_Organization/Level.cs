@@ -27,15 +27,19 @@ public class Level: IDrawable
     {
         get { return _levelDesign; }
     }
+    public Vector2 Offset
+    {
+        get { return _offset; }
+        set { _offset = value; }
+    }
 
 
-    public Level(Texture2D spriteSheet, string textureMapFile, string levelDesignFile, int drawnHeightScale, int drawWidthScale, SpriteBatch spriteBatch, Vector2 _offset)
+    public Level(Texture2D spriteSheet, string textureMapFile, string levelDesignFile, int drawnHeightScale, int drawWidthScale, SpriteBatch spriteBatch)
     {
         this._spriteSheet = spriteSheet;
         this._spriteBatch = spriteBatch;
         this._drawWidthScale = drawWidthScale;
         this._drawHeightScale = drawnHeightScale;
-        this._offset = _offset;
         
         _textureMap = new Dictionary<string, Rectangle>();
         

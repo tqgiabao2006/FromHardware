@@ -49,9 +49,9 @@ namespace Lethal_Organization
         /// <summary>
         /// Read only position property for use with enemy patrol
         /// </summary>
-        public Rectangle Position
+        public Rectangle CameraPos
         {
-            get { return position; }
+            get { return cameraPos; }
         }
         public Rectangle WorldPos
         {
@@ -62,17 +62,17 @@ namespace Lethal_Organization
             get { return cameraOffset; }
         }
 
-        public Player(Texture2D sprite,  GraphicsDeviceManager graphics)
+        public Player(Texture2D sprite,  GraphicsDeviceManager graphics, Level level)
         {
             texture = sprite;
-            position = new Rectangle((graphics.PreferredBackBufferWidth - 75)/2, (graphics.PreferredBackBufferHeight - 48)/2, 75, 48);
+            cameraPos = new Rectangle((graphics.PreferredBackBufferWidth - 75)/2, (graphics.PreferredBackBufferHeight - 48)/2, 75, 48);
             sourceImg = new Rectangle(0, 0, 75, 48);
             cameraOffset = new Vector2(0, 0);
             _playerState = PlayerState.Jump;
             _rayCastLength = 40f;
             speed = 1;
             _maxSpeed = 4;
-            _jumpForce = -30;
+            _jumpForce = -10;
             _gravity = 2;
 
             InitializePlayerSprites("playerTileMap");
@@ -83,8 +83,10 @@ namespace Lethal_Organization
         {
             _currentKb = Keyboard.GetState();
             _mouse = Mouse.GetState();
-            cameraOffset.X = position.X - worldPos.X;
-            cameraOffset.Y = position.Y - worldPos.Y;
+            cameraOffset.X = cameraPos.X - worldPos.X;
+            cameraOffset.Y = cameraPos.Y - worldPos.Y;
+            level.Offset = cameraOffset;
+            
             Move(tile);
             _prevKb = Keyboard.GetState();
 
@@ -92,11 +94,11 @@ namespace Lethal_Organization
 
         public override void Draw(SpriteBatch sb, bool isDebug)
         {
-            sb.Draw(texture, position, Color.White);
+            sb.Draw(texture, cameraPos, Color.White);
 
             if (isDebug)
             {
-                CustomDebug.DrawWireRectangle(sb, position, 0.5f, Color.Red);
+                CustomDebug.DrawWireRectangle(sb, cameraPos, 0.5f, Color.Red);
             }
         }
 
@@ -110,7 +112,6 @@ namespace Lethal_Organization
             {
                 _velocity.Y = 0;
             }
-           _velocity.Y += _gravity;
 
             worldPos.X += (int)_velocity.X;
 
@@ -176,6 +177,7 @@ namespace Lethal_Organization
                         _playerState = PlayerState.Jump;
                         _velocity.Y += _jumpForce;
                         _onGround = false;
+
                     }else if (!_onGround)
                     {
                         _playerState = PlayerState.Jump;
@@ -187,6 +189,10 @@ namespace Lethal_Organization
                     break;
 
                 case PlayerState.Jump:
+                    
+                    _velocity.Y += 0.2f;
+                    StayOnGround(tile);
+
 
                     if (_currentKb.IsKeyDown(Keys.A) || _currentKb.IsKeyDown(Keys.Left))
                     {
@@ -251,27 +257,28 @@ namespace Lethal_Organization
                     {
                         continue;
                     }
-                    if (this.Collides(_level[i, j].PosRect))
+                    if (this.Collides(_level[i, j].ScreenRec))
                     {
                         //Check player stand on the collider
-                        Rectangle collidedObj = this.CollisionWith(_level[i, j].PosRect);
-                        if (collidedObj.Width < collidedObj.Height && position.Y > _level[i, j].PosRect.Y)
+                        Rectangle collidedObj = this.CollisionWith(_level[i, j].ScreenRec);
+                        if (collidedObj.Width < collidedObj.Height && worldPos.Y > _level[i, j].ScreenRec.Y)
                         {
-                            if (collidedObj.X > position.X)
+                            if (collidedObj.X > worldPos.X)
                             {
-                                position.X -= collidedObj.Width;
+                                worldPos.X -= collidedObj.Width;
                             }
                             else
                             {
-                                position.X += collidedObj.Width;
+                                worldPos.X += collidedObj.Width;
                             }
                         }
                         
-                      else if (position.Y + position.Height >= collidedObj.Y && 
-                            (position.X + position.Width / 2 > _level[i, j].PosRect.X && 
-                            position.X + position.Width / 2 < _level[i, j].PosRect.X + _level[i, j].PosRect.Width))
+                      else if (worldPos.Y + worldPos.Height >= collidedObj.Y && 
+                            (worldPos.X + worldPos.Width / 2 > _level[i, j].ScreenRec.X &&
+                            worldPos.X + worldPos.Width / 2 < _level[i, j].ScreenRec.X + _level[i, j].ScreenRec.Width))
                         {
-                            position.Y -= collidedObj.Height;
+                            worldPos.Y -= collidedObj.Height;
+
                             _onGround = true;
                             hasCollided = true;
                             return;

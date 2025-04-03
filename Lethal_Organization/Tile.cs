@@ -3,17 +3,18 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Lethal_Organization;
 
-public class Tile: IDrawable
+public class Tile : IDrawable
 {
-   private Rectangle _posRect;
-   private Rectangle _sourceRect;
-   private Texture2D _spriteSheet;
+    private Rectangle _spawnRect;
+    private Rectangle _screenRect;
+    private Rectangle _sourceRect;
+    private Texture2D _spriteSheet;
 
-    public Rectangle PosRect
+    public Rectangle ScreenRec
     {
-        get { return _posRect; }
+        get { return _screenRect; }
     }
-       
+
     /// <summary>
     /// Constructs a LevelTile object
     /// </summary>
@@ -22,13 +23,14 @@ public class Tile: IDrawable
     /// <param name="colIndex">Which column is the source tile in the sprite sheet?</param>
     /// <param name = "width" > Pixel width of the tile
     /// <param name = "height" > Pixel height of the tile
-    public Tile(Rectangle posRect, Rectangle sourceRect,Texture2D spriteSheet)
-   {
-       this._spriteSheet = spriteSheet;
-       this._posRect = posRect;
-       this._sourceRect = sourceRect;
-   }
-    
+    public Tile(Rectangle spawnRect, Rectangle sourceRect, Texture2D spriteSheet)
+    {
+        this._spriteSheet = spriteSheet;
+        this._spawnRect = spawnRect;
+        this._sourceRect = sourceRect;
+        _screenRect = _spawnRect;
+    }
+
 
     /// <summary>
     /// Draw tile
@@ -37,11 +39,15 @@ public class Tile: IDrawable
     /// <param name="sb"></param>
     public void Draw(SpriteBatch sb, bool isDebug, Vector2 offset)
     {
-        _posRect.X += (int)offset.X;
-        _posRect.Y += (int)offset.Y;
+        //_posRect.X += (int)offset.X;
+        //_posRect.Y += (int)offset.Y;
+
+        _screenRect = new Rectangle(_spawnRect.X + (int)offset.X, _spawnRect.Y + (int)offset.Y, _spawnRect.Width, _spawnRect.Height);
+
+
         sb.Draw(
             _spriteSheet,
-            _posRect,
+            _screenRect,
             _sourceRect,
             Color.White,
             0,
@@ -52,7 +58,7 @@ public class Tile: IDrawable
 
         if (isDebug)
         {
-            CustomDebug.DrawWireRectangle(sb, _posRect, 0.5f, Color.Aqua);
+            CustomDebug.DrawWireRectangle(sb, _screenRect, 0.5f, Color.Aqua);
         }
     }
 
