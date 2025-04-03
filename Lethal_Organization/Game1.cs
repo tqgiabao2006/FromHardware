@@ -16,6 +16,7 @@ public class Game1 : Game
 
     //Test Player Sprite
     private Texture2D _playerSprite;
+    private Texture2D _playerSpriteSheet;
 
     private Texture2D _enemySprite;
 
@@ -41,6 +42,7 @@ public class Game1 : Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _playerSprite = Content.Load<Texture2D>("TempTexture");
+        _playerSpriteSheet = Content.Load<Texture2D>("_playerSpriteSheet");
         _player = new Player(_playerSprite, _graphics);
         //Test-only
         _tileSpriteSheet = Content.Load<Texture2D>("TileSpriteSheet");

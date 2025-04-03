@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,6 +29,7 @@ namespace Lethal_Organization
         public PlayerState _playerState;
         private Rectangle worldPos;
         private Vector2 cameraOffset;
+        private Dictionary<string, Rectangle> _playerSprites;
 
         public float _rayCastLength;
 
@@ -72,6 +74,8 @@ namespace Lethal_Organization
             _maxSpeed = 4;
             _jumpForce = -30;
             _gravity = 2;
+
+            InitializePlayerSprites("playerTileMap");
            
         }
 
@@ -277,6 +281,64 @@ namespace Lethal_Organization
             }
 
             _onGround = hasCollided;
+        }
+
+
+        /// <summary>
+        /// Read and save each sprite to dictionary as a rectangle 
+        /// </summary>
+        /// <param name="playerSpritesFile"></param>
+        private void InitializePlayerSprites(string playerSpritesFile)
+        {
+            StreamReader reader = null;
+            try
+            {
+                reader = new StreamReader(playerSpritesFile);
+                string line = "";
+
+                int currentWidth = 0;
+                int currentHeight = 0;
+
+                while ((line = reader.ReadLine()) != null)
+                {
+                    //Skip the line start by '/' or '=' because it is description, not data
+                    if (line[0] == '/' || line[0] == '=')
+                    {
+                        continue;
+                    }
+
+                    string[] data = line.Split(',');
+
+                    //If it is size data
+                    if (data.Length == 2)
+                    {
+                        currentWidth = int.Parse(data[0]);
+                        currentHeight = int.Parse(data[1]);
+                    }
+                    else if (data.Length == 3)
+                    {
+                        _playerSprites.Add(
+                            data[0], //Tile Name
+                            new Rectangle( //Source Rect
+                                int.Parse(data[2]) * 16, //X-pivot = ColIndex * 16 (16 is standard pixel scale, no space between tile)
+                                int.Parse(data[1]) * 16, //Y-pivot = RowIndex * 16 
+                                currentWidth,
+                                currentHeight)
+                        );
+                    }
+                }
+            }
+            catch (FileNotFoundException e)
+            {
+                Console.WriteLine("ERROR: Can not find the text file!");
+            }
+            finally
+            {
+                if (reader != null)
+                {
+                    reader.Close();
+                }
+            }
         }
 
         /// <summary>
