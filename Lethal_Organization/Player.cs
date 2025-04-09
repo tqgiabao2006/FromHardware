@@ -263,19 +263,19 @@ namespace Lethal_Organization
                     {
                         //Check player stand on the collider
                         Rectangle collidedObj = this.CollisionWith(_level[i, j].ScreenRec);
-                        if (collidedObj.Width < collidedObj.Height && worldPos.Y > _level[i, j].ScreenRec.Y)
-                        {
-                            if (collidedObj.X > worldPos.X)
-                            {
-                                worldPos.X -= collidedObj.Width;
-                            }
-                            else
-                            {
-                                worldPos.X += collidedObj.Width;
-                            }
-                        }
-                        
-                      else if (worldPos.Y + worldPos.Height >= collidedObj.Y && 
+                        //if (collidedObj.Width < collidedObj.Height && worldPos.Y > _level[i, j].ScreenRec.Y)
+                        //{
+                        //    if (collidedObj.X > worldPos.X)
+                        //    {
+                        //        worldPos.X -= collidedObj.Width;
+                        //    }
+                        //    else
+                        //    {
+                        //        worldPos.X += collidedObj.Width;
+                        //    }
+                        //}
+                       
+                        if (worldPos.Y + worldPos.Height >= collidedObj.Y && 
                             (worldPos.X + worldPos.Width / 2 > _level[i, j].ScreenRec.X &&
                             worldPos.X + worldPos.Width / 2 < _level[i, j].ScreenRec.X + _level[i, j].ScreenRec.Width))
                         {
@@ -283,7 +283,6 @@ namespace Lethal_Organization
 
                             _onGround = true;
                             hasCollided = true;
-                            return;
                         }
                     }
                 }
