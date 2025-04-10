@@ -48,6 +48,10 @@ namespace Lethal_Organization
 
         private Vector2 _groundRayPoint;
 
+        private Vector2 _lefRayPoint;
+
+        private Vector2 _rightRayPoint;
+
         private bool _onGround;
 
         //Animation:
@@ -63,6 +67,22 @@ namespace Lethal_Organization
             get
             {
                 return _groundRayPoint;
+            }
+        }
+
+        public Vector2 LeftRayPoint
+        {
+            get
+            {
+                return _lefRayPoint;
+            }
+        }
+
+        public Vector2 RightRayPoint
+        {
+            get
+            {
+                return _rightRayPoint;
             }
         }
 
@@ -257,7 +277,6 @@ namespace Lethal_Organization
                         {
                             _velocity.X -= speed;
                         }
-
                     }
                     else if (_currentKb.IsKeyDown(Keys.D) || _currentKb.IsKeyDown(Keys.Right))
                     {
@@ -333,9 +352,12 @@ namespace Lethal_Organization
                     }
 
                     Rectangle tilePos = _level[i, j].WorldPos;
-                    
+
                     //Check on ground
-                    if (IsInside(tilePos, _groundRayPoint) && !groundRayHit)
+                    if ((IsInside(tilePos, _groundRayPoint) || IsInside(tilePos, _lefRayPoint) || IsInside(tilePos, _rightRayPoint)) //Check ray point
+                        && !groundRayHit
+                        && worldPos.Y < tilePos.Y) //Player on the top of the tile
+                     
                     {
                         Rectangle collidedArea = this.Collide(hitBox, tilePos);
                         _onGround = true;
@@ -466,6 +488,8 @@ namespace Lethal_Organization
         private void UpdateRaycast()
         {
             _groundRayPoint = new Vector2(hitBox.X + hitBox.Width / 2, hitBox.Y + hitBox.Height / 2 + _groundRayLength);
+            _lefRayPoint = new Vector2(hitBox.X, hitBox.Y + hitBox.Height / 2 + _groundRayLength);
+            _rightRayPoint = new Vector2(hitBox.X + hitBox.Width, hitBox.Y + hitBox.Height / 2 + _groundRayLength);
         }
 
 

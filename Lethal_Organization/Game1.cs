@@ -30,7 +30,8 @@ public class Game1 : Game
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
-
+        _graphics.PreferredBackBufferWidth = 2048;
+        _graphics.PreferredBackBufferHeight = 1080;
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
 
@@ -55,8 +56,8 @@ public class Game1 : Game
             _tileSpriteSheet, //Sprite sheet
             "../../../Content/textureMap.txt",  //Texture map file path
             "../../../Content/LevelDesign.csv", //Level design file path
-            3, //Draw height scale
-           3,  //Draw width scale
+            4, //Draw height scale
+           4,  //Draw width scale
             _spriteBatch);
         _player = new Player(_playerSprite, _graphics, _level);
         _font = Content.Load<SpriteFont>("Arial20");
@@ -134,9 +135,21 @@ public class Game1 : Game
 
         _spriteBatch.DrawString(
             _font,
-            "*",
+            ".",
             _player.GroundCheckPoint,
             Color.Aqua);
+
+        _spriteBatch.DrawString(
+           _font,
+           ".",
+           _player.RightRayPoint,
+           Color.Aqua);
+
+        _spriteBatch.DrawString(
+           _font,
+           ".",
+           _player.LeftRayPoint,
+           Color.Aqua);
 
         _testEnemy.Draw(_spriteBatch, true);
         _spriteBatch.End();
