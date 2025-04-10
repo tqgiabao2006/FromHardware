@@ -28,6 +28,9 @@ namespace Lethal_Organization
 
 
         public Enemy(Texture2D sprite, Player player)
+        {
+
+        }
         public Enemy(Texture2D sprite, Rectangle platform, Player player)
         {
             _player = player;
