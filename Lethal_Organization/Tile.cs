@@ -66,7 +66,7 @@ public class Tile : IDrawable
         {
             CustomDebug.DrawWireRectangle(sb, _displayPos, 1f, Color.Green);
 
-            CustomDebug.DrawWireRectangle(sb, _worldPos, 1f, Color.Red);
+            CustomDebug.DrawWireRectangle(sb, _worldPos, 2f, Color.BlueViolet);
         }
     }
 

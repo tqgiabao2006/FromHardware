@@ -38,7 +38,8 @@ public class Game1 : Game
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
-
+        _graphics.PreferredBackBufferWidth = 2048;
+        _graphics.PreferredBackBufferHeight = 1080;
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
 
@@ -75,13 +76,23 @@ public class Game1 : Game
             _tileSpriteSheet, //Sprite sheet
             "../../../Content/textureMap.txt",  //Texture map file path
             "../../../Content/LevelDesign.csv", //Level design file path
-            3, //Draw height scale
-           3,  //Draw width scale
+            4, //Draw height scale
+           4,  //Draw width scale
             _spriteBatch);
         _player = new Player(_playerSprite, _graphics, _level);
         _font = Content.Load<SpriteFont>("Arial20");
 
-        
+
+
+        // Load and initialize the test button
+        _testButton = new Button(Content, new Vector2(100, 100));
+
+        _enemySprite = Content.Load<Texture2D>("TestEnemy");
+        _testEnemy = new Enemy(_enemySprite);
+
+
+        _screenHeight = _graphics.GraphicsDevice.Viewport.Height;
+        _screenWidth = _graphics.GraphicsDevice.Viewport.Width;
     }
 
     protected override void Update(GameTime gameTime)
@@ -103,24 +114,14 @@ public class Game1 : Game
         // Draw the menu
         _menu.Draw(_spriteBatch, true);
 
-        if (_player._onGround)
-        {
-            _spriteBatch.DrawString(
-                _font,
-                "On ground: True \n" +             
-                $"Ray Cast Hit: {_player.RayCastHit}",
-                new Vector2(10, 10),
-                Color.White);
-        }
-        else
-        {
-            _spriteBatch.DrawString(
-                _font,
-                "On ground: False \n " +
-                $"Ray Cast Hit: {_player.RayCastHit}",
-                new Vector2(10, 10),
-                Color.White);
-        }
+
+        _spriteBatch.DrawString(
+            _font, 
+            $"On ground: {_player.OnGround} ",
+            new Vector2(10, 10),
+            Color.White);
+ 
+
 
         _spriteBatch.DrawString(
             _font,
@@ -144,11 +145,21 @@ public class Game1 : Game
 
         _spriteBatch.DrawString(
             _font,
-            "*",
-            _player.RayPoint,
+            ".",
+            _player.GroundCheckPoint,
             Color.Aqua);
 
+        _spriteBatch.DrawString(
+           _font,
+           ".",
+           _player.RightRayPoint,
+           Color.Aqua);
 
+        _spriteBatch.DrawString(
+           _font,
+           ".",
+           _player.LeftRayPoint,
+           Color.Aqua);
 
         _spriteBatch.End();
         base.Draw(gameTime);

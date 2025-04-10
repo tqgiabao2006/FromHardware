@@ -21,22 +21,27 @@ namespace Lethal_Organization
         private bool _enemyDirection = true;
 
         //temp values
+        private Player _player;
         private int _playerXPos;
-        private Rectangle _tempPlatform = new Rectangle(50, 200, 200, 10);
+        private Rectangle _platform;
         private Vector2 _velocity;
 
 
-        public Enemy(Texture2D sprite)
+        public Enemy(Texture2D sprite, Player player)
+        public Enemy(Texture2D sprite, Rectangle platform, Player player)
         {
+            _player = player;
             texture = sprite;
-            displayPos = new Rectangle(10, 10, 48, 48);
+            displayPos = new Rectangle(platform.X, platform.Y - sourceImg.Height, 48, 48);
             speed = 5;
             _velocity = Vector2.Zero;
+            _platform = platform;
         }
 
 
         public override void Update(GameTime gameTime)
         {
+            _playerXPos = _player.CameraPos.X;
             displayPos.X +=(int)_velocity.X;
             displayPos.Y += (int)_velocity.Y;
             switch(_state)
@@ -53,11 +58,11 @@ namespace Lethal_Organization
                         _velocity.X = -speed;
                     }
                     //turns enemy around at the edge of a platform
-                    if (displayPos.X <= _tempPlatform.X)
+                    if (displayPos.X <= _platform.X)
                     {
                         _enemyDirection = true;
                     }
-                    if (displayPos.X + displayPos.Width >= _tempPlatform.X + _tempPlatform.Width)
+                    if (displayPos.X + displayPos.Width >= _platform.X + _platform.Width)
                     {
                         _enemyDirection = false;
                     }
@@ -66,6 +71,26 @@ namespace Lethal_Organization
 
                 case EnemyState.Chase:
                     Chase();
+                    //moves enemy based on which way it's facing
+                    if (_enemyDirection)
+                    {
+                        _velocity.X = speed;
+                    }
+                    if (!_enemyDirection)
+                    {
+                        _velocity.X = -speed;
+                    }
+                    //turns enemy around at the edge of a platform
+                    if (Math.Abs(displayPos.X - _playerXPos) <= 50 && _playerXPos >= displayPos.X)
+                    {
+                        _enemyDirection = true;
+                    }
+                    if (Math.Abs(displayPos.X - _playerXPos) <= 50 && _playerXPos < displayPos.X)
+                    {
+                        _enemyDirection = false;
+                    }
+
+
                     break;
             }
         }
