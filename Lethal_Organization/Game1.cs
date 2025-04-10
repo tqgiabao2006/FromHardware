@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Microsoft.VisualBasic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ public class Game1 : Game
     private Player _player;
     private Enemy _testEnemy;
     private Button _testButton;
+    private bool debugMode;
 
     private SpriteFont _font;
 
@@ -48,7 +50,7 @@ public class Game1 : Game
     protected override void Initialize()
     {
         base.Initialize();
-
+        debugMode = true;
     }
 
     protected override void LoadContent()
@@ -114,6 +116,7 @@ public class Game1 : Game
         _menu.Draw(_spriteBatch, true);
 
 
+<<<<<<< Updated upstream
         _spriteBatch.DrawString(
             _font, 
             $"On ground: {_player.OnGround} ",
@@ -121,32 +124,59 @@ public class Game1 : Game
             Color.White);
  
 
+=======
+        if (!debugMode)
+        {
+            _spriteBatch.DrawString(
+                _font,
+                "Press P to activate Debug Mode",
+                new Vector2(10, 10),
+                Color.White);
+        }
+        else if (debugMode)
+        {
+            _spriteBatch.DrawString(
+                _font,
+                $"On ground: {_player._onGround} \n" +             
+                $"Ray Cast Hit: {_player.RayCastHit} \n" + 
+                "",
+                new Vector2(10, 10),
+                Color.White);
+>>>>>>> Stashed changes
 
-        _spriteBatch.DrawString(
+            _spriteBatch.DrawString(
             _font,
             _player._playerState.ToString(),
             new Vector2(_player.CameraPos.X, _player.CameraPos.Y),
             Color.Red);
 
-        _spriteBatch.DrawString(
-                     _font,
-                    $"Velocity: {_player.Velocity.X}, {_player.Velocity.Y} \n \n Screen {_screenWidth}, {_screenHeight}",
-                     new Vector2(10, 50),
-                     Color.White);
+            _spriteBatch.DrawString(
+                         _font,
+                        $"Velocity: {_player.Velocity.X}, {_player.Velocity.Y} \n \n Screen {_screenWidth}, {_screenHeight}",
+                         new Vector2(10, 50),
+                         Color.White);
 
 
-        _spriteBatch.DrawString(
-           _font, 
-           $"Offset: {_player.CameraOffset} \n World Pos: {_player.WorldPos.X}, {_player.WorldPos.Y} \n" +
-           $"CameraPos: {_player.CameraPos.X}, {_player.CameraPos.Y}" ,
-           new Vector2(10, 150),
-           Color.Red);
+            _spriteBatch.DrawString(
+               _font,
+               $"Offset: {_player.CameraOffset} \n World Pos: {_player.WorldPos.X}, {_player.WorldPos.Y} \n" +
+               $"CameraPos: {_player.CameraPos.X}, {_player.CameraPos.Y}",
+               new Vector2(10, 150),
+               Color.Red);
 
+<<<<<<< Updated upstream
         _spriteBatch.DrawString(
             _font,
             ".",
             _player.GroundCheckPoint,
             Color.Aqua);
+=======
+            _spriteBatch.DrawString(
+                _font,
+                "*",
+                _player.RayPoint,
+                Color.Aqua);
+>>>>>>> Stashed changes
 
         _spriteBatch.DrawString(
            _font,
@@ -160,8 +190,17 @@ public class Game1 : Game
            _player.LeftRayPoint,
            Color.Aqua);
 
+<<<<<<< Updated upstream
         _spriteBatch.End();
         base.Draw(gameTime);
+=======
+            _testEnemy.Draw(_spriteBatch, true);
+            _spriteBatch.End();
+            base.Draw(gameTime);
+        }
+
+        
+>>>>>>> Stashed changes
     }
     private Dictionary<string, Rectangle> LoadTextureMap(string filePath)
     {
