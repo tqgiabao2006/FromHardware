@@ -107,7 +107,8 @@ public class Game1 : Game
         {
             _spriteBatch.DrawString(
                 _font,
-                "On ground: True",
+                "On ground: True \n" +             
+                $"Ray Cast Hit: {_player.RayCastHit}",
                 new Vector2(10, 10),
                 Color.White);
         }
@@ -115,7 +116,8 @@ public class Game1 : Game
         {
             _spriteBatch.DrawString(
                 _font,
-                "On ground: False",
+                "On ground: False \n " +
+                $"Ray Cast Hit: {_player.RayCastHit}",
                 new Vector2(10, 10),
                 Color.White);
         }
@@ -134,10 +136,17 @@ public class Game1 : Game
 
 
         _spriteBatch.DrawString(
-           _font,
-            $"Offset: {_player.CameraOffset}",
-          _player.CameraOffset,
+           _font, 
+           $"Offset: {_player.CameraOffset} \n World Pos: {_player.WorldPos.X}, {_player.WorldPos.Y} \n" +
+           $"CameraPos: {_player.CameraPos.X}, {_player.CameraPos.Y}" ,
+           new Vector2(10, 150),
            Color.Red);
+
+        _spriteBatch.DrawString(
+            _font,
+            "*",
+            _player.RayPoint,
+            Color.Aqua);
 
 
 

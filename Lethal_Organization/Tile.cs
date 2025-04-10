@@ -5,14 +5,21 @@ namespace Lethal_Organization;
 
 public class Tile : IDrawable
 {
-    private Rectangle _spawnRect;
-    private Rectangle _screenRect;
-    private Rectangle _sourceRect;
+    private Rectangle _worldPos;
+
+    private Rectangle _displayPos;
+    
+    private Rectangle _sourceImg;
+    
     private Texture2D _spriteSheet;
 
-    public Rectangle ScreenRec
+    public Rectangle WorldPos
     {
-        get { return _screenRect; }
+        get { return _worldPos; }
+    }
+    public Rectangle DisplayPos
+    {
+        get { return _displayPos; }
     }
 
     /// <summary>
@@ -23,12 +30,12 @@ public class Tile : IDrawable
     /// <param name="colIndex">Which column is the source tile in the sprite sheet?</param>
     /// <param name = "width" > Pixel width of the tile
     /// <param name = "height" > Pixel height of the tile
-    public Tile(Rectangle spawnRect, Rectangle sourceRect, Texture2D spriteSheet)
+    public Tile(Rectangle worldPos, Rectangle sourceRect, Texture2D spriteSheet)
     {
         this._spriteSheet = spriteSheet;
-        this._spawnRect = spawnRect;
-        this._sourceRect = sourceRect;
-        _screenRect = _spawnRect;
+        this._worldPos = worldPos;
+        this._sourceImg = sourceRect;
+        _displayPos = _worldPos;
     }
 
 
@@ -42,13 +49,12 @@ public class Tile : IDrawable
         //_posRect.X += (int)offset.X;
         //_posRect.Y += (int)offset.Y;
 
-        _screenRect = new Rectangle(_spawnRect.X + (int)offset.X, _spawnRect.Y + (int)offset.Y, _spawnRect.Width, _spawnRect.Height);
-
+        _displayPos = new Rectangle(_worldPos.X + (int)offset.X, _worldPos.Y + (int)offset.Y, _worldPos.Width, _worldPos.Height);
 
         sb.Draw(
             _spriteSheet,
-            _screenRect,
-            _sourceRect,
+            _displayPos,
+            _sourceImg,
             Color.White,
             0,
             Vector2.Zero,
@@ -58,7 +64,9 @@ public class Tile : IDrawable
 
         if (isDebug)
         {
-            CustomDebug.DrawWireRectangle(sb, _screenRect, 0.5f, Color.Aqua);
+            CustomDebug.DrawWireRectangle(sb, _displayPos, 1f, Color.Green);
+
+            CustomDebug.DrawWireRectangle(sb, _worldPos, 1f, Color.Red);
         }
     }
 

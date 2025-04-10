@@ -29,7 +29,7 @@ namespace Lethal_Organization
         public Enemy(Texture2D sprite)
         {
             texture = sprite;
-            cameraPos = new Rectangle(10, 10, 48, 48);
+            displayPos = new Rectangle(10, 10, 48, 48);
             speed = 5;
             _velocity = Vector2.Zero;
         }
@@ -37,8 +37,8 @@ namespace Lethal_Organization
 
         public override void Update(GameTime gameTime)
         {
-            cameraPos.X +=(int)_velocity.X;
-            cameraPos.Y += (int)_velocity.Y;
+            displayPos.X +=(int)_velocity.X;
+            displayPos.Y += (int)_velocity.Y;
             switch(_state)
             {
                 case EnemyState.Patrol:
@@ -53,11 +53,11 @@ namespace Lethal_Organization
                         _velocity.X = -speed;
                     }
                     //turns enemy around at the edge of a platform
-                    if (cameraPos.X <= _tempPlatform.X)
+                    if (displayPos.X <= _tempPlatform.X)
                     {
                         _enemyDirection = true;
                     }
-                    if (cameraPos.X + cameraPos.Width >= _tempPlatform.X + _tempPlatform.Width)
+                    if (displayPos.X + displayPos.Width >= _tempPlatform.X + _tempPlatform.Width)
                     {
                         _enemyDirection = false;
                     }
@@ -74,7 +74,7 @@ namespace Lethal_Organization
         {
             sb.Draw(
                 texture,
-                cameraPos,
+                displayPos,
                 Color.White);
         }
 

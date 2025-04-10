@@ -50,10 +50,14 @@ namespace Lethal_Organization
 
         public static void DrawWireRectangle(SpriteBatch sb, Rectangle rectangle, float thickness, Color color)
         {
-            DrawLine(sb, new Vector2(rectangle.X, rectangle.Y), rectangle.Width - 1, Direction.Right, thickness, color);
-            DrawLine(sb, new Vector2(rectangle.X, rectangle.Y + rectangle.Height - 1), rectangle.Width - 1, Direction.Right, thickness, color);
-            DrawLine(sb, new Vector2(rectangle.X, rectangle.Y), rectangle.Height - 1, Direction.Down, thickness, color);
-            DrawLine(sb, new Vector2(rectangle.X + rectangle.Width - 1, rectangle.Y), rectangle.Height - 1, Direction.Down, thickness, color);
+            // Top
+            DrawLine(sb, new Vector2(rectangle.X, rectangle.Y), rectangle.Width, Direction.Right, thickness, color);
+            // Bottom
+            DrawLine(sb, new Vector2(rectangle.X, rectangle.Y + rectangle.Height), rectangle.Width, Direction.Right, thickness, color);
+            // Left
+            DrawLine(sb, new Vector2(rectangle.X, rectangle.Y), rectangle.Height, Direction.Down, thickness, color);
+            // Right
+            DrawLine(sb, new Vector2(rectangle.X + rectangle.Width, rectangle.Y), rectangle.Height, Direction.Down, thickness, color);
         }
 
         public static void DrawRectangle(SpriteBatch sb, Rectangle rectangle, Color color)
