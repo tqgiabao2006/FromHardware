@@ -302,7 +302,7 @@ namespace Lethal_Organization
         }
 
         /// <summary>
-        /// Jump relevant logic and animation
+        /// Jump relevant  animation
         /// </summary>
         private void Jump()
         {
@@ -310,7 +310,7 @@ namespace Lethal_Organization
         }
 
         /// <summary>
-        /// Attack relevant logic and animation
+        /// Attack relevant animation
         /// </summary>
         private void Attack()
         {
