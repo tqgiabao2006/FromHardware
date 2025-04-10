@@ -85,10 +85,9 @@ public class Game1 : Game
 
 
         // Load and initialize the test button
-        _testButton = new Button(Content, new Vector2(100, 100));
 
         _enemySprite = Content.Load<Texture2D>("TestEnemy");
-        _testEnemy = new Enemy(_enemySprite);
+        //_testEnemy = new Enemy(_enemySprite, _level.LevelDesign[9,3].DisplayPos, _player);
 
 
         _screenHeight = _graphics.GraphicsDevice.Viewport.Height;
