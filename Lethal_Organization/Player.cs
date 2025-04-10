@@ -39,28 +39,33 @@ namespace Lethal_Organization
 
         public PlayerState _playerState;
 
-        public bool _onGround;
-
         //Camera && Collsion handler:
         private Vector2 _cameraOffset;
 
         private Level _level;
 
-        private float _rayLenght;
+        private float _groundRayLength;
 
-        private Vector2 _rayPoint;
+        private Vector2 _groundRayPoint;
 
+        private bool _onGround;
 
         //Animation:
         private Dictionary<string, Rectangle> _playerSprites;
 
-        public Vector2 RayPoint
+
+        public bool OnGround
+        {
+            get { return _onGround; }
+        }
+        public Vector2 GroundCheckPoint
         {
             get
             {
-                return _rayPoint;
+                return _groundRayPoint;
             }
         }
+
         public Vector2 Velocity
         {
             get
@@ -93,7 +98,6 @@ namespace Lethal_Organization
             }
         }
 
-        public bool RayCastHit;
 
         public Player(Texture2D sprite,  GraphicsDeviceManager graphics, Level level)
         {
@@ -119,7 +123,7 @@ namespace Lethal_Organization
             
             _gravity = 0.3f;
 
-            _rayLenght = 30;
+            _groundRayLength = 30;
             
             this._level = level;
 
@@ -132,11 +136,9 @@ namespace Lethal_Organization
             //Update input
             _currentKb = Keyboard.GetState();
             _mouse = Mouse.GetState();
-          
+
             //Update camera offset
-            _cameraOffset.X = displayPos.X - worldPos.X;
-            _cameraOffset.Y = displayPos.Y - worldPos.Y;
-            _level.Offset = _cameraOffset;
+            UpdateCameraOffset();
 
             //Update move logic
             Move(tile);
@@ -144,7 +146,7 @@ namespace Lethal_Organization
             //Update hit box
             UpdateHitBox();
 
-            _rayPoint = new Vector2(hitBox.X + hitBox.Width / 2, hitBox.Y + hitBox.Height / 2 + _rayLenght);
+            UpdateRaycast();
 
             //Re-check input
             _prevKb = Keyboard.GetState();
@@ -157,9 +159,9 @@ namespace Lethal_Organization
 
             if (isDebug)
             {
-                CustomDebug.DrawWireRectangle(sb,displayPos, 1f, Color.Green);
-                CustomDebug.DrawWireRectangle(sb, worldPos, 1f, Color.Green);
-                CustomDebug.DrawWireRectangle(sb, hitBox, 1f, Color.Red);
+                CustomDebug.DrawWireRectangle(sb,displayPos, 1f, Color.Aqua);
+                CustomDebug.DrawWireRectangle(sb, worldPos, 1f, Color.Aqua);
+                CustomDebug.DrawWireRectangle(sb, hitBox, 1f, Color.DarkOliveGreen);
             }
         }
 
@@ -173,7 +175,6 @@ namespace Lethal_Organization
                 _velocity.Y += _gravity;
             }
            
-
             worldPos.X += (int)_velocity.X;
 
             worldPos.Y += (int)_velocity.Y;
@@ -184,8 +185,10 @@ namespace Lethal_Organization
             {
                 case PlayerState.Idle:
                     _velocity = Vector2.Zero;
+
                     if ((_currentKb.IsKeyDown(Keys.A) || _currentKb.IsKeyDown(Keys.Left)
-                        || _currentKb.IsKeyDown(Keys.D) || _currentKb.IsKeyDown(Keys.Right))
+                        || _currentKb.IsKeyDown(Keys.D) || _currentKb.IsKeyDown(Keys.Right) && 
+                        _onGround)
                         )
                     {
                         _playerState = PlayerState.Run;
@@ -196,17 +199,16 @@ namespace Lethal_Organization
                     {
                         _playerState = PlayerState.Jump;
                         _velocity.Y += _jumpForce;
-                        _onGround = false;
 
                     }else if(!_onGround)
                     {
-                        _playerState = PlayerState.Jump;
+                        _playerState = PlayerState.Fall;
                     }
 
                     break;
 
                 case PlayerState.Run:
-                    if (_currentKb.IsKeyDown(Keys.A) || _currentKb.IsKeyDown(Keys.Left))
+                    if (_currentKb.IsKeyDown(Keys.A) || _currentKb.IsKeyDown(Keys.Left) && _onGround)
                     {
                         if (_velocity.X > -_maxSpeed)
                         {
@@ -214,13 +216,17 @@ namespace Lethal_Organization
                         }
                        
                     }
-                    else if (_currentKb.IsKeyDown(Keys.D) || _currentKb.IsKeyDown(Keys.Right))
+                    else if (_currentKb.IsKeyDown(Keys.D) || _currentKb.IsKeyDown(Keys.Right) && _onGround)
                     {
                         if (_velocity.X < _maxSpeed)
                         {
                             _velocity.X += speed;
                         }
                         
+                    }
+                    else if (!_onGround)
+                    {
+                        _playerState = PlayerState.Fall;
                     }
 
 
@@ -233,8 +239,8 @@ namespace Lethal_Organization
                     {
                         _playerState = PlayerState.Jump;
                         _velocity.Y += _jumpForce;
-                        _onGround = false;
                     }
+                  
 
                     break;
 
@@ -261,11 +267,35 @@ namespace Lethal_Organization
                         }
                     }
 
-                    if (_onGround)
+                   
+                    if (_velocity.Y >= 0)
+                    {
+                        _playerState = PlayerState.Fall;
+                    }
+                    
+                    break;
+
+                case PlayerState.Fall:
+                    if (_currentKb.IsKeyDown(Keys.A) || _currentKb.IsKeyDown(Keys.Left))
+                    {
+                        if (_velocity.X > -_maxSpeed)
+                        {
+                            _velocity.X -= speed;
+                        }
+
+                    }
+                    else if (_currentKb.IsKeyDown(Keys.D) || _currentKb.IsKeyDown(Keys.Right))
+                    {
+                        if (_velocity.X < _maxSpeed)
+                        {
+                            _velocity.X += speed;
+                        }
+                    }
+
+                    if (_onGround && _velocity.Y >= 0)
                     {
                         _playerState = PlayerState.Idle;
-                    }                
-                    
+                    }
                     break;
             }
 
@@ -287,16 +317,11 @@ namespace Lethal_Organization
 
         }
 
-        /// <summary>
-        /// NOt sure what this is supposed to be
-        /// </summary>
-        private void SpecialAttack()
-        {
 
-
-        }
         public void CollisionHandler(Tile[,] _level)
         {
+            bool groundRayHit = false;
+            bool collided = false;
             for (int i = 0; i < _level.GetLength(0); i++)
             {
                 for (int j = 0; j < _level.GetLength(1); j++)
@@ -308,23 +333,20 @@ namespace Lethal_Organization
                     }
 
                     Rectangle tilePos = _level[i, j].WorldPos;
-                    ////Check on ground
-                    //if (hitBox.X > tilePos.X && hitBox.X < tilePos.X + tilePos.Width && hitBox.Y < tilePos.Y)
-                    //{
-                    //    if (IsInside(tilePos, _rayPoint))
-                    //    {
-                    //        Rectangle collidedArea = this.Collide(hitBox, tilePos);
-                    //        worldPos.Y -= collidedArea.Height;
-                    //        _onGround = true;
-                    //        RayCastHit = true;
-                    //        return;
-                    //    }
-                    //    else
-                    //    {
-                    //        _onGround = false;
-                    //        RayCastHit = false;
-                    //    }
-                    //}
+                    
+                    //Check on ground
+                    if (IsInside(tilePos, _groundRayPoint) && !groundRayHit)
+                    {
+                        Rectangle collidedArea = this.Collide(hitBox, tilePos);
+                        _onGround = true;
+                        groundRayHit = true;
+                        worldPos.Y -= collidedArea.Height;
+                    }
+                    else if(!groundRayHit)
+                    {
+                        _onGround = false;
+                    }
+
 
                     if (this.Collides(hitBox, tilePos))
                     {
@@ -334,7 +356,6 @@ namespace Lethal_Organization
                         if (collidedArea.Width < collidedArea.Height)
                         {
                             //Dispose horizontal velocity
-
                             if (collidedArea.X > hitBox.X)
                             {
                                 worldPos.X -= collidedArea.Width;
@@ -343,7 +364,10 @@ namespace Lethal_Organization
                             {
                                 worldPos.X += collidedArea.Width;
                             }
+
+                            _velocity.X = 0;
                         }
+
                         //Check if hit object over-head
                         if (hitBox.Y > tilePos.Y &&                                             // hit box under the tile
                             hitBox.X > tilePos.X && hitBox.X < tilePos.X + tilePos.Width)      // hit box land between the left and right of a tile
@@ -354,16 +378,10 @@ namespace Lethal_Organization
 
                             worldPos.Y += collidedArea.Height;
                         }
-
-                        if (hitBox.X > tilePos.X && hitBox.X < tilePos.X + tilePos.Width && hitBox.Y < tilePos.Y && IsInside(tilePos, _rayPoint))
-                        {
-                            _onGround = true;
-                            worldPos.Y -= collidedArea.Height;
-                        }
                     }
                 }
             }
-
+            
         }
 
 
@@ -441,12 +459,36 @@ namespace Lethal_Organization
             hitBox.X = worldPos.X + worldPos.Width / 2 - hitBox.Width / 2; //Align to middle of the world pos rectangle
             hitBox.Y = worldPos.Y;
         }
+        
+        /// <summary>
+        /// Update raycast
+        /// </summary>
+        private void UpdateRaycast()
+        {
+            _groundRayPoint = new Vector2(hitBox.X + hitBox.Width / 2, hitBox.Y + hitBox.Height / 2 + _groundRayLength);
+        }
 
+
+        /// <summary>
+        /// Set camera offset
+        /// </summary>
+        private void UpdateCameraOffset()
+        {
+            _cameraOffset.X = displayPos.X - worldPos.X;
+            _cameraOffset.Y = displayPos.Y - worldPos.Y;
+            _level.Offset = _cameraOffset;
+        }
+
+
+        /// <summary>
+        /// Check if a key is single pressed
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         private bool IsSinglePressed(Keys key)
         {
             return (_currentKb.IsKeyDown(key) && _prevKb.IsKeyUp(key));
         }
-
 
 
         /// <summary>
@@ -467,7 +509,7 @@ namespace Lethal_Organization
         /// Check if 2 float approximately equal in some threshold
         /// </summary>
         /// <returns></returns>
-        private bool IsInRange(float a, float b, float threshold)
+        private bool ApproximatelyEqual(float a, float b, float threshold)
         {
             return a > b - threshold && a < b + threshold;
         }

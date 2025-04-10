@@ -103,24 +103,14 @@ public class Game1 : Game
         // Draw the test button
         _testButton.Draw(_spriteBatch, true);
 
-        if (_player._onGround)
-        {
-            _spriteBatch.DrawString(
-                _font,
-                "On ground: True \n" +             
-                $"Ray Cast Hit: {_player.RayCastHit}",
-                new Vector2(10, 10),
-                Color.White);
-        }
-        else
-        {
-            _spriteBatch.DrawString(
-                _font,
-                "On ground: False \n " +
-                $"Ray Cast Hit: {_player.RayCastHit}",
-                new Vector2(10, 10),
-                Color.White);
-        }
+
+        _spriteBatch.DrawString(
+            _font, 
+            $"On ground: {_player.OnGround} ",
+            new Vector2(10, 10),
+            Color.White);
+ 
+
 
         _spriteBatch.DrawString(
             _font,
@@ -145,10 +135,8 @@ public class Game1 : Game
         _spriteBatch.DrawString(
             _font,
             "*",
-            _player.RayPoint,
+            _player.GroundCheckPoint,
             Color.Aqua);
-
-
 
         _testEnemy.Draw(_spriteBatch, true);
         _spriteBatch.End();
