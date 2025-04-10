@@ -12,6 +12,7 @@ namespace Lethal_Organization
         Idle,
         Run,
         Jump,
+        Fall,
         Attack,
     }
 
@@ -114,7 +115,7 @@ namespace Lethal_Organization
             
             _maxSpeed = 4;
             
-            _jumpForce = -5;
+            _jumpForce = -10;
             
             _gravity = 0.3f;
 
@@ -182,7 +183,7 @@ namespace Lethal_Organization
             switch (_playerState)
             {
                 case PlayerState.Idle:
-
+                    _velocity = Vector2.Zero;
                     if ((_currentKb.IsKeyDown(Keys.A) || _currentKb.IsKeyDown(Keys.Left)
                         || _currentKb.IsKeyDown(Keys.D) || _currentKb.IsKeyDown(Keys.Right))
                         )
@@ -195,6 +196,8 @@ namespace Lethal_Organization
                     {
                         _playerState = PlayerState.Jump;
                         _velocity.Y += _jumpForce;
+                        _onGround = false;
+
                     }else if(!_onGround)
                     {
                         _playerState = PlayerState.Jump;
@@ -230,6 +233,7 @@ namespace Lethal_Organization
                     {
                         _playerState = PlayerState.Jump;
                         _velocity.Y += _jumpForce;
+                        _onGround = false;
                     }
 
                     break;
@@ -322,8 +326,6 @@ namespace Lethal_Organization
                     //    }
                     //}
 
-
-
                     if (this.Collides(hitBox, tilePos))
                     {
                         Rectangle collidedArea = this.Collide(hitBox, tilePos);
@@ -357,11 +359,7 @@ namespace Lethal_Organization
                         {
                             _onGround = true;
                             worldPos.Y -= collidedArea.Height;
-                        }else
-                        {
-                            _onGround = false;
                         }
-
                     }
                 }
             }
