@@ -26,7 +26,7 @@ namespace Lethal_Organization
         private Vector2 _velocity;
 
 
-        public Enemy(Texture2D sprite)
+        public Enemy(Texture2D sprite, Player player)
         {
             texture = sprite;
             displayPos = new Rectangle(10, 10, 48, 48);
@@ -66,6 +66,26 @@ namespace Lethal_Organization
 
                 case EnemyState.Chase:
                     Chase();
+                    //moves enemy based on which way it's facing
+                    if (_enemyDirection)
+                    {
+                        _velocity.X = speed;
+                    }
+                    if (!_enemyDirection)
+                    {
+                        _velocity.X = -speed;
+                    }
+                    //turns enemy around at the edge of a platform
+                    if (Math.Abs(displayPos.X - _playerXPos) <= 50 && _playerXPos >= displayPos.X)
+                    {
+                        _enemyDirection = true;
+                    }
+                    if (Math.Abs(displayPos.X - _playerXPos) <= 50 && _playerXPos < displayPos.X)
+                    {
+                        _enemyDirection = false;
+                    }
+
+
                     break;
             }
         }
