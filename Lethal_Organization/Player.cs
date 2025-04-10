@@ -272,7 +272,7 @@ namespace Lethal_Organization
         }
 
         /// <summary>
-        /// Jump relevant logic and animation
+        /// Jump relevant  animation
         /// </summary>
         private void Jump()
         {
@@ -280,21 +280,14 @@ namespace Lethal_Organization
         }
 
         /// <summary>
-        /// Attack relevant logic and animation
+        /// Attack relevant animation
         /// </summary>
         private void Attack()
         {
 
         }
 
-        /// <summary>
-        /// NOt sure what this is supposed to be
-        /// </summary>
-        private void SpecialAttack()
-        {
 
-
-        }
         public void CollisionHandler(Tile[,] _level)
         {
             for (int i = 0; i < _level.GetLength(0); i++)
