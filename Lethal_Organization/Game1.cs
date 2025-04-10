@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Lethal_Organization;
 
@@ -27,6 +29,12 @@ public class Game1 : Game
     private int _screenWidth;
     private int _screenHeight;
 
+    // Test Menu
+    private Menu _menu;
+
+
+   
+
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
@@ -39,14 +47,26 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
-
         base.Initialize();
 
     }
 
     protected override void LoadContent()
     {
+     
+
         _spriteBatch = new SpriteBatch(GraphicsDevice);
+
+        // Load sprite sheet (e.g., menuUI)
+        Texture2D spriteSheet = Content.Load<Texture2D>("GUI");
+
+        // Define the necessary parameters for the Menu constructor
+        string textureMapFile = "../../../Content/menuUI.txt"; // Path to your texture map file
+        Vector2 offset = Vector2.Zero; // You can adjust the offset as needed
+        int drawScale = 3; // Example scale factor for drawing
+
+        // Initialize Menu object and load content
+        _menu = new Menu(spriteSheet, textureMapFile, _spriteBatch, offset, drawScale);
         _playerSprite = Content.Load<Texture2D>("TempTexture");
         _playerSpriteSheet = Content.Load<Texture2D>("PlayerSpriteSheet");
         _player = new Player(_playerSprite, _graphics, _level);
@@ -68,7 +88,7 @@ public class Game1 : Game
         _testButton = new Button(Content, new Vector2(100, 100));
 
         _enemySprite = Content.Load<Texture2D>("TestEnemy");
-        _testEnemy = new Enemy(_enemySprite, _level.LevelDesign[9,2].DisplayPos, _player);
+        _testEnemy = new Enemy(_enemySprite);
 
 
         _screenHeight = _graphics.GraphicsDevice.Viewport.Height;
@@ -81,28 +101,18 @@ public class Game1 : Game
             Exit();
         _player.Update(gameTime, _level.LevelDesign);
 
-        // Update button state
-        _testButton.Update(gameTime);
+       
 
-        _testEnemy.Update(gameTime);
+
         base.Update(gameTime);
     }
 
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
-        _spriteBatch.Begin(
-            SpriteSortMode.Deferred,
-            null,
-            SamplerState.PointClamp, // Prevents texture blurring because we do pixel art
-            null,
-            null
-        );
-        _level.Draw(_spriteBatch, true);
-        _player.Draw(_spriteBatch, true);
-
-        // Draw the test button
-        _testButton.Draw(_spriteBatch, true);
+        _spriteBatch.Begin();
+        // Draw the menu
+        _menu.Draw(_spriteBatch, true);
 
 
         _spriteBatch.DrawString(
@@ -151,8 +161,23 @@ public class Game1 : Game
            _player.LeftRayPoint,
            Color.Aqua);
 
-        _testEnemy.Draw(_spriteBatch, true);
         _spriteBatch.End();
         base.Draw(gameTime);
+    }
+    private Dictionary<string, Rectangle> LoadTextureMap(string filePath)
+    {
+        var map = new Dictionary<string, Rectangle>();
+        foreach (var line in File.ReadAllLines(filePath))
+        {
+            var parts = line.Split(' ');
+            string key = parts[0];
+            int x = int.Parse(parts[1]);
+            int y = int.Parse(parts[2]);
+            int width = int.Parse(parts[3]);
+            int height = int.Parse(parts[4]);
+
+            map[key] = new Rectangle(x, y, width, height);
+        }
+        return map;
     }
 }
