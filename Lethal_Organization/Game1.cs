@@ -114,10 +114,10 @@ public class Game1 : Game
         if(_gameManager.CurrentState == GameManager.GameState.Debug)
         {
             _spriteBatch.DrawString(
-    _font,
-    $"On ground: {_player.OnGround} ",
-    new Vector2(10, 10),
-    Color.White);
+            _font,
+            $"On ground: {_player.OnGround} ",
+            new Vector2(10, 10),
+            Color.White);
 
 
             _spriteBatch.DrawString(
@@ -127,10 +127,10 @@ public class Game1 : Game
                 Color.Red);
 
             _spriteBatch.DrawString(
-                         _font,
-                        $"Velocity: {_player.Velocity.X}, {_player.Velocity.Y} \n \n Screen {_screenWidth}, {_screenHeight}",
-                         new Vector2(10, 50),
-                         Color.White);
+            _font,
+            $"Velocity: {_player.Velocity.X}, {_player.Velocity.Y} \n \n Screen {_screenWidth}, {_screenHeight}",
+                new Vector2(10, 50),
+                Color.White);
 
 
             _spriteBatch.DrawString(
