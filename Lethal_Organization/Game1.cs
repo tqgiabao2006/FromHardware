@@ -71,6 +71,7 @@ public class Game1 : Game
         _level = new Level(_tileSpriteSheet, Constant.TextureMapTxt, Constant.LevelDesignCsv, 3, 3, _gameManager);
 
         _player = new Player(_playerSprite, _graphics, _level, _gameManager);
+        _level.Player = _player;
 
         _menu = new Menu(_UISprite, Constant.MenuLayout, new Vector2(_screenWidth / 2, _screenHeight / 2), _gameManager);
 

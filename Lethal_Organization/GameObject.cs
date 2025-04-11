@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Lethal_Organization
 {
-    internal abstract class GameObject : IGetHit, IDrawable, IUpdateable
+    public abstract class GameObject : IGetHit, IDrawable, IUpdateable
     {
         // Asset
         protected Texture2D texture;

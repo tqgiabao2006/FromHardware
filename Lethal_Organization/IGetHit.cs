@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Lethal_Organization
 {
-    internal interface IGetHit
+    public interface IGetHit
     {
         public int HP { get; }
         public void GetHit(int damage);

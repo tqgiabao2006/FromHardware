@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Lethal_Organization
 {
-    internal class Player : GameObject, IStateChange
+    public class Player : GameObject, IStateChange
     {
         public enum PlayerState
         {
@@ -236,7 +236,7 @@ namespace Lethal_Organization
         /// </summary>
         private void Move(Tile[,] tile)
         {
-            if (!_onGround)
+            if (!_onGround && !isDebug)
             {
                 _velocity.Y += _gravity;
             }
@@ -260,15 +260,27 @@ namespace Lethal_Organization
                         _playerState = PlayerState.Run;
 
                     }
+                    else if(!_onGround && !isDebug)
+                    {
+                        _playerState = PlayerState.Fall;
+                    }
+
+                    if (isDebug)
+                    {
+                        if ((_currentKb.IsKeyDown(Keys.W) || _currentKb.IsKeyDown(Keys.Up)) && Math.Abs(_velocity.Y) < Math.Abs(_maxSpeed))
+                        {
+                            _playerState = PlayerState.Run;
+                        }
+                        else if ((_currentKb.IsKeyDown(Keys.S) || _currentKb.IsKeyDown(Keys.Down)) && Math.Abs(_velocity.Y) < Math.Abs(_maxSpeed))
+                        {
+                            _playerState = PlayerState.Run;
+                        }
+                    }
                     else if ((IsSinglePressed(Keys.W) || IsSinglePressed(Keys.Up) || IsSinglePressed(Keys.Space))
-                        && _onGround)
+                            && _onGround && !isDebug)
                     {
                         _playerState = PlayerState.Jump;
                         _velocity.Y += _jumpForce;
-
-                    }else if(!_onGround)
-                    {
-                        _playerState = PlayerState.Fall;
                     }
 
                     break;
@@ -290,7 +302,7 @@ namespace Lethal_Organization
                         }
                         
                     }
-                    else if (!_onGround)
+                    else if (!_onGround && !isDebug)
                     {
                         _playerState = PlayerState.Fall;
                     }
@@ -300,13 +312,24 @@ namespace Lethal_Organization
                     {
                         _playerState = PlayerState.Idle;
                     }
+
+                    if (isDebug)
+                    {
+                        if ((_currentKb.IsKeyDown(Keys.W) || _currentKb.IsKeyDown(Keys.Up)) && Math.Abs(_velocity.Y) < Math.Abs(_maxSpeed))
+                        {
+                            _velocity.Y -= speed;
+                        }
+                        else if ((_currentKb.IsKeyDown(Keys.S) || _currentKb.IsKeyDown(Keys.Down)) && Math.Abs(_velocity.Y) < Math.Abs(_maxSpeed))
+                        {
+                            _velocity.Y += speed;
+                        }
+                    }
                     else if ((IsSinglePressed(Keys.W) || IsSinglePressed(Keys.Up) || IsSinglePressed(Keys.Space))
-                        && _onGround)
+                            && _onGround && !isDebug)
                     {
                         _playerState = PlayerState.Jump;
                         _velocity.Y += _jumpForce;
                     }
-                  
 
                     break;
 
@@ -333,7 +356,7 @@ namespace Lethal_Organization
                     }
 
                    
-                    if (_velocity.Y >= 0)
+                    if (_velocity.Y >= 0 && !isDebug)
                     {
                         _playerState = PlayerState.Fall;
                     }
@@ -403,7 +426,7 @@ namespace Lethal_Organization
                     //Check on ground
                     if ((IsInside(tilePos, _groundRayPoint) || IsInside(tilePos, _lefRayPoint) || IsInside(tilePos, _rightRayPoint)) //Check ray point
                         && !groundRayHit
-                        && worldPos.Y < tilePos.Y) //Player on the top of the tile
+                        && worldPos.Y < tilePos.Y && !isDebug) //Player on the top of the tile
                      
                     {
                         Rectangle collidedArea = this.Collide(hitBox, tilePos);
@@ -417,7 +440,7 @@ namespace Lethal_Organization
                     }
 
 
-                    if (this.Collides(hitBox, tilePos))
+                    if (this.Collides(hitBox, tilePos) && !isDebug)
                     {
                         Rectangle collidedArea = this.Collide(hitBox, tilePos);
 
@@ -547,7 +570,6 @@ namespace Lethal_Organization
         {
             _cameraOffset.X = displayPos.X - worldPos.X;
             _cameraOffset.Y = displayPos.Y - worldPos.Y;
-            _level.Offset = _cameraOffset;
         }
 
 

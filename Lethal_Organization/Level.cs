@@ -20,7 +20,7 @@ public class Level: IDrawable, IStateChange
 
     private int _drawWidthScale;
    
-    private Vector2 _offset;
+    private Player player;
 
     private Dictionary<string, Rectangle> _textureMap;
     
@@ -36,10 +36,10 @@ public class Level: IDrawable, IStateChange
     {
         get { return _levelDesign; }
     }
-    public Vector2 Offset
+    public Player Player
     {
-        get { return _offset; }
-        set { _offset = value; }
+        get { return player; }
+        set { player = value; }
     }
 
 
@@ -234,7 +234,7 @@ public class Level: IDrawable, IStateChange
                 {
                     if (_levelDesign[i, j] != null)
                     {
-                        _levelDesign[i, j].Draw(spriteBatch, isDebug, _offset);
+                        _levelDesign[i, j].Draw(spriteBatch, isDebug, player);
                     }
                 }
             }

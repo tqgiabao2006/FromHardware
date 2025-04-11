@@ -44,12 +44,9 @@ public class Tile
     /// Expected to call sb.Begin()/End() elsewhere
     /// </summary>
     /// <param name="sb"></param>
-    public void Draw(SpriteBatch sb, bool isDebug,Vector2 offset)
+    public void Draw(SpriteBatch sb, bool isDebug,Player player)
     {
-        //_posRect.X += (int)offset.X;
-        //_posRect.Y += (int)offset.Y;
-
-        _displayPos = new Rectangle(_worldPos.X + (int)offset.X, _worldPos.Y + (int)offset.Y, _worldPos.Width, _worldPos.Height);
+        _displayPos = new Rectangle(_worldPos.X + (int)player.CameraOffset.X, _worldPos.Y + (int)player.CameraOffset.Y, _worldPos.Width, _worldPos.Height);
 
         sb.Draw(
             _spriteSheet,
@@ -64,9 +61,16 @@ public class Tile
 
         if (isDebug)
         {
-            CustomDebug.DrawWireRectangle(sb, _displayPos, 1f, Color.Green);
-
-            CustomDebug.DrawWireRectangle(sb, _worldPos, 2f, Color.BlueViolet);
+            if (DisplayPos.Intersects(player.CameraPos))
+            {
+                CustomDebug.DrawWireRectangle(sb, _displayPos, 1f, Color.Red);
+                CustomDebug.DrawWireRectangle(sb, _worldPos, 2f, Color.Red);
+            }
+            else
+            {
+                CustomDebug.DrawWireRectangle(sb, _displayPos, 1f, Color.Green);
+                CustomDebug.DrawWireRectangle(sb, _worldPos, 2f, Color.BlueViolet);
+            }
         }
     }
 
