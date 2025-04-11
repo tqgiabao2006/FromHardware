@@ -23,7 +23,7 @@ public class Game1 : Game
     //Level:
     private Texture2D _tileSpriteSheet;
     private Level _level;
-
+    private bool debugMode;
     private int _screenWidth;
     private int _screenHeight;
 
@@ -41,7 +41,7 @@ public class Game1 : Game
     {
 
         base.Initialize();
-
+        debugMode = false;
     }
 
     protected override void LoadContent()
@@ -97,58 +97,61 @@ public class Game1 : Game
             null,
             null
         );
-        _level.Draw(_spriteBatch, true);
-        _player.Draw(_spriteBatch, true);
-        _menu.Draw(_spriteBatch, true);
+        _level.Draw(_spriteBatch, debugMode);
+        _player.Draw(_spriteBatch, debugMode);
+        _menu.Draw(_spriteBatch, debugMode);
         // Draw the test button
         //_testButton.Draw(_spriteBatch, true);
 
-
-        _spriteBatch.DrawString(
-            _font, 
+        if (debugMode)
+        {
+            _spriteBatch.DrawString(
+            _font,
             $"On ground: {_player.OnGround} ",
             new Vector2(10, 10),
             Color.White);
- 
 
 
-        _spriteBatch.DrawString(
-            _font,
-            _player._playerState.ToString(),
-            new Vector2(_player.CameraPos.X, _player.CameraPos.Y),
-            Color.Red);
 
-        _spriteBatch.DrawString(
-                     _font,
-                    $"Velocity: {_player.Velocity.X}, {_player.Velocity.Y} \n \n Screen {_screenWidth}, {_screenHeight}",
-                     new Vector2(10, 50),
-                     Color.White);
+            _spriteBatch.DrawString(
+                _font,
+                _player._playerState.ToString(),
+                new Vector2(_player.CameraPos.X, _player.CameraPos.Y),
+                Color.Red);
+
+            _spriteBatch.DrawString(
+                         _font,
+                        $"Velocity: {_player.Velocity.X}, {_player.Velocity.Y} \n \n Screen {_screenWidth}, {_screenHeight}",
+                         new Vector2(10, 50),
+                         Color.White);
 
 
-        _spriteBatch.DrawString(
-           _font, 
-           $"Offset: {_player.CameraOffset} \n World Pos: {_player.WorldPos.X}, {_player.WorldPos.Y} \n" +
-           $"CameraPos: {_player.CameraPos.X}, {_player.CameraPos.Y}" ,
-           new Vector2(10, 150),
-           Color.Red);
+            _spriteBatch.DrawString(
+               _font,
+               $"Offset: {_player.CameraOffset} \n World Pos: {_player.WorldPos.X}, {_player.WorldPos.Y} \n" +
+               $"CameraPos: {_player.CameraPos.X}, {_player.CameraPos.Y}",
+               new Vector2(10, 150),
+               Color.Red);
 
-        _spriteBatch.DrawString(
-            _font,
-            ".",
-            _player.GroundCheckPoint,
-            Color.Aqua);
+            _spriteBatch.DrawString(
+                _font,
+                ".",
+                _player.GroundCheckPoint,
+                Color.Aqua);
 
-        _spriteBatch.DrawString(
-           _font,
-           ".",
-           _player.RightRayPoint,
-           Color.Aqua);
+            _spriteBatch.DrawString(
+               _font,
+               ".",
+               _player.RightRayPoint,
+               Color.Aqua);
 
-        _spriteBatch.DrawString(
-           _font,
-           ".",
-           _player.LeftRayPoint,
-           Color.Aqua);
+            _spriteBatch.DrawString(
+               _font,
+               ".",
+               _player.LeftRayPoint,
+               Color.Aqua);
+
+        }
 
         _testEnemy.Draw(_spriteBatch, true);
         _spriteBatch.End();
