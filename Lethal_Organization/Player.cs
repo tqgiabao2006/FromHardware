@@ -362,6 +362,7 @@ namespace Lethal_Organization
                         _playerState = PlayerState.Idle;
                     }
                     break;
+          
             }
 
         }
