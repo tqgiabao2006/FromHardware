@@ -13,8 +13,7 @@ namespace Lethal_Organization
 {
     internal class Button: IDrawable, IUpdateable
     {
-        private Texture2D _menuButtonTexture;
-        private Texture2D _smollButtonTexture;
+        private Texture2D _buttonTexture;
         private Vector2 _position;
         private Rectangle _bounds;
         private float _scale;
@@ -26,49 +25,50 @@ namespace Lethal_Organization
         private bool _isHovered;
         private bool _isPressed;
 
-        private Rectangle _buttonRect;  // To store button dimensions
-        private Rectangle _sourceRectangle;
+        private Rectangle _worldPos;  // To store button dimensions
+        private Rectangle _sourceImg;
 
-        public Button(ContentManager content, Vector2 position)
+        public Button(Texture2D buttonTexture, Vector2 position)
         {
-            _menuButtonTexture = content.Load<Texture2D>("menu_button01");
-            _smollButtonTexture = content.Load<Texture2D>("Smoll_Button");
+            _buttonTexture = buttonTexture;
             _position = position;
             _scale = 3f;
-            _sourceRectangle = new Rectangle ((int)_position.X, (int)_position.Y, _menuButtonTexture.Width, _menuButtonTexture.Height);
+
+            _sourceImg = new Rectangle ((int)_position.X, (int)_position.Y, _buttonTexture.Width, _buttonTexture.Height);
           
             // Initialize the button rectangle for size detection
-            _buttonRect = new Rectangle((int)_position.X, (int)_position.Y, _menuButtonTexture.Width*2, _menuButtonTexture.Height*3);
+            _worldPos = new Rectangle((int)_position.X, (int)_position.Y, _buttonTexture.Width*2, _buttonTexture.Height*3);
         }
 
         public void Draw(SpriteBatch sb, bool isDebug)
         {
             if (isDebug)
             {
-                CustomDebug.DrawWireRectangle(sb, _buttonRect, 0.5f, Color.Aqua);
+                CustomDebug.DrawWireRectangle(sb, _worldPos, 0.5f, Color.Aqua);
             }
+
             // Draw the appropriate button texture depending on whether it's clicked or not
             if (_isPressed)
             {
-                sb.Draw(_menuButtonTexture, _position, _sourceRectangle, _clickedColor, 0f, Vector2.Zero, _scale, SpriteEffects.None, 0f);
+                sb.Draw(_buttonTexture, _position, _sourceImg, _clickedColor, 0f, Vector2.Zero, _scale, SpriteEffects.None, 0f);
             }
             else if (_isHovered)
             {
-                sb.Draw(_menuButtonTexture, _position, _sourceRectangle, _hoveredColor, 0f, Vector2.Zero, _scale, SpriteEffects.None, 0f);
+                sb.Draw(_buttonTexture, _position, _sourceImg, _hoveredColor, 0f, Vector2.Zero, _scale, SpriteEffects.None, 0f);
             }
             else
             {
-                sb.Draw(_menuButtonTexture, _position, _sourceRectangle, _defaultColor, 0f, Vector2.Zero, _scale, SpriteEffects.None, 0f);
+                sb.Draw(_buttonTexture, _position, _sourceImg, _defaultColor, 0f, Vector2.Zero, _scale, SpriteEffects.None, 0f);
             }
         }
 
         public void Update(GameTime gameTime)
-        {   
+        {
             // Get current mouse state
             MouseState mouseState = Mouse.GetState();
 
             // Check if the mouse is hovering over the button
-            _isHovered = _buttonRect.Contains(mouseState.Position);
+            _isHovered = _worldPos.Contains(mouseState.Position);
 
             // Handle mouse click
             if (_isHovered && mouseState.LeftButton == ButtonState.Pressed)
@@ -79,16 +79,6 @@ namespace Lethal_Organization
             {
                 _isPressed = false;
             }
-        }
-
-        private bool isPressed()
-        {
-            return _isPressed;
-        }
-
-        private bool isHovered()
-        {
-            return _isHovered;
         }
     }
 }

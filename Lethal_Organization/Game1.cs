@@ -11,9 +11,9 @@ public class Game1 : Game
     private Player _player;
     private Enemy _testEnemy;
     private Button _testButton;
-
+    private Menu _menu;
     private SpriteFont _font;
-
+    
     //Test Player Sprite
     private Texture2D _playerSprite;
     private Texture2D _playerSpriteSheet;
@@ -63,8 +63,8 @@ public class Game1 : Game
         _font = Content.Load<SpriteFont>("Arial20");
 
 
+        _menu = new Menu(Content.Load<Texture2D>("GUI"), "../../../Content/menuUI.txt", new Vector2(_screenWidth/2, _screenHeight/2));
 
-        
 
         _enemySprite = Content.Load<Texture2D>("TestEnemy");
         _testEnemy = new Enemy(_enemySprite, _level.LevelDesign[9,2].DisplayPos, _player);
@@ -81,8 +81,8 @@ public class Game1 : Game
         _player.Update(gameTime, _level.LevelDesign);
 
         // Update button state
-        _testButton.Update(gameTime);
-
+        //_testButton.Update(gameTime);
+        
         _testEnemy.Update(gameTime);
         base.Update(gameTime);
     }
@@ -99,9 +99,9 @@ public class Game1 : Game
         );
         _level.Draw(_spriteBatch, true);
         _player.Draw(_spriteBatch, true);
-
+        _menu.Draw(_spriteBatch, true);
         // Draw the test button
-        _testButton.Draw(_spriteBatch, true);
+        //_testButton.Draw(_spriteBatch, true);
 
 
         _spriteBatch.DrawString(

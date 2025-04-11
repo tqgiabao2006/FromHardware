@@ -7,17 +7,17 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Lethal_Organization
 {
-    public enum PlayerState
-    {
-        Idle,
-        Run,
-        Jump,
-        Fall,
-        Attack,
-    }
-
     internal class Player : GameObject
     {
+        public enum PlayerState
+        {
+            Idle,
+            Run,
+            Jump,
+            Fall,
+            Attack,
+        }
+
         //Input
         private KeyboardState _currentKb;
 

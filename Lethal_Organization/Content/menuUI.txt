@@ -1,2 +1,44 @@
 // Use sprite sheet: "GUI.png"
-//
+// Naming convention: Type of UI, Row Index, Col Index
+// Size
+// Pixel is Row x Column: 16 x 32 = 16 width, 32 length
+Size
+============================
+48,32
+============================
+AmmoBar,0,0
+HealthBar,4,0
+BarPlaceholder,6,0
+MedButtonPlaceholder,4,1
+MedButton,7,1
+TextBox,9,0
+============================
+16,32
+============================
+SmallButton,4,2
+SmallButtonPress,5,2
+SmallButtonHover,6,2
+HomeIcon,4,3
+PauseIcon,5,3
+============================
+32,32
+============================
+SaveText,7,2
+LoadText,10,2
+NewText,7,3
+BackText,10,3
+ExitText,7,4
+OptionsText,10,4
+CreditsText,7,5
+SoundText,10,5
+============================
+64,64
+============================
+PlayerIcon,0,2
+LargeButton,0,6
+LargeButtonPress,0,8
+LargeButtonHover,0,10
+============================
+96,256
+============================
+PauseMenu,5,6
