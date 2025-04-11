@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -39,12 +40,23 @@ namespace Lethal_Organization
         }
 
         private Texture2D _spriteSheet;
+        
         private Dictionary<Type, Rectangle> _textureMap;
+        
         private List<(Rectangle textPos, Rectangle buttonPos)> _menuItems;
+       
         private Vector2 _position;
+        
         private int _scale;
+        
+        protected bool visible;
 
-        public Menu(Texture2D spriteSheet, string textureMapFile, Vector2 position, int scale = 5)
+        protected bool isDebug;
+
+        protected bool paused;
+
+
+        public Menu(Texture2D spriteSheet, string textureMapFile, Vector2 position, GameManager gameManager,int scale = 5)
         {
             _spriteSheet = spriteSheet;
             _position = position;
@@ -52,8 +64,46 @@ namespace Lethal_Organization
             _textureMap = new Dictionary<Type, Rectangle>();
             _menuItems = new List<(Rectangle, Rectangle)>();
 
+            gameManager.StateChangedAction += OnStateChange;
+
             InitializeTextureMap(textureMapFile);
             InitializeMenuLayout();
+        }
+        public void OnStateChange(GameManager.GameState state)
+        {
+            switch (state)
+            {
+                case GameManager.GameState.Menu:
+                    paused = false;
+                    visible = false;
+                    isDebug = false;
+                    break;
+
+                case GameManager.GameState.Game:
+                    visible = true;
+                    paused = false;
+                    isDebug = false;
+
+                    break;
+
+                case GameManager.GameState.GameOver:
+                    visible = false;
+                    paused = false;
+                    isDebug = false;
+
+                    break;
+                case GameManager.GameState.Pause:
+                    paused = true;
+                    visible = true;
+                    isDebug = false;
+
+                    break;
+                case GameManager.GameState.Debug:
+                    paused = false;
+                    visible = true;
+                    isDebug = true;
+                    break;
+            }
         }
 
         private void InitializeTextureMap(string textureMapFile)
@@ -204,15 +254,18 @@ namespace Lethal_Organization
             }
         }
 
-        public void Draw(SpriteBatch sb, bool isDebug)
+        public void Draw(SpriteBatch sb)
         {
-            foreach (var (buttonRect, textRect) in _menuItems)
+            if(visible)
             {
-                // draw button
-                sb.Draw(_spriteSheet, buttonRect, _textureMap[Type.LargeButton], Color.White);
+                foreach (var (buttonRect, textRect) in _menuItems)
+                {
+                    // draw button
+                    sb.Draw(_spriteSheet, buttonRect, _textureMap[Type.LargeButton], Color.White);
 
-                // determine which text was intended for this button by its Y position
-                sb.Draw(_spriteSheet, textRect, _textureMap[Type.SaveText], Color.White);
+                    // determine which text was intended for this button by its Y position
+                    sb.Draw(_spriteSheet, textRect, _textureMap[Type.SaveText], Color.White);
+                }
             }
         }
 

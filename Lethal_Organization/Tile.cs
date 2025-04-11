@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Lethal_Organization;
 
-public class Tile : IDrawable
+public class Tile
 {
     private Rectangle _worldPos;
 
@@ -44,7 +44,7 @@ public class Tile : IDrawable
     /// Expected to call sb.Begin()/End() elsewhere
     /// </summary>
     /// <param name="sb"></param>
-    public void Draw(SpriteBatch sb, bool isDebug, Vector2 offset)
+    public void Draw(SpriteBatch sb, bool isDebug,Vector2 offset)
     {
         //_posRect.X += (int)offset.X;
         //_posRect.Y += (int)offset.Y;

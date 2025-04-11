@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Lethal_Organization
 {
-    internal class Player : GameObject
+    internal class Player : GameObject, IStateChange
     {
         public enum PlayerState
         {
@@ -119,7 +119,7 @@ namespace Lethal_Organization
         }
 
 
-        public Player(Texture2D sprite,  GraphicsDeviceManager graphics, Level level)
+        public Player(Texture2D sprite,  GraphicsDeviceManager graphics, Level level, GameManager gameManager)
         {
             texture = sprite;
             
@@ -147,8 +147,48 @@ namespace Lethal_Organization
             
             this._level = level;
 
+            gameManager.StateChangedAction += OnStateChange;
+
             InitializePlayerSprites("playerTileMap");
            
+        }
+
+
+        public void OnStateChange(GameManager.GameState state)
+        {
+            switch (state)
+            {
+                case GameManager.GameState.Menu:
+                    paused = false;
+                    visible = false;
+                    isDebug = false;
+                    break;
+
+                case GameManager.GameState.Game:
+                    visible = true;
+                    paused = false;
+                    isDebug = false;
+
+                    break;
+
+                case GameManager.GameState.GameOver:
+                    visible = false;
+                    paused = false;
+                    isDebug = false;
+
+                    break;
+                case GameManager.GameState.Pause:
+                    paused = true;
+                    visible = true;
+                    isDebug = false;
+
+                    break;
+                case GameManager.GameState.Debug:
+                    paused = false;
+                    visible = true;
+                    isDebug = true;
+                    break;
+            }
         }
 
         public void Update(GameTime gameTime, Tile[,] tile)
@@ -160,9 +200,12 @@ namespace Lethal_Organization
             //Update camera offset
             UpdateCameraOffset();
 
-            //Update move logic
-            Move(tile);
-
+            if(visible && !paused)
+            {
+                //Update move logic
+                Move(tile);
+            }
+          
             //Update hit box
             UpdateHitBox();
 
@@ -173,9 +216,12 @@ namespace Lethal_Organization
           
         }
 
-        public override void Draw(SpriteBatch sb, bool isDebug)
+        public override void Draw(SpriteBatch sb)
         {
-            sb.Draw(texture, displayPos, Color.White);
+            if(visible)
+            {
+                sb.Draw(texture, displayPos, Color.White);
+            }
 
             if (isDebug)
             {

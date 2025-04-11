@@ -13,12 +13,14 @@ public class Game1 : Game
     private Button _testButton;
     private Menu _menu;
     private SpriteFont _font;
+
+    private GameManager _gameManager;
     
     //Test Player Sprite
     private Texture2D _playerSprite;
     private Texture2D _playerSpriteSheet;
-
     private Texture2D _enemySprite;
+    private Texture2D _UISprite;
 
     //Level:
     private Texture2D _tileSpriteSheet;
@@ -47,31 +49,32 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
-        _playerSprite = Content.Load<Texture2D>("TempTexture");
-        _playerSpriteSheet = Content.Load<Texture2D>("PlayerSpriteSheet");
-        _player = new Player(_playerSprite, _graphics, _level);
-        //Test-only
-        _tileSpriteSheet = Content.Load<Texture2D>("TileSpriteSheet");
-        _level = new Level(
-            _tileSpriteSheet, //Sprite sheet
-            "../../../Content/textureMap.txt",  //Texture map file path
-            "../../../Content/LevelDesign.csv", //Level design file path
-            4, //Draw height scale
-           4,  //Draw width scale
-            _spriteBatch);
-        _player = new Player(_playerSprite, _graphics, _level);
-        _font = Content.Load<SpriteFont>("Arial20");
 
+        _playerSprite = Content.Load<Texture2D>(Constant.PlayerSpriteTexture);
 
-        _menu = new Menu(Content.Load<Texture2D>("GUI"), "../../../Content/menuUI.txt", new Vector2(_screenWidth/2, _screenHeight/2));
+        _playerSpriteSheet = Content.Load<Texture2D>(Constant.PlayerSpriteSheet);
 
+        _enemySprite = Content.Load<Texture2D>(Constant.EnemySprite);
 
-        _enemySprite = Content.Load<Texture2D>("TestEnemy");
-        _testEnemy = new Enemy(_enemySprite, _level.LevelDesign[9,2].DisplayPos, _player);
+        _tileSpriteSheet = Content.Load<Texture2D>(Constant.TileSpriteSheet);
 
+        _UISprite = Content.Load<Texture2D>(Constant.GUI);
+
+        _font = Content.Load<SpriteFont>(Constant.Arial20);
 
         _screenHeight = _graphics.GraphicsDevice.Viewport.Height;
+
         _screenWidth = _graphics.GraphicsDevice.Viewport.Width;
+
+        _gameManager = new GameManager(_font);
+
+        _level = new Level(_tileSpriteSheet, Constant.TextureMapTxt, Constant.LevelDesignCsv, 3, 3, _gameManager);
+
+        _player = new Player(_playerSprite, _graphics, _level, _gameManager);
+
+        _menu = new Menu(_UISprite, Constant.MenuLayout, new Vector2(_screenWidth / 2, _screenHeight / 2), _gameManager);
+
+        _testEnemy = new Enemy(_enemySprite, _level.LevelDesign[9, 2].DisplayPos, _player, _gameManager);
     }
 
     protected override void Update(GameTime gameTime)
@@ -82,6 +85,8 @@ public class Game1 : Game
 
         // Update button state
         //_testButton.Update(gameTime);
+
+        _gameManager.Update(gameTime);
         
         _testEnemy.Update(gameTime);
         base.Update(gameTime);
@@ -97,60 +102,64 @@ public class Game1 : Game
             null,
             null
         );
-        _level.Draw(_spriteBatch, true);
-        _player.Draw(_spriteBatch, true);
-        _menu.Draw(_spriteBatch, true);
+        _level.Draw(_spriteBatch);
+        _player.Draw(_spriteBatch);
+        _menu.Draw(_spriteBatch);
+        _gameManager.Draw(_spriteBatch);
+        _testEnemy.Draw(_spriteBatch);
         // Draw the test button
         //_testButton.Draw(_spriteBatch, true);
 
 
-        _spriteBatch.DrawString(
-            _font, 
-            $"On ground: {_player.OnGround} ",
-            new Vector2(10, 10),
-            Color.White);
- 
+        if(_gameManager.CurrentState == GameManager.GameState.Debug)
+        {
+            _spriteBatch.DrawString(
+    _font,
+    $"On ground: {_player.OnGround} ",
+    new Vector2(10, 10),
+    Color.White);
 
 
-        _spriteBatch.DrawString(
-            _font,
-            _player._playerState.ToString(),
-            new Vector2(_player.CameraPos.X, _player.CameraPos.Y),
-            Color.Red);
+            _spriteBatch.DrawString(
+                _font,
+                _player._playerState.ToString(),
+                new Vector2(_player.CameraPos.X, _player.CameraPos.Y),
+                Color.Red);
 
-        _spriteBatch.DrawString(
-                     _font,
-                    $"Velocity: {_player.Velocity.X}, {_player.Velocity.Y} \n \n Screen {_screenWidth}, {_screenHeight}",
-                     new Vector2(10, 50),
-                     Color.White);
+            _spriteBatch.DrawString(
+                         _font,
+                        $"Velocity: {_player.Velocity.X}, {_player.Velocity.Y} \n \n Screen {_screenWidth}, {_screenHeight}",
+                         new Vector2(10, 50),
+                         Color.White);
 
 
-        _spriteBatch.DrawString(
-           _font, 
-           $"Offset: {_player.CameraOffset} \n World Pos: {_player.WorldPos.X}, {_player.WorldPos.Y} \n" +
-           $"CameraPos: {_player.CameraPos.X}, {_player.CameraPos.Y}" ,
-           new Vector2(10, 150),
-           Color.Red);
+            _spriteBatch.DrawString(
+               _font,
+               $"Offset: {_player.CameraOffset} \n World Pos: {_player.WorldPos.X}, {_player.WorldPos.Y} \n" +
+               $"CameraPos: {_player.CameraPos.X}, {_player.CameraPos.Y}",
+               new Vector2(10, 150),
+               Color.Red);
 
-        _spriteBatch.DrawString(
-            _font,
-            ".",
-            _player.GroundCheckPoint,
-            Color.Aqua);
+            _spriteBatch.DrawString(
+                _font,
+                ".",
+                _player.GroundCheckPoint,
+                Color.Aqua);
 
-        _spriteBatch.DrawString(
-           _font,
-           ".",
-           _player.RightRayPoint,
-           Color.Aqua);
+            _spriteBatch.DrawString(
+               _font,
+               ".",
+               _player.RightRayPoint,
+               Color.Aqua);
 
-        _spriteBatch.DrawString(
-           _font,
-           ".",
-           _player.LeftRayPoint,
-           Color.Aqua);
+            _spriteBatch.DrawString(
+               _font,
+               ".",
+               _player.LeftRayPoint,
+               Color.Aqua);
 
-        _testEnemy.Draw(_spriteBatch, true);
+        }
+
         _spriteBatch.End();
         base.Draw(gameTime);
     }

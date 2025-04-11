@@ -20,6 +20,12 @@ namespace Lethal_Organization
         
         protected int damage;
 
+        protected bool visible;
+
+        protected bool isDebug;
+
+        protected bool paused;
+
         protected int hp;
         public int HP
         {
@@ -28,7 +34,9 @@ namespace Lethal_Organization
                 return hp;
             }
         }
-        public virtual void Draw(SpriteBatch sb, bool isDebug)
+
+
+        public virtual void Draw(SpriteBatch sb)
         {
             sb.Draw(
             texture,

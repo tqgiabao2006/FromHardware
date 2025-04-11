@@ -12,7 +12,7 @@ namespace Lethal_Organization
         private Texture2D _barTexture;
         private Texture2D _borderTexture;
 
-        public void Draw(SpriteBatch sb, bool isDebug)
+        public void Draw(SpriteBatch sb)
         {
 
         }

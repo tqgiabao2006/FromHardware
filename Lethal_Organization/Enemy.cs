@@ -14,7 +14,7 @@ namespace Lethal_Organization
         Patrol,
         Chase
     }
-    internal class Enemy : GameObject
+    internal class Enemy : GameObject, IStateChange
     {
         private EnemyState _state = EnemyState.Patrol;
         // false : left  ,  true : right
@@ -28,7 +28,7 @@ namespace Lethal_Organization
 
 
 
-        public Enemy(Texture2D sprite, Rectangle platform, Player player)
+        public Enemy(Texture2D sprite, Rectangle platform, Player player, GameManager gameManager)
         {
             _player = player;
             texture = sprite;
@@ -36,6 +36,45 @@ namespace Lethal_Organization
             speed = 5;
             _velocity = Vector2.Zero;
             _platform = platform;
+
+            gameManager.StateChangedAction += OnStateChange;
+        }
+
+        public void OnStateChange(GameManager.GameState state)
+        {
+            switch (state)
+            {
+                case GameManager.GameState.Menu:
+                    paused = false;
+                    visible = false;
+                    isDebug = false;
+                    break;
+
+                case GameManager.GameState.Game:
+                    visible = true;
+                    paused = false;
+                    isDebug = false;
+
+                    break;
+
+                case GameManager.GameState.GameOver:
+                    visible = false;
+                    paused = false;
+                    isDebug = false;
+
+                    break;
+                case GameManager.GameState.Pause:
+                    paused = true;
+                    visible = true;
+                    isDebug = false;
+
+                    break;
+                case GameManager.GameState.Debug:
+                    paused = false;
+                    visible = true;
+                    isDebug = true;
+                    break;
+            }
         }
 
 
@@ -95,12 +134,15 @@ namespace Lethal_Organization
             }
         }
 
-        public override void Draw(SpriteBatch sb, bool isDebug)
+        public override void Draw(SpriteBatch sb)
         {
-            sb.Draw(
-                texture,
-                displayPos,
+            if(visible)
+            {
+                sb.Draw(
+                 texture,
+                 displayPos,
                 Color.White);
+            }
         }
 
         private void Patrol()
