@@ -82,7 +82,7 @@ namespace Lethal_Organization
 
                 int x = (int)MathF.Ceiling(center.X + radius * MathF.Cos(angle));
 
-                int y = (int)MathF.Ceiling(center.Y + radius * MathF.Sign(angle));
+                int y = (int)MathF.Ceiling(center.Y + radius * MathF.Sin(angle));
                 
                 sb.Draw(pixel, new Vector2(x, y), null,color, 0, Vector2.Zero, Vector2.One * thickness, SpriteEffects.None, 0 );
             }

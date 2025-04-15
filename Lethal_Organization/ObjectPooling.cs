@@ -26,7 +26,6 @@ public class ObjectPooling
             return new List<Bullet>();
         }
     }
-
     public int BulletCount
     {
         get
@@ -81,7 +80,6 @@ public class ObjectPooling
                 return obj;
             }
         }
-        
         
         //If not found any inactive object to reuse craft a new oe
         Bullet bullet = new Bullet(texture, level);

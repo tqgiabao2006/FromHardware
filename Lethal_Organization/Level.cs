@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -11,10 +12,12 @@ namespace Lethal_Organization;
 /// Save to fileIO the layout of level
 /// 
 /// </summary>
-public class Level: IDrawable, IStateChange
+public class Level: IStateChange
 {
         
     private Texture2D _spriteSheet;
+
+    private Texture2D _background;
    
     private int _drawHeightScale; //Scale of the real image drawn in window for each tile. If tile 16x32, scale 2 => 32x64
 
@@ -75,9 +78,11 @@ public class Level: IDrawable, IStateChange
         set { player = value; }
     }
     
-    public Level(Texture2D spriteSheet, string textureMapFile, string levelDesignFile, int drawnHeightScale, int drawWidthScale, GameManager gameManager)
+    public Level(Texture2D spriteSheet, Texture2D background,string textureMapFile, string levelDesignFile, int drawnHeightScale, int drawWidthScale, GameManager gameManager)
     {
         this._spriteSheet = spriteSheet;
+        this._background = background;
+
         this._drawWidthScale = drawWidthScale;
         this._drawHeightScale = drawnHeightScale;
         
@@ -252,26 +257,27 @@ public class Level: IDrawable, IStateChange
     /// Draw tile
     /// Expected to call sb.Begin()/End() elsewhere
     /// </summary>
-    /// <param name="spriteBatch"></param>
-    public void Draw(SpriteBatch spriteBatch)
+    /// <param name="sb"></param>
+    public void Draw(SpriteBatch sb, Vector2 cameraOffset)
     {
         if (_levelDesign == null || _levelDesign.GetLength(0) == 0) return;
 
+        Rectangle displayPos = new Rectangle((int)cameraOffset.X, (int)cameraOffset.Y, _background.Width * 5, _background.Height * 5);
 
         if (visible)
         {
+            sb.Draw(_background, displayPos, null, Color.White, 0, Vector2.Zero, SpriteEffects.None, 1);
+
             for (int i = 0; i < _levelDesign.GetLength(0); i++)
             {
                 for (int j = 0; j < _levelDesign.GetLength(1); j++)
                 {
                     if (_levelDesign[i, j] != null)
                     {
-                        _levelDesign[i, j].Draw(spriteBatch, isDebug, player);
+                        _levelDesign[i, j].Draw(sb, isDebug, player);
                     }
                 }
             }
-
-
         }
     }
 

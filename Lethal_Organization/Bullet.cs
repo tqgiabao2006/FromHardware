@@ -1,5 +1,7 @@
-﻿using Microsoft.Xna.Framework;
+﻿
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+
 
 namespace Lethal_Organization;
 
@@ -11,37 +13,36 @@ public class Bullet
         Right
     }
     
-    protected bool enabled;
+    private bool _enabled;
 
-    protected int speed;
+    private int _speed;
     
-    protected int hitBoxRadius;
+    private int _hitBoxRadius;
 
-    protected int range;
+    private int _range;
 
-    protected int damge;
+    private int _damge;
     
-    protected Direction direction;
+    private Direction _direction;
 
-    protected Level level;
+    private Level _level;
     
     // Asset
-    protected Texture2D texture;
+    private Texture2D _texture;
     
     //Positions
-    protected Rectangle displayPos; //For display only
+    private Rectangle _displayPos; //For display only
               
-    protected Rectangle sourceImg; //For render from sprite sheet
+    private Rectangle _sourceImg; //For render from sprite sheet
             
-    protected Rectangle worldPos; //Real position to do with logic
+    private Rectangle _worldPos; //Real position to do with logic
 
-    protected Vector2 spawnPos;
-    
+    private Vector2 _spawnPos;
     public bool Enabled
     {
         get
         {
-            return enabled;
+            return _enabled;
         }
     }
     
@@ -49,12 +50,12 @@ public class Bullet
     {
         get
         {
-            return new Vector2(worldPos.X, worldPos.Y); 
+            return new Vector2(_worldPos.X, _worldPos.Y); 
         }
         private set
         {
-            worldPos.X = (int)value.X;
-            worldPos.Y = (int)value.Y;
+            _worldPos.X = (int)value.X;
+            _worldPos.Y = (int)value.Y;
         }
     }
 
@@ -63,105 +64,105 @@ public class Bullet
     {
         get
         {
-            return speed;
+            return _speed;
         }
     }
 
     public Bullet(Texture2D texture, Level level)
     {
-        this.level = level;
-        this.hitBoxRadius = 50;
-        this.range = 1000;
-        this.damge = 10;
-        this.speed = 5;
+        this._level = level;
+        this._hitBoxRadius = 10;
+        this._range = 1000;
+        this._damge = 10;
+        this._speed = 1;
         this.SetActive(false);
-        this.texture = texture;
-        this.sourceImg = new Rectangle(0, 0, 16, 16);
-        this.worldPos = new Rectangle(0, 0, 16, 16);
+        this._texture = texture;
+        this._sourceImg = new Rectangle(0, 0, 16, 16);
+        this._worldPos = new Rectangle(0, 0, 16, 16);
     }
 
     public void Spawn(Vector2 worldPos, Direction direction)
     {
-        spawnPos = worldPos;
-        this.worldPos.X= (int)worldPos.X;
-        this.worldPos.Y = (int)worldPos.Y;
-        this.enabled = true;
-        this.direction = direction;
+        _spawnPos = worldPos;
+        this._worldPos.X= (int)worldPos.X;
+        this._worldPos.Y = (int)worldPos.Y;
+        this._enabled = true;
+        this._direction = direction;
     }
-
     public void SetActive(bool active)
     {
-        enabled = active;
+        _enabled = active;
     }
 
-    public void Collide()
+    private void CheckCollision()
     {
-        if (level == null)
+        if (_level == null)
         {
             return;
         }
 
-        for (int i = 0; i < level.SizeX; i++)
+        for (int i = 0; i < _level.SizeX; i++)
         {
-            for (int j = 0; j < level.SizeY; j++)
+            for (int j = 0; j < _level.SizeY; j++)
             {
-                Rectangle tilePos = level[i, j].WorldPos;
-                if (Collide(new Vector2(tilePos.X, tilePos.Y), tilePos.Width / 2))
+                if (_level[i,j] != null)
                 {
-                    SetActive(false);
-                    return;
+                    Rectangle tilePos = _level[i, j].WorldPos;
+                    if (tilePos.Intersects(_worldPos))
+                    {
+                        SetActive(false);
+                        return;
+                    }
                 }
             }
         }
     }
-
-    private bool Collide(Vector2 otherCenter, float otherRadius)
-    {
-        float sqrDst = Vector2.DistanceSquared(otherCenter,  WorldPos);
-        
-        return sqrDst < otherRadius + otherRadius;
-    }
     
     public void Update(GameTime gameTime)
     {
-        if (!enabled)
+        if (!_enabled)
         {
             return;
         }
-        
-        if (direction == Direction.Right)
+
+        CheckCollision();
+
+        if (_direction == Direction.Right)
         {
-            if (this.worldPos.X > this.spawnPos.X + this.range)
+            if (this._worldPos.X > this._spawnPos.X + this._range)
             {
                 SetActive(false);
                 return;
             }
 
-            this.worldPos.X += speed;
+            this._worldPos.X += (_speed);
         }
         else
         {
-            if (this.worldPos.X < this.spawnPos.X - this.range)
+            if (this._worldPos.X < this._spawnPos.X - this._range)
             {
                 SetActive(false);
                 return;
             }
             
-            this.worldPos.X -= speed;
+            this._worldPos.X -= _speed;
         }
     }
       
-    public void Draw(SpriteBatch sb, bool isDebug)
+    public void Draw(SpriteBatch sb, bool isDebug, Vector2 cameraOffset)
     {
-        if (enabled)
+        _displayPos = new Rectangle(_worldPos.X + (int)cameraOffset.X,(int)_spawnPos.Y + (int)cameraOffset.Y, _worldPos.Width, _worldPos.Height); //Lock y axis
+
+        SpriteEffects effect = _direction == Direction.Right? SpriteEffects.None : SpriteEffects.FlipHorizontally;
+
+        if (_enabled)
         {
-            sb.Draw(texture, worldPos, sourceImg, Color.White);
+            sb.Draw(_texture, _displayPos, _sourceImg,Color.White, 0, Vector2.Zero, effect, 0);
         }
 
         if (isDebug)
         {
-            CustomDebug.DrawWireCircle(sb, new Vector2(worldPos.X, worldPos.Y),  hitBoxRadius, 3, Color.Red);
-            
+            CustomDebug.DrawWireCircle(sb, new Vector2(_worldPos.X, _worldPos.Y),  _hitBoxRadius, 3, Color.Red);
         }
     }
 }

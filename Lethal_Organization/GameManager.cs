@@ -30,6 +30,8 @@ namespace Lethal_Organization
         private KeyboardState _prevKbState;
 
         private SpriteFont _font;
+        
+        private Player _player; 
 
         public GameState CurrentState
         {

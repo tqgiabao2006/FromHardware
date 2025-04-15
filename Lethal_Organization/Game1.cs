@@ -37,7 +37,9 @@ public class Game1 : Game
 
     //Level:
     private Texture2D _tileSpriteSheet;
-    
+
+    private Texture2D _background;
+
     private Level _level;
 
     private int _screenWidth;
@@ -73,6 +75,8 @@ public class Game1 : Game
 
         _tileSpriteSheet = Content.Load<Texture2D>(Constant.TileSpriteSheet);
 
+        _background = Content.Load<Texture2D>(Constant.Background);
+
         _bulletSprite = Content.Load<Texture2D>(Constant.BulletSprite);
 
         _UISprite = Content.Load<Texture2D>(Constant.GUI);
@@ -87,7 +91,7 @@ public class Game1 : Game
 
         _objectPool = ObjectPooling.Instance;
 
-        _level = new Level(_tileSpriteSheet, Constant.TextureMapTxt, Constant.LevelDesignCsv, 3, 3, _gameManager);
+        _level = new Level(_tileSpriteSheet, _background,Constant.TextureMapTxt, Constant.LevelDesignCsv, 3, 3, _gameManager);
 
         _player = new Player(_playerSprite, _bulletSprite,_graphics, _level, _gameManager, _objectPool);
 
@@ -124,7 +128,7 @@ public class Game1 : Game
             null,
             null
         );
-        _level.Draw(_spriteBatch);
+        _level.Draw(_spriteBatch, _player.CameraOffset);
         _player.Draw(_spriteBatch);
         _menu.Draw(_spriteBatch);
         _gameManager.Draw(_spriteBatch);
@@ -187,16 +191,6 @@ public class Game1 : Game
                 Color.Aqua
                 );
 
-            foreach(Bullet bullet in _player.Bullets)
-            {
-                _spriteBatch.DrawString(
-               _font,
-               $"Speed {bullet.Speed}",
-               bullet.WorldPos,
-               Color.Red
-               );
-            }
-           
 
         }
 
