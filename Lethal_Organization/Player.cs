@@ -57,6 +57,18 @@ namespace Lethal_Organization
         //Animation:
         private Dictionary<string, Rectangle> _playerSprites;
 
+        //Shoot
+        private ObjectPooling _objectPooling;
+        
+        private float _shootTimeCounter;
+
+        private float _shootDelayTime;
+
+        private bool _isShooting;
+
+        private List<Bullet> _bullets;
+
+        private Texture2D _bulletTexture;
 
         public bool OnGround
         {
@@ -69,7 +81,6 @@ namespace Lethal_Organization
                 return _groundRayPoint;
             }
         }
-
         public Vector2 LeftRayPoint
         {
             get
@@ -118,10 +129,20 @@ namespace Lethal_Organization
             }
         }
 
-
-        public Player(Texture2D sprite,  GraphicsDeviceManager graphics, Level level, GameManager gameManager)
+        //Debug-only, no change 
+        public List<Bullet> Bullets
         {
-            texture = sprite;
+            get
+            {
+                return _bullets;
+            }
+        }
+
+        public Player(Texture2D playerTexture, Texture2D bulletTexture,GraphicsDeviceManager graphics, Level level, GameManager gameManager, ObjectPooling objectPooling)
+        {
+            texture = playerTexture;
+            
+            _bulletTexture = bulletTexture;
             
             displayPos = new Rectangle((graphics.PreferredBackBufferWidth - 75)/2, (graphics.PreferredBackBufferHeight - 48)/2,64, 48);
             
@@ -144,13 +165,20 @@ namespace Lethal_Organization
             _gravity = 0.3f;
 
             _groundRayLength = 30;
+
+            _shootDelayTime = 1f;
             
+            _shootTimeCounter = 0;
+            
+            _bullets = new List<Bullet>();
+
             this._level = level;
 
             gameManager.StateChangedAction += OnStateChange;
+            
+            _objectPooling = objectPooling;
 
             InitializePlayerSprites("playerTileMap");
-           
         }
 
 
@@ -191,7 +219,7 @@ namespace Lethal_Organization
             }
         }
 
-        public void Update(GameTime gameTime, Tile[,] tile)
+        public override void Update(GameTime gameTime)
         {
             //Update input
             _currentKb = Keyboard.GetState();
@@ -203,7 +231,17 @@ namespace Lethal_Organization
             if(visible && !paused)
             {
                 //Update move logic
-                Move(tile);
+                StateMachine(_level);
+                
+                Shoot(gameTime);
+
+                foreach(Bullet bullet in _bullets)
+                {
+                    if(bullet.Enabled)
+                    {
+                        bullet.Update(gameTime);
+                    }
+                }
             }
           
             //Update hit box
@@ -223,6 +261,11 @@ namespace Lethal_Organization
                 sb.Draw(texture, displayPos, Color.White);
             }
 
+            foreach(Bullet bullet in _bullets)
+            {
+                bullet.Draw(sb, isDebug);
+            }
+
             if (isDebug)
             {
                 CustomDebug.DrawWireRectangle(sb,displayPos, 1f, Color.Aqua);
@@ -234,7 +277,7 @@ namespace Lethal_Organization
         /// <summary>
         /// Movement logic for player 
         /// </summary>
-        private void Move(Tile[,] tile)
+        private void StateMachine(Level level)
         {
             if (!_onGround && !isDebug)
             {
@@ -245,7 +288,7 @@ namespace Lethal_Organization
 
             worldPos.Y += (int)_velocity.Y;
 
-            CollisionHandler(tile);
+            CollisionHandler(level);
 
             switch (_playerState)
             {
@@ -258,7 +301,7 @@ namespace Lethal_Organization
                         )
                     {
                         _playerState = PlayerState.Run;
-
+                        
                     }
                     else if(!_onGround && !isDebug)
                     {
@@ -390,38 +433,44 @@ namespace Lethal_Organization
 
         }
 
-        /// <summary>
-        /// Jump relevant  animation
-        /// </summary>
-        private void Jump()
+        private void Shoot(GameTime gameTime)
         {
-
+            _shootTimeCounter -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            
+            if (_mouse.LeftButton == ButtonState.Pressed)
+            {
+                _isShooting = true;
+              
+                if (_shootTimeCounter <= 0)
+                {
+                    Bullet bullet = _objectPooling.GetObj(ObjectPooling.ProjectileType.Bullet, _bulletTexture, _level);
+                    bullet.Spawn(new Vector2(this.worldPos.X,  this.worldPos.Y), Bullet.Direction.Right);
+                    _bullets.Add(bullet);
+                    _shootTimeCounter = _shootDelayTime;
+                }
+                
+            }
+            else if(_mouse.RightButton == ButtonState.Released)
+            {
+                _isShooting = false;
+            }
         }
-
-        /// <summary>
-        /// Attack relevant animation
-        /// </summary>
-        private void Attack()
-        {
-
-        }
-
-
-        public void CollisionHandler(Tile[,] _level)
+        
+        public void CollisionHandler(Level level)
         {
             bool groundRayHit = false;
             bool collided = false;
-            for (int i = 0; i < _level.GetLength(0); i++)
+            for (int i = 0; i < level.SizeX; i++)
             {
-                for (int j = 0; j < _level.GetLength(1); j++)
+                for (int j = 0; j < level.SizeY; j++)
                 {
                     //Check collision
-                    if (_level[i, j] == null)
+                    if (level[i, j] == null)
                     {
                         continue;
                     }
 
-                    Rectangle tilePos = _level[i, j].WorldPos;
+                    Rectangle tilePos = level[i, j].WorldPos;
 
                     //Check on ground
                     if ((IsInside(tilePos, _groundRayPoint) || IsInside(tilePos, _lefRayPoint) || IsInside(tilePos, _rightRayPoint)) //Check ray point
@@ -535,15 +584,6 @@ namespace Lethal_Organization
         }
 
         /// <summary>
-        /// Currently useless
-        /// </summary>
-        /// <param name="gameTime"></param>
-        public override void Update(GameTime gameTime)
-        {
-           
-        }
-
-        /// <summary>
         /// Update hitbox with worldPos
         /// </summary>
         private void UpdateHitBox()
@@ -561,7 +601,6 @@ namespace Lethal_Organization
             _lefRayPoint = new Vector2(hitBox.X, hitBox.Y + hitBox.Height / 2 + _groundRayLength);
             _rightRayPoint = new Vector2(hitBox.X + hitBox.Width, hitBox.Y + hitBox.Height / 2 + _groundRayLength);
         }
-
 
         /// <summary>
         /// Set camera offset

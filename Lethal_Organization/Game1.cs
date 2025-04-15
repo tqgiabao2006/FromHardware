@@ -7,26 +7,41 @@ namespace Lethal_Organization;
 public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
+    
     private SpriteBatch _spriteBatch;
+    
     private Player _player;
+    
     private Enemy _testEnemy;
+    
     private Button _testButton;
+    
     private Menu _menu;
+   
     private SpriteFont _font;
 
     private GameManager _gameManager;
+
+    private ObjectPooling _objectPool;
     
     //Test Player Sprite
     private Texture2D _playerSprite;
+    
     private Texture2D _playerSpriteSheet;
+    
     private Texture2D _enemySprite;
+    
     private Texture2D _UISprite;
+
+    private Texture2D _bulletSprite;
 
     //Level:
     private Texture2D _tileSpriteSheet;
+    
     private Level _level;
 
     private int _screenWidth;
+    
     private int _screenHeight;
 
     public Game1()
@@ -58,6 +73,8 @@ public class Game1 : Game
 
         _tileSpriteSheet = Content.Load<Texture2D>(Constant.TileSpriteSheet);
 
+        _bulletSprite = Content.Load<Texture2D>(Constant.BulletSprite);
+
         _UISprite = Content.Load<Texture2D>(Constant.GUI);
 
         _font = Content.Load<SpriteFont>(Constant.Arial20);
@@ -68,21 +85,24 @@ public class Game1 : Game
 
         _gameManager = new GameManager(_font);
 
+        _objectPool = ObjectPooling.Instance;
+
         _level = new Level(_tileSpriteSheet, Constant.TextureMapTxt, Constant.LevelDesignCsv, 3, 3, _gameManager);
 
-        _player = new Player(_playerSprite, _graphics, _level, _gameManager);
+        _player = new Player(_playerSprite, _bulletSprite,_graphics, _level, _gameManager, _objectPool);
+
         _level.Player = _player;
 
         _menu = new Menu(_UISprite, Constant.MenuLayout, new Vector2(_screenWidth / 2, _screenHeight / 2), _gameManager);
 
-        _testEnemy = new Enemy(_enemySprite, _level.LevelDesign[9, 2].DisplayPos, _player, _gameManager);
+        _testEnemy = new Enemy(_enemySprite, _level[9, 2].DisplayPos, _player, _gameManager);
     }
 
     protected override void Update(GameTime gameTime)
     {
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
-        _player.Update(gameTime, _level.LevelDesign);
+        _player.Update(gameTime);
 
         // Update button state
         //_testButton.Update(gameTime);
@@ -158,6 +178,24 @@ public class Game1 : Game
                ".",
                _player.LeftRayPoint,
                Color.Aqua);
+
+            _spriteBatch.DrawString(
+                _font,
+                $"Bullet pool count: {_objectPool.BulletCount}",
+                new Vector2(10, 300),
+                Color.Aqua
+                );
+
+            foreach(Bullet bullet in _player.Bullets)
+            {
+                _spriteBatch.DrawString(
+               _font,
+               $"Speed {bullet.Speed}",
+               bullet.WorldPos,
+               Color.Red
+               );
+            }
+           
 
         }
 

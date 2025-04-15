@@ -69,13 +69,23 @@ namespace Lethal_Organization
             sb.Draw(pixel, rectangle, color);
         }
 
-        public static void DrawString(SpriteBatch sb, SpriteFont spriteFont, string text, Vector2 position, Color color)
-        {
-            if (spriteFont == null)
+        public static void DrawWireCircle(SpriteBatch sb, Vector2 center, float radius, float thickness, Color color)
+        { 
+            if (pixel == null)
             {
-                throw new ArgumentNullException(nameof(spriteFont), "SpriteFont cannot be null.");
+                CreatePixel(sb.GraphicsDevice);
             }
-            sb.DrawString(spriteFont, text, position, color);
+
+            for (int i = 0; i < 360; i++)
+            {
+                float angle = (float)(i * (Math.PI / 180));
+
+                int x = (int)MathF.Ceiling(center.X + radius * MathF.Cos(angle));
+
+                int y = (int)MathF.Ceiling(center.Y + radius * MathF.Sign(angle));
+                
+                sb.Draw(pixel, new Vector2(x, y), null,color, 0, Vector2.Zero, Vector2.One * thickness, SpriteEffects.None, 0 );
+            }
         }
     }
 }

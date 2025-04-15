@@ -32,17 +32,49 @@ public class Level: IDrawable, IStateChange
 
     protected bool paused;
 
-    public Tile[,] LevelDesign
+    public Tile this[int x, int y]
     {
-        get { return _levelDesign; }
+        get
+        {
+            if (x < 0 || x >= _levelDesign.GetLength(0) || y < 0 || y >= _levelDesign.GetLength(1))
+            {
+                return null;
+            }
+            return _levelDesign[x, y];
+        }
+    }
+
+    public int SizeX
+    {
+        get
+        {
+            if (_levelDesign != null)
+            {
+                return _levelDesign.GetLength(0);
+            }
+
+            return -1;
+        }
+    }
+
+    public int SizeY
+    {
+        get
+        {
+            if (_levelDesign != null)
+            {
+                return _levelDesign.GetLength(1);
+            }
+
+            return -1;
+        }
     }
     public Player Player
     {
         get { return player; }
         set { player = value; }
     }
-
-
+    
     public Level(Texture2D spriteSheet, string textureMapFile, string levelDesignFile, int drawnHeightScale, int drawWidthScale, GameManager gameManager)
     {
         this._spriteSheet = spriteSheet;

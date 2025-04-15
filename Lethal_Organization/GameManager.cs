@@ -21,14 +21,6 @@ namespace Lethal_Organization
             GameOver
         }
 
-        private Player _player;
-
-        private Level _level;
-
-        private UIManager _uiManager;
-
-        private Menu _menu;
-
         public event Action<GameState> StateChangedAction = delegate { };
 
         private GameState _currentState;

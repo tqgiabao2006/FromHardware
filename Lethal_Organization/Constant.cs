@@ -14,6 +14,8 @@ namespace Lethal_Organization
 
         public const string TileSpriteSheet = "TileSpriteSheet";
 
+        public const string BulletSprite = "playerBullet";
+
         public const string TextureMapTxt = "../../../Content/textureMap.txt";
 
         public const string LevelDesignCsv = "../../../Content/LevelDesign.csv";
@@ -25,6 +27,8 @@ namespace Lethal_Organization
         public const string GUI = "GUI";
 
         public const string MenuLayout = "../../../Content/menuUI.txt";
+
+ 
     }
 
 }
