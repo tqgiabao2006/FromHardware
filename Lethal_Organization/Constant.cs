@@ -16,7 +16,11 @@ namespace Lethal_Organization
 
         public const string BulletSprite = "playerBullet";
 
-        public const string Background = "composed-bg";
+        public const string Sky = "Sky";
+
+        public const string Tower = "Tower";
+
+        public const string Collum = "Collum";
 
         public const string TextureMapTxt = "../../../Content/textureMap.txt";
 

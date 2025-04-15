@@ -17,8 +17,6 @@ public class Level: IStateChange
         
     private Texture2D _spriteSheet;
 
-    private Texture2D _background;
-   
     private int _drawHeightScale; //Scale of the real image drawn in window for each tile. If tile 16x32, scale 2 => 32x64
 
     private int _drawWidthScale;
@@ -28,6 +26,8 @@ public class Level: IStateChange
     private Dictionary<string, Rectangle> _textureMap;
     
     private Tile[,] _levelDesign;
+
+    List<BackgroundLayer> _backgroundLayers;
     
     protected bool visible;
 
@@ -78,15 +78,36 @@ public class Level: IStateChange
         set { player = value; }
     }
     
-    public Level(Texture2D spriteSheet, Texture2D background,string textureMapFile, string levelDesignFile, int drawnHeightScale, int drawWidthScale, GameManager gameManager)
+    public Level(Texture2D spriteSheet, Texture2D sky, Texture2D tower,Texture2D collum,string textureMapFile, string levelDesignFile, int drawnHeightScale, int drawWidthScale, GameManager gameManager)
     {
         this._spriteSheet = spriteSheet;
-        this._background = background;
-
+    
         this._drawWidthScale = drawWidthScale;
         this._drawHeightScale = drawnHeightScale;
         
         _textureMap = new Dictionary<string, Rectangle>();
+
+        _backgroundLayers = new List<BackgroundLayer>(); 
+       
+        _backgroundLayers.Add(new BackgroundLayer()
+        {
+            Speed = 1,
+            Texture = sky
+        });
+
+
+        _backgroundLayers.Add(new BackgroundLayer()
+        {
+            Speed = 0.5f,
+            Texture = tower
+        });
+
+
+        _backgroundLayers.Add(new BackgroundLayer()
+        {
+            Speed = 0.8f,
+            Texture = collum
+        });
 
         gameManager.StateChangedAction += OnStateChange;
         
@@ -262,11 +283,17 @@ public class Level: IStateChange
     {
         if (_levelDesign == null || _levelDesign.GetLength(0) == 0) return;
 
-        Rectangle displayPos = new Rectangle((int)cameraOffset.X, (int)cameraOffset.Y, _background.Width * 5, _background.Height * 5);
+        Rectangle displayPos = new Rectangle((int)cameraOffset.X, (int)cameraOffset.Y, 1980, 1080);
 
         if (visible)
         {
-            sb.Draw(_background, displayPos, null, Color.White, 0, Vector2.Zero, SpriteEffects.None, 1);
+
+            foreach(BackgroundLayer layer in _backgroundLayers)
+            {
+                Rectangle layerPos = new Rectangle((int)(displayPos.X * layer.Speed), displayPos.Y, 1980, 1080);
+                sb.Draw(layer.Texture, layerPos, Color.White);
+            }
+
 
             for (int i = 0; i < _levelDesign.GetLength(0); i++)
             {

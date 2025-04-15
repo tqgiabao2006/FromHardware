@@ -38,7 +38,11 @@ public class Game1 : Game
     //Level:
     private Texture2D _tileSpriteSheet;
 
-    private Texture2D _background;
+    private Texture2D _skyBackground;
+
+    private Texture2D _towerBackground;
+
+    private Texture2D _collumBackground;
 
     private Level _level;
 
@@ -75,7 +79,11 @@ public class Game1 : Game
 
         _tileSpriteSheet = Content.Load<Texture2D>(Constant.TileSpriteSheet);
 
-        _background = Content.Load<Texture2D>(Constant.Background);
+        _skyBackground = Content.Load<Texture2D>(Constant.Sky);
+
+        _collumBackground = Content.Load<Texture2D>(Constant.Collum);
+
+        _towerBackground = Content.Load<Texture2D>(Constant.Tower);
 
         _bulletSprite = Content.Load<Texture2D>(Constant.BulletSprite);
 
@@ -91,7 +99,7 @@ public class Game1 : Game
 
         _objectPool = ObjectPooling.Instance;
 
-        _level = new Level(_tileSpriteSheet, _background,Constant.TextureMapTxt, Constant.LevelDesignCsv, 3, 3, _gameManager);
+        _level = new Level(_tileSpriteSheet,_skyBackground, _towerBackground, _collumBackground,Constant.TextureMapTxt, Constant.LevelDesignCsv, 3, 3, _gameManager);
 
         _player = new Player(_playerSprite, _bulletSprite,_graphics, _level, _gameManager, _objectPool);
 
