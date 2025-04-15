@@ -23,7 +23,6 @@ namespace Lethal_Organization
             SmallButtonHover,
             HomeIcon,
             PauseIcon,
-            StartText,
             SaveText,
             LoadText,
             NewText,
@@ -164,8 +163,49 @@ namespace Lethal_Organization
                 (Type.LargeButton, Type.OptionsText),
                 (Type.LargeButton, Type.ExitText)
             };
+            var buttonOne = new Rectangle(
+                        (int)_position.X,
+                        (int)_position.Y,
+                        _textureMap[Type.LargeButton].Width * 4,
+                        _textureMap[Type.LargeButton].Height * 4);
+            var textOne = new Rectangle(
+                        buttonOne.X + (buttonOne.Width - _textureMap[Type.NewText].Width * _scale) / 2,
+                        buttonOne.Y + (buttonOne.Height - _textureMap[Type.NewText].Height * _scale) / 2 + 10,
+                        _textureMap[Type.NewText].Width * 4,
+                         _textureMap[Type.NewText].Height * 4
+                    );
+            _menuItems.Add((buttonOne, textOne));
 
-            int yOffset = 0;
+            var buttonTwo = new Rectangle(
+                        (int)_position.X + 30,
+                        (int)_position.Y + 30,
+                        _textureMap[Type.LargeButton].Width * 4,
+                        _textureMap[Type.LargeButton].Height * 4);
+            var textTwo = new Rectangle(
+                       buttonTwo.X + (buttonTwo.Width - _textureMap[Type.NewText].Width * _scale) / 2,
+                       buttonTwo.Y + (buttonTwo.Height - _textureMap[Type.NewText].Height * _scale) / 2 + 10,
+                       _textureMap[Type.NewText].Width * 4,
+                        _textureMap[Type.NewText].Height * 4
+                        );
+            _menuItems.Add((buttonTwo, textTwo));
+
+            var buttonThree = new Rectangle(
+                        (int)_position.X + 60,
+                        (int)_position.Y + 60,
+                        _textureMap[Type.LargeButton].Width * 4,
+                        _textureMap[Type.LargeButton].Height * 4);
+            var textThree = new Rectangle(
+                       buttonThree.X + (buttonThree.Width - _textureMap[Type.NewText].Width * _scale) / 2,
+                       buttonThree.Y + (buttonThree.Height - _textureMap[Type.NewText].Height * _scale) / 2 + 10,
+                       _textureMap[Type.NewText].Width * 4,
+                        _textureMap[Type.NewText].Height * 4
+                        );
+
+            var buttonFour = new Rectangle(
+                        (int)_position.X + 90,
+                        (int)_position.Y + 90,
+                        _textureMap[Type.LargeButton].Width * 4,
+                        _textureMap[Type.LargeButton].Height * 4);
             foreach (var pair in buttonTextPairs)
             {
                 if (_textureMap.ContainsKey(pair.button) && _textureMap.ContainsKey(pair.text))
@@ -175,20 +215,19 @@ namespace Lethal_Organization
 
                     var buttonDest = new Rectangle(
                         (int)_position.X,
-                        (int)_position.Y + yOffset,
-                        buttonSource.Width * _scale,
-                        buttonSource.Height * _scale
+                        (int)_position.Y,
+                        buttonSource.Width * 4,
+                        buttonSource.Height * 4
                     );
 
                     var textDest = new Rectangle(
                         buttonDest.X + (buttonDest.Width - textSource.Width * _scale) / 2,
-                        buttonDest.Y + (buttonDest.Height - textSource.Height * _scale) / 2,
-                        textSource.Width * _scale,
-                        textSource.Height * _scale
+                        buttonDest.Y + (buttonDest.Height - textSource.Height* _scale) / 2 +10,
+                        textSource.Width * 4,
+                        textSource.Height * 4
                     );
 
                     _menuItems.Add((buttonDest, textDest));
-                    yOffset += buttonDest.Height + 10; // Padding between buttons
                 }
             }
         }
@@ -197,8 +236,8 @@ namespace Lethal_Organization
         {
             _spriteSheet = spriteSheet;
              LoadTextureMap(textureMapFile);
-
             InitializeMenuLayout();
+
         }
 
         private void LoadTextureMap(string textureMapFile)
@@ -234,7 +273,7 @@ namespace Lethal_Organization
                             (Type)Enum.Parse(typeof(Type), data[0]), //Tile Name
                             new Rectangle( //Source Rect
                                 int.Parse(data[2]) * 16, //X-pivot = ColIndex * 16 (16 is standard pixel scale, no space between tile)
-                                int.Parse(data[1]) * 16, //Y-pivot = RowIndex * 16 
+                                int.Parse(data[1]) * 32, //Y-pivot = RowIndex * 32
                                 currentWidth,
                                 currentHeight)
                         );
@@ -256,15 +295,17 @@ namespace Lethal_Organization
 
         public void Draw(SpriteBatch sb)
         {
+           
             if(visible)
             {
                 foreach (var (buttonRect, textRect) in _menuItems)
                 {
+
                     // draw button
                     sb.Draw(_spriteSheet, buttonRect, _textureMap[Type.LargeButton], Color.White);
 
                     // determine which text was intended for this button by its Y position
-                    sb.Draw(_spriteSheet, textRect, _textureMap[Type.SaveText], Color.White);
+                    sb.Draw(_spriteSheet, textRect, _textureMap[Type.LoadText], Color.White);
                 }
             }
         }

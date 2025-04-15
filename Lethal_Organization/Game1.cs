@@ -92,6 +92,7 @@ public class Game1 : Game
         _player = new Player(_playerSprite, _bulletSprite,_graphics, _level, _gameManager, _objectPool);
 
         _level.Player = _player;
+        _gameManager.Player = _player;
 
         _menu = new Menu(_UISprite, Constant.MenuLayout, new Vector2(_screenWidth / 2, _screenHeight / 2), _gameManager);
 

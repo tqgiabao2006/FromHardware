@@ -103,6 +103,10 @@ namespace Lethal_Organization
             {
                 return _velocity;
             }
+            set
+            {
+                _velocity = value;
+            }
         }
         /// <summary>
         /// Read only position property for use with enemy patrol
@@ -119,6 +123,10 @@ namespace Lethal_Organization
             get 
             { 
                 return worldPos; 
+            }
+            set
+            {
+                worldPos = value;
             }
         }
         public Vector2 CameraOffset
@@ -148,7 +156,7 @@ namespace Lethal_Organization
             
             sourceImg = new Rectangle(0, 0,64, 48);
             
-            worldPos = new Rectangle(0, 0, 64, 48);
+            worldPos = new Rectangle(8, 384, 64, 48);
             
             _cameraOffset = new Vector2(0, 0);
 
