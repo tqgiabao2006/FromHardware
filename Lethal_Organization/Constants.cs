@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Lethal_Organization
 {
-    public static class Constant
+    public static class Constants
     {
         public const string PlayerSpriteTexture = "TempTexture";
 
@@ -22,9 +22,13 @@ namespace Lethal_Organization
 
         public const string Collum = "Collum";
 
+        public const string BossBackground = "bossBackground";
+
         public const string TextureMapTxt = "../../../Content/textureMap.txt";
 
         public const string LevelDesignCsv = "../../../Content/LevelDesign.csv";
+
+        public const string PlayerSpriteMap = "../../../Content/playerTileMap.txt";
 
         public const string Arial20 = "Arial20";
 

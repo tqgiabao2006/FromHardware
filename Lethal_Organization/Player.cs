@@ -9,13 +9,14 @@ namespace Lethal_Organization
 {
     public class Player : GameObject, IStateChange
     {
-        public enum PlayerState
+        public enum State
         {
             Idle,
             Run,
             Jump,
             Fall,
             Attack,
+            Die
         }
 
         //Input
@@ -39,7 +40,7 @@ namespace Lethal_Organization
         //Player State logic
         private Rectangle hitBox;
 
-        public PlayerState _playerState;
+        public State _playerState;
 
         //Camera && Collsion handler:
         private Vector2 _cameraOffset;
@@ -69,6 +70,9 @@ namespace Lethal_Organization
         private bool _isShooting;
 
         private Texture2D _bulletTexture;
+
+        //Animation
+        Animator<Player.State> _animator;
 
         public bool OnGround
         {
@@ -136,10 +140,8 @@ namespace Lethal_Organization
                 return _cameraOffset; 
             }
         }
-        public Player(Texture2D playerTexture, Texture2D bulletTexture,GraphicsDeviceManager graphics, Level level, GameManager gameManager, ObjectPooling objectPooling)
-        {
-            texture = playerTexture;
-            
+        public Player(Texture2D playerSpriteSheet, string spriteMapFile ,Texture2D bulletTexture,GraphicsDeviceManager graphics, Level level, GameManager gameManager, ObjectPooling objectPooling)
+        {            
             _bulletTexture = bulletTexture;
             
             displayPos = new Rectangle((graphics.PreferredBackBufferWidth - 75)/2, (graphics.PreferredBackBufferHeight - 48)/2,64, 48);
@@ -152,7 +154,7 @@ namespace Lethal_Organization
 
             hitBox = new Rectangle(worldPos.X, worldPos.Y, 16, 48);
             
-            _playerState = PlayerState.Jump;
+            _playerState = State.Jump;
             
             speed = 1;
             
@@ -175,6 +177,8 @@ namespace Lethal_Organization
             gameManager.StateChangedAction += OnStateChange;
             
             _objectPooling = objectPooling;
+
+            _animator = new Animator<State>(playerSpriteSheet, State.Fall, spriteMapFile, 0.1f);
 
             InitializePlayerSprites("playerTileMap");
         }
@@ -226,6 +230,9 @@ namespace Lethal_Organization
             //Update camera offset
             UpdateCameraOffset();
 
+            //Animator
+            _animator.Update(gameTime);
+
             if(visible && !paused)
             {
                 //Update move logic
@@ -257,7 +264,7 @@ namespace Lethal_Organization
             if(visible)
             {
                 SpriteEffects effect = _faceRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
-                sb.Draw(texture, displayPos, null, Color.White, 0, Vector2.Zero, effect, 0 );
+                _animator.Draw(sb, displayPos, effect);
             }
 
             foreach(Bullet bullet in _objectPooling.Bullets)
@@ -291,42 +298,46 @@ namespace Lethal_Organization
 
             switch (_playerState)
             {
-                case PlayerState.Idle:
+                case State.Idle:
                     _velocity = Vector2.Zero;
 
                     if ((_currentKb.IsKeyDown(Keys.A) || _currentKb.IsKeyDown(Keys.Left)
                         || _currentKb.IsKeyDown(Keys.D) || _currentKb.IsKeyDown(Keys.Right) && 
                         _onGround)
                         )
-                    { 
-                        _playerState = PlayerState.Run;  
+                    {
+                        _animator.SetState(State.Run);
+                        _playerState = State.Run;  
                     }
                     else if(!_onGround && !isDebug)
                     {
-                        _playerState = PlayerState.Fall;
+                        _animator.SetState(State.Fall);
+                        _playerState = State.Fall;
                     }
 
                     if (isDebug)
                     {
                         if ((_currentKb.IsKeyDown(Keys.W) || _currentKb.IsKeyDown(Keys.Up)) && Math.Abs(_velocity.Y) < Math.Abs(_maxSpeed))
                         {
-                            _playerState = PlayerState.Run;
+                            _playerState = State.Run;
                         }
                         else if ((_currentKb.IsKeyDown(Keys.S) || _currentKb.IsKeyDown(Keys.Down)) && Math.Abs(_velocity.Y) < Math.Abs(_maxSpeed))
                         {
-                            _playerState = PlayerState.Run;
+
+                            _playerState = State.Run;
                         }
                     }
                     else if ((IsSinglePressed(Keys.W) || IsSinglePressed(Keys.Up) || IsSinglePressed(Keys.Space))
                             && _onGround && !isDebug)
                     {
-                        _playerState = PlayerState.Jump;
+                        _animator.SetState(State.Jump);
+                        _playerState = State.Jump;
                         _velocity.Y += _jumpForce;
                     }
 
                     break;
 
-                case PlayerState.Run:
+                case State.Run:
                     if (_currentKb.IsKeyDown(Keys.A) || _currentKb.IsKeyDown(Keys.Left) && _onGround)
                     {
                         if (_velocity.X > -_maxSpeed)
@@ -348,13 +359,15 @@ namespace Lethal_Organization
                     }
                     else if (!_onGround && !isDebug)
                     {
-                        _playerState = PlayerState.Fall;
+                        _animator.SetState(State.Fall);
+                        _playerState = State.Fall;
                     }
 
 
                     if (_currentKb.GetPressedKeyCount() == 0)
                     {
-                        _playerState = PlayerState.Idle;
+                        _animator.SetState(State.Idle);
+                        _playerState = State.Idle;
                     }
 
                     if (isDebug)
@@ -371,19 +384,18 @@ namespace Lethal_Organization
                     else if ((IsSinglePressed(Keys.W) || IsSinglePressed(Keys.Up) || IsSinglePressed(Keys.Space))
                             && _onGround && !isDebug)
                     {
-                        _playerState = PlayerState.Jump;
+                        _animator.SetState(State.Jump);
+                        _playerState = State.Jump;
                         _velocity.Y += _jumpForce;
                     }
 
                     break;
 
-                case PlayerState.Attack:
+                case State.Attack:
 
                     break;
 
-                case PlayerState.Jump:
-                    
-
+                case State.Jump:
                     if (_currentKb.IsKeyDown(Keys.A) || _currentKb.IsKeyDown(Keys.Left))
                     {
                         if (_velocity.X > -_maxSpeed)
@@ -406,12 +418,13 @@ namespace Lethal_Organization
 
                     if (_velocity.Y >= 0 && !isDebug)
                     {
-                        _playerState = PlayerState.Fall;
+                        _animator.SetState(State.Fall);
+                        _playerState = State.Fall;
                     }
                     
                     break;
 
-                case PlayerState.Fall:
+                case State.Fall:
                     if (_currentKb.IsKeyDown(Keys.A) || _currentKb.IsKeyDown(Keys.Left))
                     {
                         if (_velocity.X > -_maxSpeed)
@@ -430,7 +443,8 @@ namespace Lethal_Organization
 
                     if (_onGround && _velocity.Y >= 0)
                     {
-                        _playerState = PlayerState.Idle;
+                        _animator.SetState(State.Idle);
+                        _playerState = State.Idle;
                     }
                     break;
           

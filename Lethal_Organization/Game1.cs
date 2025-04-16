@@ -24,9 +24,7 @@ public class Game1 : Game
 
     private ObjectPooling _objectPool;
     
-    //Test Player Sprite
-    private Texture2D _playerSprite;
-    
+    //Test Player Sprite    
     private Texture2D _playerSpriteSheet;
     
     private Texture2D _enemySprite;
@@ -43,6 +41,8 @@ public class Game1 : Game
     private Texture2D _towerBackground;
 
     private Texture2D _collumBackground;
+
+    private Texture2D _bossBackground;
 
     private Level _level;
 
@@ -71,25 +71,25 @@ public class Game1 : Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-        _playerSprite = Content.Load<Texture2D>(Constant.PlayerSpriteTexture);
+        _playerSpriteSheet = Content.Load<Texture2D>(Constants.PlayerSpriteSheet);
 
-        _playerSpriteSheet = Content.Load<Texture2D>(Constant.PlayerSpriteSheet);
+        _enemySprite = Content.Load<Texture2D>(Constants.EnemySprite);
 
-        _enemySprite = Content.Load<Texture2D>(Constant.EnemySprite);
+        _tileSpriteSheet = Content.Load<Texture2D>(Constants.TileSpriteSheet);
 
-        _tileSpriteSheet = Content.Load<Texture2D>(Constant.TileSpriteSheet);
+        _skyBackground = Content.Load<Texture2D>(Constants.Sky);
 
-        _skyBackground = Content.Load<Texture2D>(Constant.Sky);
+        _collumBackground = Content.Load<Texture2D>(Constants.Collum);
 
-        _collumBackground = Content.Load<Texture2D>(Constant.Collum);
+        _towerBackground = Content.Load<Texture2D>(Constants.Tower);
 
-        _towerBackground = Content.Load<Texture2D>(Constant.Tower);
+        _bossBackground = Content.Load<Texture2D>(Constants.BossBackground);
 
-        _bulletSprite = Content.Load<Texture2D>(Constant.BulletSprite);
+        _bulletSprite = Content.Load<Texture2D>(Constants.BulletSprite);
 
-        _UISprite = Content.Load<Texture2D>(Constant.GUI);
+        _UISprite = Content.Load<Texture2D>(Constants.GUI);
 
-        _font = Content.Load<SpriteFont>(Constant.Arial20);
+        _font = Content.Load<SpriteFont>(Constants.Arial20);
 
         _screenHeight = _graphics.GraphicsDevice.Viewport.Height;
 
@@ -99,14 +99,16 @@ public class Game1 : Game
 
         _objectPool = ObjectPooling.Instance;
 
-        _level = new Level(_tileSpriteSheet,_skyBackground, _towerBackground, _collumBackground,Constant.TextureMapTxt, Constant.LevelDesignCsv, 3, 3, _gameManager);
+        _level = new Level(_tileSpriteSheet,_skyBackground, _towerBackground, _collumBackground, _bossBackground,
+            Constants.TextureMapTxt, Constants.LevelDesignCsv, 
+            3, 3, _screenWidth, _screenHeight, _gameManager);
 
-        _player = new Player(_playerSprite, _bulletSprite,_graphics, _level, _gameManager, _objectPool);
+        _player = new Player(_playerSpriteSheet, Constants.PlayerSpriteMap,  _bulletSprite,_graphics, _level, _gameManager, _objectPool);
 
         _level.Player = _player;
         _gameManager.Player = _player;
 
-        _menu = new Menu(_UISprite, Constant.MenuLayout, new Vector2(_screenWidth / 2, _screenHeight / 2), _gameManager);
+        _menu = new Menu(_UISprite, Constants.MenuLayout, new Vector2(_screenWidth / 2, _screenHeight / 2), _gameManager);
 
         _testEnemy = new Enemy(_enemySprite, _level[9, 2].DisplayPos, _player, _gameManager);
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Emit;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -14,7 +15,12 @@ namespace Lethal_Organization;
 /// </summary>
 public class Level: IStateChange
 {
-        
+
+    private enum LevelLayer
+    {
+        Main,
+        BossRoom
+    }
     private Texture2D _spriteSheet;
 
     private int _drawHeightScale; //Scale of the real image drawn in window for each tile. If tile 16x32, scale 2 => 32x64
@@ -27,13 +33,17 @@ public class Level: IStateChange
     
     private Tile[,] _levelDesign;
 
-    List<BackgroundLayer> _backgroundLayers;
+    Dictionary<LevelLayer, List<BackgroundLayer>> _backgroundLayers;
     
-    protected bool visible;
+    private bool _visible;
 
-    protected bool isDebug;
+    private bool _isDebug;
 
-    protected bool paused;
+    private bool _paused;
+
+    private int _screenWidth;
+
+    private int _screenHeight;
 
     public Tile this[int x, int y]
     {
@@ -77,36 +87,54 @@ public class Level: IStateChange
         get { return player; }
         set { player = value; }
     }
-    
-    public Level(Texture2D spriteSheet, Texture2D sky, Texture2D tower,Texture2D collum,string textureMapFile, string levelDesignFile, int drawnHeightScale, int drawWidthScale, GameManager gameManager)
+
+    public Level(Texture2D spriteSheet, Texture2D sky, Texture2D tower, Texture2D collum, Texture2D bossBackground,
+        string textureMapFile, string levelDesignFile,
+        int drawnHeightScale, int drawWidthScale, int screenWidth, int screenHeight,
+        GameManager gameManager)
     {
         this._spriteSheet = spriteSheet;
     
         this._drawWidthScale = drawWidthScale;
+
         this._drawHeightScale = drawnHeightScale;
+
+        this._screenHeight = screenHeight;
+
+        this._screenWidth = screenWidth;
         
         _textureMap = new Dictionary<string, Rectangle>();
 
-        _backgroundLayers = new List<BackgroundLayer>(); 
-       
-        _backgroundLayers.Add(new BackgroundLayer()
+        _backgroundLayers = new Dictionary<LevelLayer, List<BackgroundLayer>>();
+
+        _backgroundLayers.Add(LevelLayer.Main, new List<BackgroundLayer>());
+
+        _backgroundLayers.Add(LevelLayer.BossRoom, new List<BackgroundLayer>());
+
+        _backgroundLayers[LevelLayer.Main].Add(new BackgroundLayer()
         {
             Speed = 1,
             Texture = sky
         });
 
 
-        _backgroundLayers.Add(new BackgroundLayer()
+        _backgroundLayers[LevelLayer.Main].Add(new BackgroundLayer()
         {
             Speed = 0.5f,
             Texture = tower
         });
 
 
-        _backgroundLayers.Add(new BackgroundLayer()
+        _backgroundLayers[LevelLayer.Main].Add(new BackgroundLayer()
         {
             Speed = 0.8f,
             Texture = collum
+        });
+
+        _backgroundLayers[LevelLayer.BossRoom].Add(new BackgroundLayer()
+        {
+            Speed = 1f,
+            Texture = bossBackground
         });
 
         gameManager.StateChangedAction += OnStateChange;
@@ -121,34 +149,34 @@ public class Level: IStateChange
         switch (state)
         {
             case GameManager.GameState.Menu:
-                paused = false;
-                visible = false;
-                isDebug = false;
+                _paused = false;
+                _visible = false;
+                _isDebug = false;
                 break;
 
             case GameManager.GameState.Game:
-                visible = true;
-                paused = false;
-                isDebug = false;
+                _visible = true;
+                _paused = false;
+                _isDebug = false;
 
                 break;
 
             case GameManager.GameState.GameOver:
-                visible = false;
-                paused = false;
-                isDebug = false;
+                _visible = false;
+                _paused = false;
+                _isDebug = false;
 
                 break;
             case GameManager.GameState.Pause:
-                paused = true;
-                visible = true;
-                isDebug = false;
+                _paused = true;
+                _visible = true;
+                _isDebug = false;
 
                 break;
             case GameManager.GameState.Debug:
-                paused = false;
-                visible = true;
-                isDebug = true;
+                _paused = false;
+                _visible = true;
+                _isDebug = true;
                 break;
         }
     }
@@ -282,16 +310,29 @@ public class Level: IStateChange
     {
         if (_levelDesign == null || _levelDesign.GetLength(0) == 0) return;
 
-        Rectangle displayPos = new Rectangle((int)cameraOffset.X, (int)cameraOffset.Y, 1980, 1080);
 
-        if (visible)
+        if (_visible)
         {
-
-            foreach(BackgroundLayer layer in _backgroundLayers)
+            if(_backgroundLayers.ContainsKey(LevelLayer.Main))
             {
-                Rectangle layerPos = new Rectangle((int)(displayPos.X * layer.Speed), displayPos.Y, 1980, 1080);
-                sb.Draw(layer.Texture, layerPos, Color.White);
+                Rectangle displayPos = new Rectangle((int)cameraOffset.X - _screenWidth / 2 -200, (int)cameraOffset.Y - _screenHeight / 2, _screenWidth, _screenHeight);
+                foreach (BackgroundLayer layer in _backgroundLayers[LevelLayer.Main])
+                {
+                    Rectangle layerPos = new Rectangle((int)(displayPos.X * layer.Speed), (int)(displayPos.Y), 1980, 1080);
+                    sb.Draw(layer.Texture, new Vector2(layerPos.X, layerPos.Y), null, Color.White, 0, Vector2.Zero, new Vector2(2, 2), SpriteEffects.None, 1);
+                }
             }
+
+            if (_backgroundLayers.ContainsKey(LevelLayer.BossRoom))
+            {
+                Rectangle displayPos = new Rectangle((int)cameraOffset.X - _screenWidth / 2, (int)cameraOffset.Y + 33 * 16 * _drawHeightScale, _screenWidth, _screenHeight);
+                foreach (BackgroundLayer layer in _backgroundLayers[LevelLayer.BossRoom])
+                {
+                    Rectangle layerPos = new Rectangle((int)(displayPos.X * layer.Speed), (int)(displayPos.Y), 1980, 1080);
+                    sb.Draw(layer.Texture, new Vector2(layerPos.X, layerPos.Y), null, Color.White, 0, Vector2.Zero, new Vector2(2, 2), SpriteEffects.None, 1);
+                }
+            }
+
 
 
             for (int i = 0; i < _levelDesign.GetLength(0); i++)
@@ -300,7 +341,7 @@ public class Level: IStateChange
                 {
                     if (_levelDesign[i, j] != null)
                     {
-                        _levelDesign[i, j].Draw(sb, isDebug, player);
+                        _levelDesign[i, j].Draw(sb, _isDebug, player);
                     }
                 }
             }

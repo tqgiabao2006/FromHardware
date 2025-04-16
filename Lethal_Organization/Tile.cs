@@ -56,7 +56,7 @@ public class Tile
             0,
             Vector2.Zero,
             SpriteEffects.None,
-            0
+            1
             );
 
         if (isDebug)
@@ -72,16 +72,5 @@ public class Tile
                 CustomDebug.DrawWireRectangle(sb, _worldPos, 2f, Color.BlueViolet);
             }
         }
-    }
-
-    /// <summary>
-    /// Do not use
-    /// </summary>
-    /// <param name="sb"></param>
-    /// <param name="isDebug"></param>
-    /// <exception cref="System.NotImplementedException"></exception>
-    public void Draw(SpriteBatch sb, bool isDebug)
-    {
-        throw new System.NotImplementedException();
     }
 }
