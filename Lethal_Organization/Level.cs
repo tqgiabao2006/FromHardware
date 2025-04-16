@@ -254,7 +254,6 @@ public class Level: IStateChange
                             );
                         }
                     }
-                    
                     currentRow++;
                 }
                 
