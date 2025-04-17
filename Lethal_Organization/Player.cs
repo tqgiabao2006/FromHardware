@@ -165,7 +165,7 @@ namespace Lethal_Organization
             
             _gravity = 0.3f;
 
-            _groundRayLength = 25;
+            _groundRayLength = 30;
 
             _shootDelayTime = 0.4f;
             
@@ -503,13 +503,14 @@ namespace Lethal_Organization
                      
                     {
                         Rectangle collidedArea = this.Collide(hitBox, tilePos);
-                        if (collidedArea.Width > collidedArea.Height)
-                        {
-                            //Putting next three lines in here fixes all y collisions but messes up ground collisions
-                        }
                         _onGround = true;
                         groundRayHit = true;
-                        worldPos.Y -= collidedArea.Height;
+                        
+                        //All three ray points
+                        if((IsInside(tilePos, _groundRayPoint) && IsInside(tilePos, _lefRayPoint) && IsInside(tilePos, _rightRayPoint)))
+                        {
+                            worldPos.Y -= collidedArea.Height;
+                        }
                     }
                     else if(!groundRayHit)
                     {
