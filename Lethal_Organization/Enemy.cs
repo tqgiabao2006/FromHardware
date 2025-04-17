@@ -20,22 +20,35 @@ namespace Lethal_Organization
         // false : left  ,  true : right
         private bool _enemyDirection = true;
 
-        //temp values
         private Player _player;
+
         private int _playerXPos;
-        private Rectangle _platform;
+
+        private Rectangle _rightPlatform;
+
+        private Rectangle _leftPlatform;
+
         private Vector2 _velocity;
 
 
 
-        public Enemy(Texture2D sprite, Rectangle platform, Player player, GameManager gameManager)
+        public Enemy(Texture2D sprite, Rectangle rightPlatform, Rectangle leftPlatform, Player player, GameManager gameManager)
         {
             _player = player;
+
             texture = sprite;
-            displayPos = new Rectangle(platform.X, platform.Y - sourceImg.Height, 48, 48);
-            speed = 5;
+
+            worldPos = new Rectangle(rightPlatform.X, rightPlatform.Y - 48, 48, 48);
+
+            displayPos = new Rectangle(0, 0, 48, 48);
+
+            speed = 2;
+
             _velocity = Vector2.Zero;
-            _platform = platform;
+
+            _rightPlatform = rightPlatform;
+
+            _leftPlatform = leftPlatform;
 
             gameManager.StateChangedAction += OnStateChange;
         }
@@ -80,9 +93,9 @@ namespace Lethal_Organization
 
         public override void Update(GameTime gameTime)
         {
-            _playerXPos = _player.CameraPos.X;
-            displayPos.X +=(int)_velocity.X;
-            displayPos.Y += (int)_velocity.Y;
+            _playerXPos = _player.WorldPos.X;
+            worldPos.X +=(int)_velocity.X;
+            worldPos.Y += (int)_velocity.Y;
             switch(_state)
             {
                 case EnemyState.Patrol:
@@ -97,11 +110,11 @@ namespace Lethal_Organization
                         _velocity.X = -speed;
                     }
                     //turns enemy around at the edge of a platform
-                    if (displayPos.X <= _platform.X)
+                    if (worldPos.X <= _leftPlatform.X)
                     {
                         _enemyDirection = true;
                     }
-                    if (displayPos.X + displayPos.Width >= _platform.X + _platform.Width)
+                    if (worldPos.X + worldPos.Width >= _rightPlatform.X + _rightPlatform.Width)
                     {
                         _enemyDirection = false;
                     }
@@ -120,11 +133,11 @@ namespace Lethal_Organization
                         _velocity.X = -speed;
                     }
                     //turns enemy around at the edge of a platform
-                    if (Math.Abs(displayPos.X - _playerXPos) <= 50 && _playerXPos >= displayPos.X)
+                    if (Math.Abs(worldPos.X - _playerXPos) <= 50 && _playerXPos >= worldPos.X)
                     {
                         _enemyDirection = true;
                     }
-                    if (Math.Abs(displayPos.X - _playerXPos) <= 50 && _playerXPos < displayPos.X)
+                    if (Math.Abs(worldPos.X - _playerXPos) <= 50 && _playerXPos < worldPos.X)
                     {
                         _enemyDirection = false;
                     }
@@ -134,14 +147,29 @@ namespace Lethal_Organization
             }
         }
 
-        public override void Draw(SpriteBatch sb)
+        public void Draw(SpriteBatch sb, Player player)
         {
-            if(visible)
+
+            displayPos = new Rectangle(worldPos.X + (int)player.CameraOffset.X, worldPos.Y + (int)player.CameraOffset.Y, worldPos.Width, worldPos.Height);
+
+            if (visible)
             {
                 sb.Draw(
                  texture,
                  displayPos,
                 Color.White);
+            }
+
+            if (isDebug)
+            {
+                if (worldPos.Intersects(player.WorldPos))
+                {
+                    CustomDebug.DrawWireRectangle(sb, worldPos, 3f, Color.Red);
+                }
+                else
+                {
+                    CustomDebug.DrawWireRectangle(sb, worldPos, 3f, Color.Aqua);
+                }
             }
         }
 

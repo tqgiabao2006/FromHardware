@@ -1,0 +1,8 @@
+﻿// Postion of each enemy based on the index of the platforms they stand on
+// Format: Enemy type, Left plaform bound, Right platform bound
+============================
+Ground,9,14,9,22
+Ground,9,37,9,42
+Ground,18,39,18,40
+Ground,17,35,17,36
+Ground,19,23,19,10
