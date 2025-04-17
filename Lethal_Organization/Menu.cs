@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection.Metadata;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace Lethal_Organization
 {
@@ -12,6 +14,10 @@ namespace Lethal_Organization
     {
         public enum Type
         {
+            NewText,
+            LoadText,
+            OptionsText,
+            ExitText,
             AmmoBar,
             HealthBar,
             BarPlaceholder,
@@ -24,11 +30,7 @@ namespace Lethal_Organization
             HomeIcon,
             PauseIcon,
             SaveText,
-            LoadText,
-            NewText,
             BackText, 
-            ExitText,
-            OptionsText,
             CreditsText,
             SoundText,
             PlayerIcon,
@@ -43,7 +45,9 @@ namespace Lethal_Organization
         private Dictionary<Type, Rectangle> _textureMap;
         
         private List<(Rectangle textPos, Rectangle buttonPos)> _menuItems;
-       
+
+        private Type[] _types;
+
         private Vector2 _position;
         
         private int _scale;
@@ -54,52 +58,65 @@ namespace Lethal_Organization
 
         protected bool paused;
 
+        private Rectangle[] _button;
 
-        public Menu(Texture2D spriteSheet, string textureMapFile, Vector2 position, GameManager gameManager,int scale = 5)
+        private Rectangle[] _text;
+
+        private bool _isHovered;
+
+        private bool _isPressed;
+
+        private Action _changeState;
+
+        public Menu(Texture2D spriteSheet, string textureMapFile, Vector2 position, GameManager gameManager,Action changeState ,int scale = 5)
         {
             _spriteSheet = spriteSheet;
             _position = position;
             _scale = scale;
             _textureMap = new Dictionary<Type, Rectangle>();
             _menuItems = new List<(Rectangle, Rectangle)>();
-
+            _button = new Rectangle[4];
+            _text = new Rectangle[4];
+            _types = Enum.GetValues(typeof(Type)) as Type[];
             gameManager.StateChangedAction += OnStateChange;
+
+            _changeState = changeState;
 
             InitializeTextureMap(textureMapFile);
             InitializeMenuLayout();
         }
+
         public void OnStateChange(GameManager.GameState state)
         {
             switch (state)
             {
                 case GameManager.GameState.Menu:
                     paused = false;
-                    visible = false;
+                    visible = true;
                     isDebug = false;
                     break;
 
                 case GameManager.GameState.Game:
-                    visible = true;
-                    paused = false;
-                    isDebug = false;
-
-                    break;
-
-                case GameManager.GameState.GameOver:
                     visible = false;
                     paused = false;
                     isDebug = false;
-
                     break;
+
+                case GameManager.GameState.GameOver:
+                    visible = true;
+                    paused = false;
+                    isDebug = false;
+                    break;
+
                 case GameManager.GameState.Pause:
                     paused = true;
                     visible = true;
                     isDebug = false;
-
                     break;
+
                 case GameManager.GameState.Debug:
                     paused = false;
-                    visible = true;
+                    visible = false;
                     isDebug = true;
                     break;
             }
@@ -155,81 +172,57 @@ namespace Lethal_Organization
 
         private void InitializeMenuLayout()
         {
-            // Buttons and matching text names (must match keys in textureMap)
-            var buttonTextPairs = new List<(Type button, Type text)>
-            {
-                (Type.LargeButton, Type.NewText),
-                (Type.LargeButton, Type.LoadText),
-                (Type.LargeButton, Type.OptionsText),
-                (Type.LargeButton, Type.ExitText)
-            };
-            var buttonOne = new Rectangle(
+            _button[0] = new Rectangle(
                         (int)_position.X,
                         (int)_position.Y,
                         _textureMap[Type.LargeButton].Width * 4,
                         _textureMap[Type.LargeButton].Height * 4);
-            var textOne = new Rectangle(
-                        buttonOne.X + (buttonOne.Width - _textureMap[Type.NewText].Width * _scale) / 2,
-                        buttonOne.Y + (buttonOne.Height - _textureMap[Type.NewText].Height * _scale) / 2 + 10,
+            _text[0] = new Rectangle(
+                        _button[0].X + (_button[0].Width - _textureMap[Type.NewText].Width * _scale) / 2,
+                        _button[0].Y + (_button[0].Height - _textureMap[Type.NewText].Height * _scale) / 2 + 10,
                         _textureMap[Type.NewText].Width * 4,
                          _textureMap[Type.NewText].Height * 4
                     );
-            _menuItems.Add((buttonOne, textOne));
+            _menuItems.Add((_button[0], _text[0]));
 
-            var buttonTwo = new Rectangle(
-                        (int)_position.X + 30,
-                        (int)_position.Y + 30,
-                        _textureMap[Type.LargeButton].Width * 4,
-                        _textureMap[Type.LargeButton].Height * 4);
-            var textTwo = new Rectangle(
-                       buttonTwo.X + (buttonTwo.Width - _textureMap[Type.NewText].Width * _scale) / 2,
-                       buttonTwo.Y + (buttonTwo.Height - _textureMap[Type.NewText].Height * _scale) / 2 + 10,
-                       _textureMap[Type.NewText].Width * 4,
-                        _textureMap[Type.NewText].Height * 4
-                        );
-            _menuItems.Add((buttonTwo, textTwo));
-
-            var buttonThree = new Rectangle(
-                        (int)_position.X + 60,
-                        (int)_position.Y + 60,
-                        _textureMap[Type.LargeButton].Width * 4,
-                        _textureMap[Type.LargeButton].Height * 4);
-            var textThree = new Rectangle(
-                       buttonThree.X + (buttonThree.Width - _textureMap[Type.NewText].Width * _scale) / 2,
-                       buttonThree.Y + (buttonThree.Height - _textureMap[Type.NewText].Height * _scale) / 2 + 10,
-                       _textureMap[Type.NewText].Width * 4,
-                        _textureMap[Type.NewText].Height * 4
-                        );
-
-            var buttonFour = new Rectangle(
-                        (int)_position.X + 90,
-                        (int)_position.Y + 90,
-                        _textureMap[Type.LargeButton].Width * 4,
-                        _textureMap[Type.LargeButton].Height * 4);
-            foreach (var pair in buttonTextPairs)
-            {
-                if (_textureMap.ContainsKey(pair.button) && _textureMap.ContainsKey(pair.text))
-                {
-                    var buttonSource = _textureMap[pair.button];
-                    var textSource = _textureMap[pair.text];
-
-                    var buttonDest = new Rectangle(
+            _button[1] = new Rectangle(
                         (int)_position.X,
-                        (int)_position.Y,
-                        buttonSource.Width * 4,
-                        buttonSource.Height * 4
-                    );
+                        (int)_position.Y + 100,
+                        _textureMap[Type.LargeButton].Width * 4,
+                        _textureMap[Type.LargeButton].Height * 4);
+            _text[1] = new Rectangle(
+                       _button[1].X + (_button[1].Width - _textureMap[Type.LoadText].Width * _scale) / 2,
+                       _button[1].Y + (_button[1].Height - _textureMap[Type.LoadText].Height * _scale) / 2 + 10,
+                       _textureMap[Type.NewText].Width * 4,
+                        _textureMap[Type.NewText].Height * 4
+                        );
+            _menuItems.Add((_button[1], _text[1]));
 
-                    var textDest = new Rectangle(
-                        buttonDest.X + (buttonDest.Width - textSource.Width * _scale) / 2,
-                        buttonDest.Y + (buttonDest.Height - textSource.Height* _scale) / 2 +10,
-                        textSource.Width * 4,
-                        textSource.Height * 4
-                    );
+            _button[2] = new Rectangle(
+                       (int)_position.X,
+                       (int)_position.Y + 200,
+                       _textureMap[Type.LargeButton].Width * 4,
+                       _textureMap[Type.LargeButton].Height * 4);
 
-                    _menuItems.Add((buttonDest, textDest));
-                }
-            }
+            _text[2] = new Rectangle(
+                       _button[2].X + (_button[2].Width - _textureMap[Type.OptionsText].Width * _scale) / 2,
+                       _button[2].Y + (_button[2].Height - _textureMap[Type.OptionsText].Height * _scale) / 2 + 10,
+                       _textureMap[Type.OptionsText].Width * 4,
+                        _textureMap[Type.OptionsText].Height * 4
+                        );
+
+            _button[3] = new Rectangle(
+                        (int)_position.X,
+                        (int)_position.Y + 300,
+                        _textureMap[Type.LargeButton].Width * 4,
+                        _textureMap[Type.LargeButton].Height * 4);
+
+            _text[3] = new Rectangle(
+                    _button[3].X + (_button[3].Width - _textureMap[Type.ExitText].Width * _scale) / 2,
+                    _button[3].Y + (_button[3].Height - _textureMap[Type.ExitText].Height * _scale) / 2 + 10,
+                    _textureMap[Type.ExitText].Width * 4,
+                     _textureMap[Type.ExitText].Height * 4
+                     );
         }
 
         public void LoadContent(Texture2D spriteSheet, string textureMapFile)
@@ -295,21 +288,39 @@ namespace Lethal_Organization
 
         public void Draw(SpriteBatch sb)
         {
-           
-            if(visible)
+            if (visible)
             {
-                foreach (var (buttonRect, textRect) in _menuItems)
+                MouseState mouseState = Mouse.GetState();
+
+                for (int i = 0; i < 4; i++)
                 {
+                        _isHovered = _button[i].Contains(mouseState.Position);
+                    if (_isHovered)
+                    {
+                        sb.Draw(_spriteSheet, _button[i], _textureMap[Type.LargeButtonHover], Color.White);
+                    }
 
-                    // draw button
-                    sb.Draw(_spriteSheet, buttonRect, _textureMap[Type.LargeButton], Color.White);
+                    if (_isHovered && mouseState.LeftButton == ButtonState.Pressed)
+                    {
+                        _isPressed = true;
+                        sb.Draw(_spriteSheet, _button[i], _textureMap[Type.LargeButtonPress], Color.White);
+                    }
 
-                    // determine which text was intended for this button by its Y position
-                    sb.Draw(_spriteSheet, textRect, _textureMap[Type.LoadText], Color.White);
+                    else if (_isHovered && mouseState.LeftButton == ButtonState.Released)
+                    {
+                        _isPressed = false;
+                    }
+                    else
+                    {
+                        // draw button
+                        sb.Draw(_spriteSheet, _button[i], _textureMap[Type.LargeButton], Color.White);
+                    }
+                        // determine which text was intended for this button by its Y position
+                        sb.Draw(_spriteSheet, _text[i], _textureMap[_types[i]], Color.White);
+
                 }
+                
             }
         }
-
-       
     }
 }

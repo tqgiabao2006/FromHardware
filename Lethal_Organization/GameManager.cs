@@ -29,9 +29,13 @@ namespace Lethal_Organization
 
         private KeyboardState _prevKbState;
 
+        private MouseState _mouseState;
+
         private SpriteFont _font;
         
-        private Player _player; 
+        private Player _player;
+
+        public Action<GameState> ChangeState;
 
         public GameState CurrentState
         {
@@ -55,6 +59,7 @@ namespace Lethal_Organization
         public GameManager(SpriteFont font)
         {
             _font = font;
+            ChangeState = SetState;
         }
 
         public void Start()
@@ -65,10 +70,12 @@ namespace Lethal_Organization
         public void Update(GameTime gameTime)
         {
             _kbState = Keyboard.GetState();
+            _mouseState = Mouse.GetState();
+
             switch(_currentState)
             {
                 case GameState.Menu:
-                    if (IsSinglePressed(Keys.Enter))
+                    if (_mouseState.LeftButton == ButtonState.Pressed)
                     {
                         CurrentState = GameState.Game;
                     }
@@ -140,6 +147,11 @@ namespace Lethal_Organization
                $"{_currentState}",
                new Vector2(100, 100),
                Color.White);
+        }
+
+        private void SetState(GameState state)
+        {
+            CurrentState = state;
         }
     }
 }
