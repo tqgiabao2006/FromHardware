@@ -165,7 +165,7 @@ namespace Lethal_Organization
             
             _gravity = 0.3f;
 
-            _groundRayLength = 30;
+            _groundRayLength = 25;
 
             _shootDelayTime = 0.4f;
             
@@ -503,6 +503,10 @@ namespace Lethal_Organization
                      
                     {
                         Rectangle collidedArea = this.Collide(hitBox, tilePos);
+                        if (collidedArea.Width > collidedArea.Height)
+                        {
+                            //Putting next three lines in here fixes all y collisions but messes up ground collisions
+                        }
                         _onGround = true;
                         groundRayHit = true;
                         worldPos.Y -= collidedArea.Height;
@@ -535,9 +539,7 @@ namespace Lethal_Organization
 
                         //Check if hit object over-head
                         if (hitBox.Y > tilePos.Y && collidedArea.Width > collidedArea.Height)// hit box under the tile
-                                                                                             //hitBox.X > tilePos.X && hitBox.X < tilePos.X + tilePos.Width// hit box land between the left and right of a tile
-
-
+                        //hitBox.X > tilePos.X && hitBox.X < tilePos.X + tilePos.Width// hit box land between the left and right of a tile
                         {
                             //Dispose vertical velocity
                             _velocity.Y = 0;
