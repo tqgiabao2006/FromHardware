@@ -110,7 +110,7 @@ public class Game1 : Game
 
         _menu = new Menu(_UISprite, Constants.MenuLayout, new Vector2(_screenWidth / 2, _screenHeight / 2), _gameManager);
 
-        _testEnemy = new Enemy(_enemySprite, _level[9, 2].DisplayPos, _player, _gameManager);
+        _testEnemy = new Enemy(_enemySprite, _level[9, 10].WorldPos, _level[9, 6].WorldPos, _player, _gameManager);
     }
 
     protected override void Update(GameTime gameTime)
