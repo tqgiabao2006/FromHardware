@@ -505,7 +505,12 @@ namespace Lethal_Organization
                         Rectangle collidedArea = this.Collide(hitBox, tilePos);
                         _onGround = true;
                         groundRayHit = true;
-                        worldPos.Y -= collidedArea.Height;
+                        
+                        //All three ray points
+                        if((IsInside(tilePos, _groundRayPoint) && IsInside(tilePos, _lefRayPoint) && IsInside(tilePos, _rightRayPoint)))
+                        {
+                            worldPos.Y -= collidedArea.Height;
+                        }
                     }
                     else if(!groundRayHit)
                     {
@@ -535,9 +540,7 @@ namespace Lethal_Organization
 
                         //Check if hit object over-head
                         if (hitBox.Y > tilePos.Y && collidedArea.Width > collidedArea.Height)// hit box under the tile
-                                                                                             //hitBox.X > tilePos.X && hitBox.X < tilePos.X + tilePos.Width// hit box land between the left and right of a tile
-
-
+                        //hitBox.X > tilePos.X && hitBox.X < tilePos.X + tilePos.Width// hit box land between the left and right of a tile
                         {
                             //Dispose vertical velocity
                             _velocity.Y = 0;
