@@ -466,7 +466,7 @@ namespace Lethal_Organization
                     Bullet.Direction direction = _faceRight ? Bullet.Direction.Right : Bullet.Direction.Left;
                     int dirMultipler = _faceRight ? 1 : -1;
                     Vector2 spawnPos = new Vector2(this.worldPos.Center.X + dirMultipler * this.worldPos.Width / 2, this.worldPos.Center.Y);
-
+                    _animator.SetState(State.Attack);
                     bullet.Spawn(spawnPos, direction);
                     _shootTimeCounter = _shootDelayTime;
                 }
@@ -474,6 +474,7 @@ namespace Lethal_Organization
             }
             else if(_mouse.RightButton == ButtonState.Released)
             {
+                _animator.SetState(_playerState);
                 _isShooting = false;
             }
         }

@@ -74,7 +74,7 @@ public class Bullet
         this._hitBoxRadius = 10;
         this._range = 1000;
         this._damge = 10;
-        this._speed = 1;
+        this._speed = 10;
         this.SetActive(false);
         this._texture = texture;
         this._sourceImg = new Rectangle(0, 0, 16, 16);
