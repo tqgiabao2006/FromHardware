@@ -20,10 +20,12 @@ namespace Lethal_Organization
         // false : left  ,  true : right
         private bool _enemyDirection = true;
 
-        //temp values
         private Player _player;
+
         private int _playerXPos;
+
         private Rectangle _platform;
+
         private Vector2 _velocity;
 
 
@@ -31,10 +33,17 @@ namespace Lethal_Organization
         public Enemy(Texture2D sprite, Rectangle platform, Player player, GameManager gameManager)
         {
             _player = player;
+
             texture = sprite;
-            displayPos = new Rectangle(platform.X, platform.Y - sourceImg.Height, 48, 48);
+
+            worldPos = new Rectangle(platform.X, platform.Y - 48, 48, 48);
+
+            displayPos = new Rectangle(0, 0, 48, 48);
+
             speed = 5;
+
             _velocity = Vector2.Zero;
+
             _platform = platform;
 
             gameManager.StateChangedAction += OnStateChange;
@@ -134,14 +143,29 @@ namespace Lethal_Organization
             }
         }
 
-        public override void Draw(SpriteBatch sb)
+        public void Draw(SpriteBatch sb, Player player)
         {
-            if(visible)
+
+            displayPos = new Rectangle(worldPos.X + (int)player.CameraOffset.X, worldPos.Y + (int)player.CameraOffset.Y, worldPos.Width, worldPos.Height);
+
+            if (visible)
             {
                 sb.Draw(
                  texture,
                  displayPos,
                 Color.White);
+            }
+
+            if (isDebug)
+            {
+                if (worldPos.Intersects(player.WorldPos))
+                {
+                    CustomDebug.DrawWireRectangle(sb, worldPos, 3f, Color.Red);
+                }
+                else
+                {
+                    CustomDebug.DrawWireRectangle(sb, worldPos, 3f, Color.Aqua);
+                }
             }
         }
 

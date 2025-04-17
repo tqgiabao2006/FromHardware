@@ -142,7 +142,7 @@ public class Game1 : Game
         _player.Draw(_spriteBatch);
         _menu.Draw(_spriteBatch);
         _gameManager.Draw(_spriteBatch);
-        _testEnemy.Draw(_spriteBatch);
+        _testEnemy.Draw(_spriteBatch, _player);
         // Draw the test button
         //_testButton.Draw(_spriteBatch, true);
 
