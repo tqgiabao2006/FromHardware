@@ -96,7 +96,6 @@ namespace Lethal_Organization
             Rectangle animSequence = _curAnim.SourceImage;
             _imageSource = new Rectangle( _currentFrame * _frameWidth, animSequence.Y, _frameWidth, _frameHeight);
             
-
             _timeCounter = _secondPerFrame;
 
             //If animation, forced to finish, reach its last frame => switch next state on the queue
@@ -149,9 +148,19 @@ namespace Lethal_Organization
             _imageSource = new Rectangle(0, animSequence.Y, _frameWidth, _frameHeight);
         }
 
-        public bool CheckAnimationFinish(T state)
+        public bool CheckAnimationFinish(T state, int index)
         {
-            return (_prevState.Equals(state) && _animMap.ContainsKey(state));
+            return _curState.Equals(state) && _currentFrame >= index;
+        }
+
+        public int GetMaxIndex(T state)
+        {
+           if(!_animMap.ContainsKey(state)) 
+           {
+                return -1;
+           }
+
+           return _animMap[state].MaxIndex;
         }
         private void LoadTexture(string filePath)
         {

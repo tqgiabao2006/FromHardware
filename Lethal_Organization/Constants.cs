@@ -18,6 +18,8 @@ namespace Lethal_Organization
 
         public const string BulletSprite = "playerBullet";
 
+        public const string IceProjectileSprite = "Ice_Projectile";
+
         public const string Sky = "Sky";
 
         public const string Tower = "Tower";

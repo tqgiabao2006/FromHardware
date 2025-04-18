@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -7,7 +8,9 @@ namespace Lethal_Organization;
 public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
-    
+
+    private Random _random;
+
     private SpriteBatch _spriteBatch;
     
     private Player _player;
@@ -47,6 +50,8 @@ public class Game1 : Game
     //Boss
     private Texture2D _bossSpriteSheet;
 
+    private Texture2D _iceProjectile;
+
     private Boss _boss;
 
     private Level _level;
@@ -76,7 +81,11 @@ public class Game1 : Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
+        _random = new Random();
+
         _bossSpriteSheet = Content.Load<Texture2D>(Constants.BossSpriteSheet);
+
+        _iceProjectile = Content.Load<Texture2D>(Constants.IceProjectileSprite);
 
         _playerSpriteSheet = Content.Load<Texture2D>(Constants.PlayerSpriteSheet);
 
@@ -116,9 +125,11 @@ public class Game1 : Game
 
         _gameManager.Player = _player;
 
-        _menu = new Menu(_UISprite, Constants.MenuLayout, new Vector2(850, 350), _gameManager, _gameManager.);
+        _menu = new Menu(_UISprite, Constants.MenuLayout, new Vector2(850, 350), _gameManager, _gameManager.ChangeState);
 
-        _testEnemy = new Enemy(_enemySprite, _level[9, 2].DisplayPos, _player, _gameManager);
+        //_testEnemy = new Enemy(_enemySprite, _level[9, 2].DisplayPos, _player, _gameManager);
+
+        _boss = new Boss(_bossSpriteSheet, _iceProjectile, Constants.BossSpriteMap, _player, _level, _gameManager, _random, _objectPool);
 
         _gameManager.Start();
     }
@@ -133,8 +144,10 @@ public class Game1 : Game
         //_testButton.Update(gameTime);
 
         _gameManager.Update(gameTime);
+
+        _boss.Update(gameTime);
         
-        _testEnemy.Update(gameTime);
+        //_testEnemy.Update(gameTime);
         base.Update(gameTime);
     }
 
@@ -148,11 +161,18 @@ public class Game1 : Game
             null,
             null
         );
+        
         _level.Draw(_spriteBatch, _player.CameraOffset);
+       
         _player.Draw(_spriteBatch);
+        
         _menu.Draw(_spriteBatch);
+        
         _gameManager.Draw(_spriteBatch);
-        _testEnemy.Draw(_spriteBatch, _player);
+
+        _boss.Draw(_spriteBatch);
+
+        //_testEnemy.Draw(_spriteBatch, _player);
         // Draw the test button
         //_testButton.Draw(_spriteBatch, true);
 
@@ -165,26 +185,40 @@ public class Game1 : Game
             new Vector2(10, 10),
             Color.White);
 
+            _spriteBatch.DrawString(
+                _font,
+                $"Boss state {_boss.BossState}",
+                new Vector2(10, 200),
+                Color.Yellow
+                );
+            //_spriteBatch.DrawString(
+            //    _font,
+            //    _player._playerState.ToString(),
+            //    new Vector2(_player.CameraPos.X, _player.CameraPos.Y),
+            //    Color.Red);
+
+            //_spriteBatch.DrawString(
+            //_font,
+            //$"Velocity: {_player.Velocity.X}, {_player.Velocity.Y} \n \n Screen {_screenWidth}, {_screenHeight}",
+            //    new Vector2(10, 50),
+            //    Color.White);
+
+
+            //_spriteBatch.DrawString(
+            //   _font,
+            //   $"Offset: {_player.CameraOffset} \n World Pos: {_player.WorldPos.X}, {_player.WorldPos.Y} \n" +
+            //   $"CameraPos: {_player.CameraPos.X}, {_player.CameraPos.Y}",
+            //   new Vector2(10, 150),
+            //   Color.Red);
+            
 
             _spriteBatch.DrawString(
                 _font,
-                _player._playerState.ToString(),
-                new Vector2(_player.CameraPos.X, _player.CameraPos.Y),
-                Color.Red);
-
-            _spriteBatch.DrawString(
-            _font,
-            $"Velocity: {_player.Velocity.X}, {_player.Velocity.Y} \n \n Screen {_screenWidth}, {_screenHeight}",
-                new Vector2(10, 50),
-                Color.White);
-
-
-            _spriteBatch.DrawString(
-               _font,
-               $"Offset: {_player.CameraOffset} \n World Pos: {_player.WorldPos.X}, {_player.WorldPos.Y} \n" +
-               $"CameraPos: {_player.CameraPos.X}, {_player.CameraPos.Y}",
-               new Vector2(10, 150),
-               Color.Red);
+                $"Boss Velcoity: {_boss.Velocity} \n" +
+                $"Face Right {_boss.FaceRight}",
+                 new Vector2(10, 250),
+                Color.Yellow
+            );
 
             _spriteBatch.DrawString(
                 _font,

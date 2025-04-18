@@ -1,7 +1,7 @@
 //Use sprite sheet "BossSpriteSheet"
 //Each frame size: Witdh 192, Height 96,
 //Naming convention: State_Index,Row Index,Col Index,Sprite Height,Sprite Width,IsLoop (1 is true, 0 is false), bool ForceFinish (1,0)
-192,96
+Size,192,96
 Idle,0,0,96,1152,1,0
 Walk,1,0,96,1920,1,0
 Punch,2,0,96,2688,0,1

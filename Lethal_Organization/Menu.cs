@@ -66,9 +66,9 @@ namespace Lethal_Organization
 
         private bool _isPressed;
 
-        private Action _changeState;
+        private Action<GameManager.GameState> _changeState;
 
-        public Menu(Texture2D spriteSheet, string textureMapFile, Vector2 position, GameManager gameManager,Action changeState ,int scale = 5)
+        public Menu(Texture2D spriteSheet, string textureMapFile, Vector2 position, GameManager gameManager, Action<GameManager.GameState> changeState ,int scale = 5)
         {
             _spriteSheet = spriteSheet;
             _position = position;

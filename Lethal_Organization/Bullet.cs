@@ -127,7 +127,7 @@ public class Bullet
         
         this._worldPos.Y +=(int)_direction.Y * _speed;
 
-        if (Vector2.Distance(_spawnPos, new Vector2(_worldPos.X, _worldPos.Y)) <= _range)
+        if (Vector2.Distance(_spawnPos, new Vector2(_worldPos.X, _worldPos.Y)) > _range)
         {
             SetActive(false);
             return;

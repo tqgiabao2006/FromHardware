@@ -21,7 +21,8 @@ public class Boss: GameObject
         Fall,
         Die
     }
-    
+    private bool _isFree;
+
     private State _currentState;
 
     private Player _player;
@@ -50,7 +51,9 @@ public class Boss: GameObject
 
     private Func<bool> _checkOnGround;
 
-    private Func<State, bool> _checkAnimFinish;
+    private Func<State, int,bool> _checkAnimFinish;
+
+    private Func<State, int> _getMaxIndex;
     
     //Skill
     private bool _triggered;
@@ -89,6 +92,18 @@ public class Boss: GameObject
     private ICommand<Boss> _curCommand;
     
     private Queue<ICommand<Boss>> _commandQueue;
+
+    //Draw
+    public bool LockDirection;
+
+    private SpriteEffects _spriteEffects;
+    public bool FaceRight
+    {
+        get
+        {
+            return _faceRight;
+        }
+    }
     
     public Vector2 Velocity
     {
@@ -110,19 +125,22 @@ public class Boss: GameObject
         }
     }
 
-    private bool Free
+
+    public State BossState
     {
         get
         {
-            return _curCommand == null || _curCommand.Finished;
+            return _currentState;
         }
         set
         {
-            Free = value;
+            _currentState = value;
         }
     }
     
-    public Boss(Texture2D spriteSheet, Texture2D bulletTexture,string textureMapFile, Player player, Level level,Random random, ObjectPooling objectPooling)
+    public Boss(Texture2D spriteSheet, Texture2D bulletTexture,string textureMapFile, 
+        Player player, Level level,
+        GameManager manager, Random random, ObjectPooling objectPooling)
     {
         this._player = player;
         
@@ -134,7 +152,7 @@ public class Boss: GameObject
         
         _bulletTexture = bulletTexture;
 
-        _animator = new Animator<State>(spriteSheet, _currentState, textureMapFile, 0.2f);
+        _animator = new Animator<State>(spriteSheet, _currentState, textureMapFile, 0.1f);
 
         _skillSet = new List<Skill<State>>()
         {
@@ -178,9 +196,17 @@ public class Boss: GameObject
 
         _radius = 300;
 
-        worldPos = new Rectangle(500,500, 192, 96);
+        worldPos = new Rectangle(0,380, 192, 96);
+
+        _hitBox = new Rectangle(0, 380, 100, 96);
         
-        _punchHitBox = new Rectangle(0, 0, 300, 64);
+        _punchHitBox = new Rectangle(0, 380, 300, 64);
+
+        _groundBox = new Rectangle(0, 450, 1000, 1009);
+
+        _triggerBound = new Rectangle(0, 200, 300, 300);
+
+        _spriteEffects = SpriteEffects.None;
 
         _checkAnimFinish = _animator.CheckAnimationFinish;
         
@@ -189,15 +215,33 @@ public class Boss: GameObject
         _spawnBullet = SpawnBullet;
 
         _setAnim = SetAnim;
+
+        _getMaxIndex = _animator.GetMaxIndex;
+
+        manager.StateChangedAction += OnStateChange;
+
+        isDebug = true;
     }
 
     public override void Update(GameTime gameTime)
     {
-      
+        if (!visible || paused)
+        {
+            return;
+        }
+
+        _animator.Update(gameTime);
+
+        worldPos.X += (int)_velocity.X;
+
+        worldPos.Y += (int)_velocity.Y;
+
+        UpdateHitBox();
+
         StateUpdate();
 
         GenerateCommand(gameTime);
-        
+
         ProcessCommand(gameTime);
     }
 
@@ -205,33 +249,77 @@ public class Boss: GameObject
     {
         displayPos = new Rectangle(worldPos.X + (int)_player.CameraOffset.X, worldPos.Y + (int)_player.CameraOffset.Y, worldPos.Width, worldPos.Height);
 
-        SpriteEffects effect = _faceRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
-        _animator.Draw(sb, displayPos, effect);
+        if (!LockDirection) //Avoid change direction when use skill
+        {
+            _spriteEffects = _faceRight ? SpriteEffects.FlipHorizontally : SpriteEffects.None; //Sprite face left by default;
+        } 
+
+        _animator.Draw(sb, worldPos, _spriteEffects);
 
         if(isDebug)
         {
+            CustomDebug.DrawWireRectangle(sb, worldPos, 2, Color.BlueViolet);
+            CustomDebug.DrawWireRectangle(sb, _punchHitBox, 5, Color.Red);
+            CustomDebug.DrawWireRectangle(sb, _groundBox, 2, Color.Yellow);
+            CustomDebug.DrawWireRectangle(sb, worldPos, 2, Color.Cyan);
+            CustomDebug.DrawWireRectangle(sb, _hitBox, 5, Color.Yellow);
+        }
+    }
 
-            CustomDebug.DrawWireRectangle(sb, _triggerBound, 5, Color.Yellow);
-            CustomDebug.DrawWireRectangle(sb, _punchHitBox, 5, Color.Yellow);
-            CustomDebug.DrawWireRectangle(sb,_hitBox, 5,Color.Yellow);
-            CustomDebug.DrawWireRectangle(sb, _groundBox, 5, Color.Yellow); 
+    public void OnStateChange(GameManager.GameState state)
+    {
+        switch (state)
+        {
+            case GameManager.GameState.Menu:
+                paused = false;
+                visible = false;
+                isDebug = false;
+                break;
+
+            case GameManager.GameState.Game:
+                visible = true;
+                paused = false;
+                isDebug = false;
+
+                break;
+
+            case GameManager.GameState.GameOver:
+                visible = false;
+                paused = false;
+                isDebug = false;
+
+                break;
+            case GameManager.GameState.Pause:
+                paused = true;
+                visible = true;
+                isDebug = false;
+
+                break;
+            case GameManager.GameState.Debug:
+                paused = false;
+                visible = true;
+                isDebug = true;
+                break;
         }
     }
     private void StateUpdate()
     { 
-        if(_player.WorldPos.X < this.worldPos.X)
+        
+        if(_player.WorldPos.X < _hitBox.X)
         {
             _faceRight = false;
-        }else
+        }else if(_player.WorldPos.X > _hitBox.X + _hitBox.Width)
         {
             _faceRight = true;
         }
 
         if (!_triggered && _triggerBound.Contains(_player.WorldPos))
-        {
+         {
             _animator.SetState(State.Revive);
             _animator.SetState(State.Idle);
             _currentState = State.Idle;
+            _triggered = true;
+            _isFree = true;
         }
         else
         {
@@ -251,12 +339,24 @@ public class Boss: GameObject
 
     private void ProcessCommand(GameTime gameTime)
     {
-        if (_curCommand != null && Free)
+        if (_curCommand != null && _isFree)
         {
             _curCommand.Execute(this);
-            Free = false;
+            _isFree = false;
         }
-        _curCommand.Update(this, gameTime);
+
+        if(_curCommand != null)
+        {
+           _curCommand.Update(this, gameTime);
+
+            if(_curCommand.Finished)
+            {
+                _isFree = true;
+                _currentState = State.Idle;
+                _animator.SetState(_currentState);
+            }
+        }
+
     }
 
     private void GenerateCommand(GameTime gameTime)
@@ -283,6 +383,14 @@ public class Boss: GameObject
         }
     }
 
+    private void UpdateHitBox()
+    {
+        _hitBox.X = worldPos.Center.X - worldPos.Width / 4;
+        _hitBox.Y = worldPos.Y;
+        _hitBox.Width = worldPos.Width / 2;
+        _hitBox.Height = worldPos.Height;
+    }
+
     private ICommand<Boss> GenerateSkill()
     {
         int sum = 0;
@@ -303,13 +411,13 @@ public class Boss: GameObject
                 switch (_skillSet[i].State)
                 {
                     case State.Spike:
-                        return new SpikeCommand(_spawnBullet, _setAnim, _checkAnimFinish, _spikeNumb, _radius);
+                        return new SpikeCommand(_spawnBullet, _setAnim, _checkAnimFinish, _spikeNumb, _radius, _getMaxIndex(State.Spike) - 1);
                     
                     case State.Jump:
-                        return new JumpCommand(_setAnim, _jumpForce, _gravity, _checkAnimFinish, _checkOnGround);
+                        return new JumpCommand(_setAnim, _jumpForce, _gravity, _getMaxIndex(State.Jump) - 1, _checkAnimFinish, _checkOnGround);
                     
                     case State.Punch:
-                        return new PunchCommand(_speed, _skillSet[i].Damage, _punchHitBox, _player, _setAnim,
+                        return new PunchCommand(_speed, _skillSet[i].Damage, _getMaxIndex(State.Punch) - 1,_punchHitBox, _player, _setAnim,
                             _checkAnimFinish);
                 }
             }
@@ -357,16 +465,24 @@ public class PunchCommand : ICommand<Boss>
 
     private int _damage;
 
+    private int _damgeFrame;
+
+    private int _endFrame;
+
     private Rectangle _punchHitbox;
 
     private Player _player;
     
     private Action<Boss.State> _setAnim;
     
-    Func<Boss.State, bool> _checkFinishAnimation;
+    Func<Boss.State,int, bool> _checkFinishAnimation;
     
-    internal PunchCommand(float speed, int damage, Rectangle punchHitBox, Player player, Action<Boss.State> setAnim, Func<Boss.State, bool> checkFinishAnimation)
+    internal PunchCommand(float speed, int damage, int endFrame,Rectangle punchHitBox, Player player, Action<Boss.State> setAnim, Func<Boss.State, int,bool> checkFinishAnimation)
     {
+        _damgeFrame = 6;
+
+        _endFrame = endFrame;
+
         _punchRange = punchHitBox.Width;
         
         _punchHitbox = punchHitBox; 
@@ -388,56 +504,56 @@ public class PunchCommand : ICommand<Boss>
 
     public void Execute(Boss boss)
     {
-        _setAnim(Boss.State.Walk);
+        _setAnim(Boss.State.Idle);
     }
 
     public void Update(Boss boss, GameTime gameTime)
     {
         if (_waitAnim)
         {
-            if (_checkFinishAnimation(Boss.State.Punch))
+            if (_checkFinishAnimation(Boss.State.Punch,_damgeFrame))
             {
+                boss.LockDirection = true;
+
                 if (!_faceRight)
                 {
-                    _punchHitbox.X = _punchHitbox.X - boss.WorldPos.Width -  _punchHitbox.Width; ;
+                    _punchHitbox.X = _punchHitbox.X - boss.WorldPos.Width -  _punchHitbox.Width; 
                 }
-                if (_punchHitbox.Contains(_player.WorldPos))
+                if (_punchHitbox.Intersects(_player.WorldPos))
                 {
                     _player.GetHit(_damage);
                 }
 
+            }
+
+            if(_checkFinishAnimation(Boss.State.Punch,_endFrame))
+            {
+                boss.LockDirection=false;
                 Finished = true;
             }
+
+            boss.Velocity = Vector2.Zero;
         }
         else
         {
-            //Walk
-            if (IsInRange(boss))
-            {
-                if (_player.WorldPos.X < boss.WorldPos.X)
-                {
-                    boss.Velocity = new Vector2(boss.Velocity.Y, -_speed);
-                }
-                else
-                {
-                    boss.Velocity = new Vector2(boss.Velocity.Y, +_speed);
-                }
-            }
-            else
+            if(boss.WorldPos.Intersects(_player.WorldPos))
             {
                 _setAnim(Boss.State.Punch);
                 _faceRight = _player.WorldPos.X > boss.WorldPos.X;
                 _waitAnim = true;
+            }else
+            {
+                _setAnim(Boss.State.Walk);
+                
+                int dirMultipler = boss.FaceRight ? 1 : -1;
+
+                boss.Velocity = new Vector2(dirMultipler*_speed, 0);
+
+                boss.BossState = Boss.State.Walk;
             }
         }
         
     }
-
-    private bool IsInRange(Boss boss)
-    {
-        return MathF.Abs( _player.WorldPos.X - boss.WorldPos.X) <= _punchRange;
-    }
-
 }
 
 public class JumpCommand : ICommand<Boss>
@@ -450,11 +566,13 @@ public class JumpCommand : ICommand<Boss>
 
     private float _gravity;
     
-    private Func<Boss.State, bool> _checkFinishAnimation;
+    private Func<Boss.State, int,bool> _checkFinishAnimation;
     
     private Func<bool> _onGround;
+
+    private int _endFrame;
     
-    internal JumpCommand(Action<Boss.State> setAnim, Vector2 jumpForce, float gravity, Func<Boss.State, bool> checkFinishAnimation, Func<bool> onGround)
+    internal JumpCommand(Action<Boss.State> setAnim, Vector2 jumpForce, float gravity, int endFrame,Func<Boss.State, int,bool> checkFinishAnimation, Func<bool> onGround)
     {
         _setAnim = setAnim;
         
@@ -465,6 +583,8 @@ public class JumpCommand : ICommand<Boss>
         _onGround = onGround;
         
         _gravity = gravity;
+
+        _endFrame = endFrame;
     }
     public void Execute(Boss boss)
     {
@@ -479,7 +599,7 @@ public class JumpCommand : ICommand<Boss>
         {
             _setAnim(Boss.State.Fall);
         }
-        if (_checkFinishAnimation(Boss.State.Fall) && _onGround())
+        if (_checkFinishAnimation(Boss.State.Fall, _endFrame) && _onGround())
         {
             //Spawn spike
             Finished = true;
@@ -495,13 +615,15 @@ public class SpikeCommand : ICommand<Boss>
     
     private Action<Boss.State> _setAnim;
     
-    Func<Boss.State, bool> _checkFinishAnimation;
+    Func<Boss.State, int,bool> _checkFinishAnimation;
 
     private int _numbSpikes;
 
     private float _radius;
 
-    public SpikeCommand(Action<Vector2, Vector2> spawnBullet, Action<Boss.State> setAnim, Func<Boss.State, bool> checkFinishAnimation, int numbSpikes, float radius)
+    private int _endFrame;
+
+    public SpikeCommand(Action<Vector2, Vector2> spawnBullet, Action<Boss.State> setAnim, Func<Boss.State, int, bool> checkFinishAnimation, int numbSpikes, float radius, int endFrame)
     {   
         _spawnBullet = spawnBullet;
         
@@ -512,6 +634,8 @@ public class SpikeCommand : ICommand<Boss>
         _numbSpikes = numbSpikes;
         
         _setAnim = setAnim;
+
+        _endFrame = endFrame;
     }
     
 
@@ -522,7 +646,7 @@ public class SpikeCommand : ICommand<Boss>
 
     public void Update(Boss boss, GameTime gameTime)
     {
-        if (_checkFinishAnimation(Boss.State.Spike))
+        if (_checkFinishAnimation(Boss.State.Spike, _endFrame))
         {
             int step = 360 / _numbSpikes;
 
