@@ -12,6 +12,8 @@ namespace Lethal_Organization
 
         public const string PlayerSpriteSheet = "PlayerSpriteSheet";
 
+        public const string BossSpriteSheet = "bossSpriteSheet";
+
         public const string TileSpriteSheet = "TileSpriteSheet";
 
         public const string BulletSprite = "playerBullet";
@@ -29,6 +31,8 @@ namespace Lethal_Organization
         public const string LevelDesignCsv = "../../../Content/LevelDesign.csv";
 
         public const string PlayerSpriteMap = "../../../Content/playerTileMap.txt";
+
+        public const string BossSpriteMap = "../../../Content/bossSpriteMap.txt";
 
         public const string Arial20 = "Arial20";
 

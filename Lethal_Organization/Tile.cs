@@ -44,7 +44,7 @@ public class Tile
     /// Expected to call sb.Begin()/End() elsewhere
     /// </summary>
     /// <param name="sb"></param>
-    public void Draw(SpriteBatch sb, bool isDebug,Player player)
+    public void Draw(SpriteBatch sb, bool isDebug, Player player)
     {
         _displayPos = new Rectangle(_worldPos.X + (int)player.CameraOffset.X, _worldPos.Y + (int)player.CameraOffset.Y, _worldPos.Width, _worldPos.Height);
 
@@ -58,7 +58,7 @@ public class Tile
             SpriteEffects.None,
             1
             );
-
+        
         if (isDebug)
         {
             if (DisplayPos.Intersects(player.CameraPos))

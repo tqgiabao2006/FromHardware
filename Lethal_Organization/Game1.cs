@@ -24,7 +24,7 @@ public class Game1 : Game
 
     private ObjectPooling _objectPool;
     
-    //Test Player Sprite    
+    //Player Sprite    
     private Texture2D _playerSpriteSheet;
     
     private Texture2D _enemySprite;
@@ -43,6 +43,11 @@ public class Game1 : Game
     private Texture2D _collumBackground;
 
     private Texture2D _bossBackground;
+
+    //Boss
+    private Texture2D _bossSpriteSheet;
+
+    private Boss _boss;
 
     private Level _level;
 
@@ -70,6 +75,8 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
+
+        _bossSpriteSheet = Content.Load<Texture2D>(Constants.BossSpriteSheet);
 
         _playerSpriteSheet = Content.Load<Texture2D>(Constants.PlayerSpriteSheet);
 
@@ -106,6 +113,7 @@ public class Game1 : Game
         _player = new Player(_playerSpriteSheet, Constants.PlayerSpriteMap,  _bulletSprite,_graphics, _level, _gameManager, _objectPool);
 
         _level.Player = _player;
+
         _gameManager.Player = _player;
 
         _menu = new Menu(_UISprite, Constants.MenuLayout, new Vector2(_screenWidth / 2, _screenHeight / 2), _gameManager);

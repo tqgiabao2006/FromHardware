@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -12,8 +9,15 @@ namespace Lethal_Organization
     //T is State Enum
     internal class Animator<T> where T: Enum
     {
+        private T _curState;
 
-        Dictionary<T, Animation> _animations;
+        private T _prevState;
+
+        private Dictionary<T, Animation> _animMap;
+
+        private Queue<T> _stateQueue;
+
+        private Animation _curAnim;
 
         private Texture2D _spriteSheet;
 
@@ -29,22 +33,23 @@ namespace Lethal_Organization
 
         private int _frameHeight;
 
-        private T _currentState;
 
         /// <summary>
         /// Used for object with multiply animation need to read from file
         /// </summary>
         /// <param name="spriteFile"></param>
 
-        public Animator(Texture2D spriteSheet, T state,string spriteText, float secondPerFrame)
+        public Animator(Texture2D spriteSheet, T state, string spriteText, float secondPerFrame)
         {
             _spriteSheet = spriteSheet;
 
-            _animations = new Dictionary<T, Animation>();
+            _animMap = new Dictionary<T, Animation>();
+
+            _stateQueue = new Queue<T>();
 
             LoadTexture(spriteText);
 
-            _currentState = state;
+            _curState = state;
             
             _secondPerFrame = secondPerFrame;
 
@@ -60,36 +65,48 @@ namespace Lethal_Organization
 
         public void Update(GameTime gameTime)
         {
-            if(_animations.ContainsKey(_currentState))
+            if(_curAnim == null)
             {
-                Animation animation = _animations[_currentState];
-                if(_timeCounter <= 0)
+                return;
+            }
+
+            _timeCounter -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            //Set wait time for each frame
+            if(_timeCounter > 0)
+            {
+                return;
+            }
+
+            //Change frame
+            if (_curAnim.IsLoop)
+            {
+                _currentFrame = (_currentFrame + 1) % _curAnim.MaxIndex;  //Wrap around the max Index
+            }
+            else
+            {
+                if (_currentFrame < _curAnim.MaxIndex - 1)
                 {
-                    if (animation.IsLoop)
-                    {
-                        if (_currentFrame >= animation.MaxIndex - 1)
-                        {
-                            _currentFrame = 0;
-                        }
-                        else
-                        {
-                            _currentFrame++;
-                        }
-                    }
-                    else
-                    {
-                        if (_currentFrame < animation.MaxIndex - 1)
-                        {
-                            _currentFrame++;
-                        }
-                    }
-                    Rectangle animSequence = animation.SourceImage;
-                    _imageSource = new Rectangle( _currentFrame * _frameWidth, animSequence.Y, _frameWidth, _frameHeight);
-                    _timeCounter = _secondPerFrame;
-                }else
-                {
-                    _timeCounter -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+                    _currentFrame++;
                 }
+            }
+
+
+            //Calculate sourece image for frame
+            Rectangle animSequence = _curAnim.SourceImage;
+            _imageSource = new Rectangle( _currentFrame * _frameWidth, animSequence.Y, _frameWidth, _frameHeight);
+            
+
+            _timeCounter = _secondPerFrame;
+
+            //If animation, forced to finish, reach its last frame => switch next state on the queue
+            if(!_curAnim.IsLoop                                
+                && _curAnim.ForcedFinish
+                && _currentFrame == _curAnim.MaxIndex - 1  
+                && _stateQueue.Count > 0)
+            {
+                T nextState = _stateQueue.Dequeue();
+                SwitchToState(nextState);
             }
         }
 
@@ -101,16 +118,41 @@ namespace Lethal_Organization
 
         public void SetState(T  state)
         {
-            if(_currentState.Equals(state))
+            //State not change ignore
+            if(_curState.Equals(state) || !_animMap.ContainsKey(state))
             {
                 return;
             }
 
-            _currentState = state;
-            _currentFrame = 0;
-            _timeCounter = 0;
+            //If there is an animation that force to finish => wait
+            if(_curAnim != null 
+                && _curAnim.ForcedFinish 
+                && _currentFrame <  _curAnim.MaxIndex)
+            {
+                _stateQueue.Enqueue(state);
+            }else //Immidately switch state
+            {
+                SwitchToState(state);
+            }            
         }
 
+        private void SwitchToState(T state)
+        {
+            _prevState = _curState;
+            _curState = state;
+            _curAnim = _animMap[state];
+            _currentFrame = 0;
+            _timeCounter = 0;
+
+            //Set source image to first frame
+            Rectangle animSequence = _curAnim.SourceImage;
+            _imageSource = new Rectangle(0, animSequence.Y, _frameWidth, _frameHeight);
+        }
+
+        public bool CheckAnimationFinish(T state)
+        {
+            return (_prevState.Equals(state) && _animMap.ContainsKey(state));
+        }
         private void LoadTexture(string filePath)
         {
             string line = "";
@@ -132,22 +174,23 @@ namespace Lethal_Organization
                     {
                         _frameWidth = int.Parse(data[1]);
                         _frameHeight = int.Parse(data[2]);
-                    }else if(data.Length == 6)
+                    }else if(data.Length == 7)
                     {
                         T state = (T)Enum.Parse(typeof(T), data[0]);
                         int rowIndex = int.Parse(data[1]);
                         int colIndex = int.Parse(data[2]);
                         int height = int.Parse(data[3]);
                         int width = int.Parse(data[4]);
-                        bool isLoop = int.Parse(data[5]) == 1? true : false;    
+                        bool isLoop = data[5] == "1";
+                        bool forceFinish = data[6] == "1";
 
-                        _animations.Add(state,
-                            new Animation()
-                            {
-                                SourceImage = new Rectangle(_frameWidth * colIndex, _frameHeight * rowIndex, width , height),
-                                MaxIndex = width / _frameWidth,
-                                IsLoop = isLoop,
-                            });
+
+                        _animMap.Add(state,
+                            new Animation(
+                                new Rectangle(_frameWidth * colIndex, _frameHeight * rowIndex, width, height), //Source image
+                                width / _frameWidth,   //Max index
+                                isLoop,
+                                forceFinish));
                     }
                                 
                 }

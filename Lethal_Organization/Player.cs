@@ -178,7 +178,7 @@ namespace Lethal_Organization
             
             _objectPooling = objectPooling;
 
-            _animator = new Animator<State>(playerSpriteSheet, State.Fall, spriteMapFile, 0.1f);
+            _animator = new Animator<State>(playerSpriteSheet, State.Idle, spriteMapFile, 0.1f);
 
             InitializePlayerSprites("playerTileMap");
         }
@@ -282,7 +282,7 @@ namespace Lethal_Organization
 
         /// <summary>
         /// Movement logic for player 
-        /// </summary>
+        /// </summary>/
         private void StateMachine(Level level)
         {
             if (!_onGround && !isDebug)
@@ -463,7 +463,7 @@ namespace Lethal_Organization
                 if (_shootTimeCounter <= 0)
                 {
                     Bullet bullet = _objectPooling.GetObj(ObjectPooling.ProjectileType.Bullet, _bulletTexture, _level);
-                    Bullet.Direction direction = _faceRight ? Bullet.Direction.Right : Bullet.Direction.Left;
+                    Vector2 direction = _faceRight ? new Vector2(1,0) : new  Vector2(-1, 0);
                     int dirMultipler = _faceRight ? 1 : -1;
                     Vector2 spawnPos = new Vector2(this.worldPos.Center.X + dirMultipler * this.worldPos.Width / 2, this.worldPos.Center.Y);
                     _animator.SetState(State.Attack);

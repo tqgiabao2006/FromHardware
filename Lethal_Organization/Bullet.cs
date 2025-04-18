@@ -7,11 +7,6 @@ namespace Lethal_Organization;
 
 public class Bullet
 {
-    public enum Direction
-    {
-        Left,
-        Right
-    }
     
     private bool _enabled;
 
@@ -23,7 +18,7 @@ public class Bullet
 
     private int _damge;
     
-    private Direction _direction;
+    private Vector2 _direction;
 
     private Level _level;
     
@@ -81,13 +76,14 @@ public class Bullet
         this._worldPos = new Rectangle(0, 0, 16, 16);
     }
 
-    public void Spawn(Vector2 worldPos, Direction direction)
+    public void Spawn(Vector2 worldPos, Vector2 direction)
     {
         _spawnPos = worldPos;
         this._worldPos.X= (int)worldPos.X;
         this._worldPos.Y = (int)worldPos.Y;
         this._enabled = true;
         this._direction = direction;
+        _direction.Normalize();
     }
     public void SetActive(bool active)
     {
@@ -127,25 +123,14 @@ public class Bullet
 
         CheckCollision();
 
-        if (_direction == Direction.Right)
-        {
-            if (this._worldPos.X > this._spawnPos.X + this._range)
-            {
-                SetActive(false);
-                return;
-            }
+        this._worldPos.X +=(int)_direction.X * _speed;
+        
+        this._worldPos.Y +=(int)_direction.Y * _speed;
 
-            this._worldPos.X += (_speed);
-        }
-        else
+        if (Vector2.Distance(_spawnPos, new Vector2(_worldPos.X, _worldPos.Y)) <= _range)
         {
-            if (this._worldPos.X < this._spawnPos.X - this._range)
-            {
-                SetActive(false);
-                return;
-            }
-            
-            this._worldPos.X -= _speed;
+            SetActive(false);
+            return;
         }
     }
       
@@ -153,7 +138,7 @@ public class Bullet
     {
         _displayPos = new Rectangle(_worldPos.X + (int)cameraOffset.X,(int)_spawnPos.Y + (int)cameraOffset.Y, _worldPos.Width, _worldPos.Height); //Lock y axis
 
-        SpriteEffects effect = _direction == Direction.Right? SpriteEffects.None : SpriteEffects.FlipHorizontally;
+        SpriteEffects effect = _direction.X > 0 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
 
         if (_enabled)
         {
