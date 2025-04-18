@@ -116,9 +116,11 @@ public class Game1 : Game
 
         _gameManager.Player = _player;
 
-        _menu = new Menu(_UISprite, Constants.MenuLayout, new Vector2(_screenWidth / 2, _screenHeight / 2), _gameManager);
+        _menu = new Menu(_UISprite, Constants.MenuLayout, new Vector2(850, 350), _gameManager, _gameManager.);
 
         _testEnemy = new Enemy(_enemySprite, _level[9, 2].DisplayPos, _player, _gameManager);
+
+        _gameManager.Start();
     }
 
     protected override void Update(GameTime gameTime)
@@ -150,7 +152,7 @@ public class Game1 : Game
         _player.Draw(_spriteBatch);
         _menu.Draw(_spriteBatch);
         _gameManager.Draw(_spriteBatch);
-        _testEnemy.Draw(_spriteBatch);
+        _testEnemy.Draw(_spriteBatch, _player);
         // Draw the test button
         //_testButton.Draw(_spriteBatch, true);
 

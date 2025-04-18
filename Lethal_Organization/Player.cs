@@ -33,7 +33,7 @@ namespace Lethal_Organization
         
         private float _jumpForce;
         
-        private int _maxSpeed;
+        private Vector2 _maxSpeed;
 
         private bool _faceRight;
 
@@ -158,7 +158,8 @@ namespace Lethal_Organization
             
             speed = 1;
             
-            _maxSpeed = 4;
+            _maxSpeed.X = 4;
+            _maxSpeed.Y = 10;
             
             _jumpForce = -10;
             
@@ -287,7 +288,7 @@ namespace Lethal_Organization
         {
             if (!_onGround && !isDebug)
             {
-                _velocity.Y += _gravity;
+                _velocity.Y = Math.Min(_maxSpeed.Y, _velocity.Y + _gravity);
             }
            
             worldPos.X += (int)_velocity.X;
@@ -317,11 +318,11 @@ namespace Lethal_Organization
 
                     if (isDebug)
                     {
-                        if ((_currentKb.IsKeyDown(Keys.W) || _currentKb.IsKeyDown(Keys.Up)) && Math.Abs(_velocity.Y) < Math.Abs(_maxSpeed))
+                        if ((_currentKb.IsKeyDown(Keys.W) || _currentKb.IsKeyDown(Keys.Up)) && Math.Abs(_velocity.Y) < Math.Abs(_maxSpeed.X))
                         {
                             _playerState = State.Run;
                         }
-                        else if ((_currentKb.IsKeyDown(Keys.S) || _currentKb.IsKeyDown(Keys.Down)) && Math.Abs(_velocity.Y) < Math.Abs(_maxSpeed))
+                        else if ((_currentKb.IsKeyDown(Keys.S) || _currentKb.IsKeyDown(Keys.Down)) && Math.Abs(_velocity.Y) < Math.Abs(_maxSpeed.X))
                         {
 
                             _playerState = State.Run;
@@ -340,7 +341,7 @@ namespace Lethal_Organization
                 case State.Run:
                     if (_currentKb.IsKeyDown(Keys.A) || _currentKb.IsKeyDown(Keys.Left) && _onGround)
                     {
-                        if (_velocity.X > -_maxSpeed)
+                        if (_velocity.X > -_maxSpeed.X)
                         {
                             _velocity.X -= speed;
                         }
@@ -350,7 +351,7 @@ namespace Lethal_Organization
                     }
                     else if (_currentKb.IsKeyDown(Keys.D) || _currentKb.IsKeyDown(Keys.Right) && _onGround)
                     {
-                        if (_velocity.X < _maxSpeed)
+                        if (_velocity.X < _maxSpeed.X)
                         {
                             _velocity.X += speed;
                         }
@@ -372,11 +373,11 @@ namespace Lethal_Organization
 
                     if (isDebug)
                     {
-                        if ((_currentKb.IsKeyDown(Keys.W) || _currentKb.IsKeyDown(Keys.Up)) && Math.Abs(_velocity.Y) < Math.Abs(_maxSpeed))
+                        if ((_currentKb.IsKeyDown(Keys.W) || _currentKb.IsKeyDown(Keys.Up)) && Math.Abs(_velocity.Y) < Math.Abs(_maxSpeed.X))
                         {
                             _velocity.Y -= speed;
                         }
-                        else if ((_currentKb.IsKeyDown(Keys.S) || _currentKb.IsKeyDown(Keys.Down)) && Math.Abs(_velocity.Y) < Math.Abs(_maxSpeed))
+                        else if ((_currentKb.IsKeyDown(Keys.S) || _currentKb.IsKeyDown(Keys.Down)) && Math.Abs(_velocity.Y) < Math.Abs(_maxSpeed.X))
                         {
                             _velocity.Y += speed;
                         }
@@ -398,7 +399,7 @@ namespace Lethal_Organization
                 case State.Jump:
                     if (_currentKb.IsKeyDown(Keys.A) || _currentKb.IsKeyDown(Keys.Left))
                     {
-                        if (_velocity.X > -_maxSpeed)
+                        if (_velocity.X > -_maxSpeed.X)
                         {
                             _velocity.X -= speed;
                         }
@@ -407,7 +408,7 @@ namespace Lethal_Organization
                     }
                     else if (_currentKb.IsKeyDown(Keys.D) || _currentKb.IsKeyDown(Keys.Right))
                     {
-                        if (_velocity.X < _maxSpeed)
+                        if (_velocity.X < _maxSpeed.X)
                         {
                             _velocity.X += speed;
                         }
@@ -427,7 +428,7 @@ namespace Lethal_Organization
                 case State.Fall:
                     if (_currentKb.IsKeyDown(Keys.A) || _currentKb.IsKeyDown(Keys.Left))
                     {
-                        if (_velocity.X > -_maxSpeed)
+                        if (_velocity.X > -_maxSpeed.X)
                         {
                             _velocity.X -= speed;
                         }
@@ -435,7 +436,7 @@ namespace Lethal_Organization
                     }
                     else if (_currentKb.IsKeyDown(Keys.D) || _currentKb.IsKeyDown(Keys.Right))
                     {
-                        if (_velocity.X < _maxSpeed)
+                        if (_velocity.X < _maxSpeed.X)
                         {
                             _velocity.X += speed;
                         }
@@ -504,7 +505,12 @@ namespace Lethal_Organization
                         Rectangle collidedArea = this.Collide(hitBox, tilePos);
                         _onGround = true;
                         groundRayHit = true;
-                        worldPos.Y -= collidedArea.Height;
+                        
+                        //All three ray points
+                        if((IsInside(tilePos, _groundRayPoint) && IsInside(tilePos, _lefRayPoint) && IsInside(tilePos, _rightRayPoint)))
+                        {
+                            worldPos.Y -= collidedArea.Height;
+                        }
                     }
                     else if(!groundRayHit)
                     {
@@ -533,9 +539,8 @@ namespace Lethal_Organization
                         }
 
                         //Check if hit object over-head
-                        if (hitBox.Y > tilePos.Y &&                                             // hit box under the tile
-                            hitBox.X > tilePos.X && hitBox.X < tilePos.X + tilePos.Width)      // hit box land between the left and right of a tile
-
+                        if (hitBox.Y > tilePos.Y && collidedArea.Width > collidedArea.Height)// hit box under the tile
+                        //hitBox.X > tilePos.X && hitBox.X < tilePos.X + tilePos.Width// hit box land between the left and right of a tile
                         {
                             //Dispose vertical velocity
                             _velocity.Y = 0;
@@ -545,7 +550,6 @@ namespace Lethal_Organization
                     }
                 }
             }
-            
         }
 
 
