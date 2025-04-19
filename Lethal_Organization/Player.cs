@@ -149,7 +149,7 @@ namespace Lethal_Organization
 
         public List<Enemy> EnemyList
         {
-            get { return _enemyList; }
+            set { _enemyList = value; }
         }
         public Player(Texture2D playerSpriteSheet, string spriteMapFile ,Texture2D bulletTexture,GraphicsDeviceManager graphics, Level level, GameManager gameManager, ObjectPooling objectPooling)
         {            
@@ -563,6 +563,61 @@ namespace Lethal_Organization
                 }
             }
             //die logic
+            for (int i = 0; i < _enemyList.Count; i++)
+            {
+                if (this.Collides(hitBox, _enemyList[i].WorldPos) && !isDebug && _enemyList[i].Visible)
+                {
+                    Rectangle collidedArea = this.Collide(hitBox, _enemyList[i].WorldPos);
+
+                    //Check horizontal collsion
+                    if (collidedArea.Width < collidedArea.Height)
+                    {
+                        //Dispose horizontal velocity
+                        if (collidedArea.X > hitBox.X)
+                        {
+                            worldPos.X -= collidedArea.Width;
+                        }
+                        else
+                        {
+                            worldPos.X += collidedArea.Width;
+                        }
+
+                        _velocity.X = 0;
+                        //Player takes damage logic
+                        hp--;
+                    }
+
+                    //Check if hit object over-head
+                    if (hitBox.Y > _enemyList[i].WorldPos.Y && collidedArea.Width > collidedArea.Height)// hit box under the enemy
+                    {
+                        //Dispose vertical velocity
+                        _velocity.Y = 0;
+
+                        worldPos.Y += collidedArea.Height;
+
+                        //Player takes damage logic
+                        hp--;
+                    }
+
+                    //Player jumps on enemy
+                    //killing it
+                    if ((IsInside(_enemyList[i].WorldPos, _groundRayPoint) || IsInside(_enemyList[i].WorldPos, _lefRayPoint) || IsInside(_enemyList[i].WorldPos, _rightRayPoint)) //Check ray point
+                       && !groundRayHit
+                       && worldPos.Y < _enemyList[i].WorldPos.Y && !isDebug) //Player on the top of the enemy
+
+                    {
+
+                        //Middle ray point and either of the side raypoints
+                        if ((IsInside(_enemyList[i].WorldPos, _groundRayPoint) && (IsInside(_enemyList[i].WorldPos, _lefRayPoint) || IsInside(_enemyList[i].WorldPos, _rightRayPoint))))
+                        {
+                            worldPos.Y -= collidedArea.Height;
+                            //kill enemy logic
+
+                            _enemyList[i].SetActive(false);
+                        }
+                    }
+                }
+            }
         }
 
 

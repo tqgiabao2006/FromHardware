@@ -35,6 +35,11 @@ namespace Lethal_Organization
             }
         }
 
+        public bool Visible
+        {
+            get { return visible; }
+        }
+
 
         public virtual void Draw(SpriteBatch sb)
         {

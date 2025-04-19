@@ -30,7 +30,10 @@ namespace Lethal_Organization
 
         private Vector2 _velocity;
 
-
+        public Rectangle WorldPos
+        {
+            get { return worldPos; }
+        }
 
         public Enemy(Texture2D sprite, Rectangle rightPlatform, Rectangle leftPlatform, Player player, GameManager gameManager)
         {
@@ -43,7 +46,7 @@ namespace Lethal_Organization
             displayPos = new Rectangle(0, 0, 48, 48);
 
             speed = 2;
-
+            
             _velocity = Vector2.Zero;
 
             _rightPlatform = rightPlatform;
@@ -99,7 +102,6 @@ namespace Lethal_Organization
             switch(_state)
             {
                 case EnemyState.Patrol:
-                    Patrol();
                     //moves enemy based on which way it's facing
                     if (_enemyDirection)
                     {
@@ -122,7 +124,6 @@ namespace Lethal_Organization
                     break;
 
                 case EnemyState.Chase:
-                    Chase();
                     //moves enemy based on which way it's facing
                     if (_enemyDirection)
                     {
@@ -173,14 +174,9 @@ namespace Lethal_Organization
             }
         }
 
-        private void Patrol()
+        public void SetActive(bool enabled)
         {
-
-        }
-
-        private void Chase()
-        {
-
+            visible = enabled;
         }
     }
 }
