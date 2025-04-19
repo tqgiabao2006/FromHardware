@@ -34,6 +34,7 @@ namespace Lethal_Organization
         private int _frameHeight;
 
 
+
         /// <summary>
         /// Used for object with multiply animation need to read from file
         /// </summary>
@@ -55,12 +56,36 @@ namespace Lethal_Organization
 
             _timeCounter = 0;
 
-            _currentFrame = 0;
+            _currentFrame = 0; 
         }
 
-        public Animator(Texture2D spriteSheet, int frameWidth, int frameHeight)
+        public Animator(Texture2D spriteSheet, T defaultState, int frameWidth, int frameHeight, float secondPerFrame)
         {
+            _spriteSheet = spriteSheet;
 
+            _animMap = new Dictionary<T, Animation>();
+
+            _stateQueue = new Queue<T>();
+
+            _curState = defaultState;
+
+            _secondPerFrame = secondPerFrame;
+
+            _timeCounter = 0;
+
+            _currentFrame = 0;
+
+            _frameHeight = frameHeight;
+
+            _frameWidth = frameWidth;
+
+            _animMap.Add(_curState, new Animation(
+                new Rectangle(0, 0, spriteSheet.Width, spriteSheet.Height),
+                spriteSheet.Width / frameWidth,
+                true,
+                false));
+
+            SwitchToState(defaultState);
         }
 
         public void Update(GameTime gameTime)
@@ -115,8 +140,15 @@ namespace Lethal_Organization
             sb.Draw(_spriteSheet, displayPos, _imageSource,Color.White, 0,Vector2.Zero,effect, 0);
         }
 
-        public void SetState(T  state)
+        public void Draw(SpriteBatch sb, Rectangle displayPos, float angle)
         {
+            Vector2 origin = new Vector2(_imageSource.Width / 2f, _imageSource.Height / 2f); //Rotate around the center of texture to avoid go outside hitbox
+            sb.Draw(_spriteSheet, displayPos, _imageSource, Color.White, angle, origin, SpriteEffects.None, 0);
+
+        }
+
+        public void SetState(T  state)
+        {    
             //State not change ignore
             if(_curState.Equals(state) || !_animMap.ContainsKey(state))
             {
@@ -126,7 +158,7 @@ namespace Lethal_Organization
             //If there is an animation that force to finish => wait
             if(_curAnim != null 
                 && _curAnim.ForcedFinish 
-                && _currentFrame <  _curAnim.MaxIndex)
+                && _currentFrame <  _curAnim.MaxIndex -1)
             {
                 _stateQueue.Enqueue(state);
             }else //Immidately switch state

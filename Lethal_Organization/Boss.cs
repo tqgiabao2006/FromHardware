@@ -45,7 +45,7 @@ public class Boss: GameObject
     private Texture2D _bulletTexture;
     
     //Delegate
-    private Action<Vector2, Vector2> _spawnBullet;
+    private Action<Vector2, Vector2, float> _spawnBullet;
 
     private Action<State> _setAnim;
 
@@ -87,7 +87,15 @@ public class Boss: GameObject
     private int _spikeNumb;
 
     private float _radius;
-    
+
+    private int _bulletDamge;
+
+    private int _bulletRange;
+
+    private int _bulletHitBox;
+
+    private int _bulletSpeed;
+
     //Command
     private ICommand<Boss> _curCommand;
     
@@ -97,6 +105,21 @@ public class Boss: GameObject
     public bool LockDirection;
 
     private SpriteEffects _spriteEffects;
+
+    //Debug
+    public bool OnCommand
+    {
+        get { return _curCommand != null && !_curCommand.Finished; }
+    }
+
+
+    public Rectangle HitBox
+    {
+        get 
+        {
+            return _hitBox; 
+        }
+    }
     public bool FaceRight
     {
         get
@@ -142,6 +165,7 @@ public class Boss: GameObject
         Player player, Level level,
         GameManager manager, Random random, ObjectPooling objectPooling)
     {
+        //Class
         this._player = player;
         
         this._level = level;    
@@ -176,11 +200,12 @@ public class Boss: GameObject
         
         _objectPooling = objectPooling;
         
+        //Movement
         hp = 1000;
 
         _phase2Hp = 1000 / 2;
 
-        _delayTime = 3;
+        _delayTime = 8;
 
         _timeCounter = 3;
         
@@ -188,26 +213,39 @@ public class Boss: GameObject
 
         _speed = 2;
 
-        _jumpForce = new Vector2(_speed, 10);
+        _jumpForce = new Vector2(_speed * 3, -10);
 
-        _gravity = 2;
+        _gravity = 0.2f;
 
+        //Shoot
         _spikeNumb = 10;
 
         _radius = 300;
 
-        worldPos = new Rectangle(0,380, 192, 96);
+        _bulletHitBox = 20;
 
-        _hitBox = new Rectangle(0, 380, 100, 96);
+        _bulletRange = 1500;
+
+        _bulletSpeed = 8;
+
+        _bulletDamge = 10;
+
+        //Position_HitBox
+        worldPos = new Rectangle(0,200, 192, 96);
+
+        _hitBox = new Rectangle(0, 200, 100, 96);
         
-        _punchHitBox = new Rectangle(0, 380, 300, 64);
+        _punchHitBox = new Rectangle(0, 200, 300, 64);
 
-        _groundBox = new Rectangle(0, 450, 1000, 1009);
+        _groundBox = new Rectangle(0, 300, 1000, 1009);
 
         _triggerBound = new Rectangle(0, 200, 300, 300);
 
+
+        //Sprite effect
         _spriteEffects = SpriteEffects.None;
 
+        //Delegate
         _checkAnimFinish = _animator.CheckAnimationFinish;
         
         _checkOnGround = SetOnGround;
@@ -218,6 +256,7 @@ public class Boss: GameObject
 
         _getMaxIndex = _animator.GetMaxIndex;
 
+        //Game state
         manager.StateChangedAction += OnStateChange;
 
         isDebug = true;
@@ -236,6 +275,14 @@ public class Boss: GameObject
 
         worldPos.Y += (int)_velocity.Y;
 
+        foreach (Bullet bullet in _objectPooling.GetBullets(ObjectPooling.ProjectileType.BossBullet))
+        {
+            if (bullet.Enabled)
+            {
+                bullet.Update(gameTime);
+            }
+        }
+
         UpdateHitBox();
 
         StateUpdate();
@@ -247,22 +294,30 @@ public class Boss: GameObject
 
     public void Draw(SpriteBatch sb)
     {
+        foreach (Bullet bullet in _objectPooling.GetBullets(ObjectPooling.ProjectileType.BossBullet))
+        {
+            bullet.Draw(sb, isDebug, _player.CameraOffset, bullet.Rotation);
+        }
+
         displayPos = new Rectangle(worldPos.X + (int)_player.CameraOffset.X, worldPos.Y + (int)_player.CameraOffset.Y, worldPos.Width, worldPos.Height);
 
-        if (!LockDirection) //Avoid change direction when use skill
+        if (!LockDirection) //Avoid change direction when using skill
         {
             _spriteEffects = _faceRight ? SpriteEffects.FlipHorizontally : SpriteEffects.None; //Sprite face left by default;
         } 
 
-        _animator.Draw(sb, worldPos, _spriteEffects);
-
-        if(isDebug)
+        if(visible)
         {
+            _animator.Draw(sb, worldPos, _spriteEffects);
+        }
+
+        if (isDebug)
+        {
+            CustomDebug.DrawWireCircle(sb, new Vector2(HitBox.Center.X, HitBox.Center.Y), _radius, 3, Color.Beige);
             CustomDebug.DrawWireRectangle(sb, worldPos, 2, Color.BlueViolet);
-            CustomDebug.DrawWireRectangle(sb, _punchHitBox, 5, Color.Red);
-            CustomDebug.DrawWireRectangle(sb, _groundBox, 2, Color.Yellow);
-            CustomDebug.DrawWireRectangle(sb, worldPos, 2, Color.Cyan);
-            CustomDebug.DrawWireRectangle(sb, _hitBox, 5, Color.Yellow);
+          
+            CustomDebug.DrawWireRectangle(sb, _groundBox, 5, Color.Cyan);
+            CustomDebug.DrawWireRectangle(sb, _hitBox, 2, Color.Yellow);
         }
     }
 
@@ -318,6 +373,7 @@ public class Boss: GameObject
             _animator.SetState(State.Revive);
             _animator.SetState(State.Idle);
             _currentState = State.Idle;
+            _curCommand = null;
             _triggered = true;
             _isFree = true;
         }
@@ -354,6 +410,7 @@ public class Boss: GameObject
                 _isFree = true;
                 _currentState = State.Idle;
                 _animator.SetState(_currentState);
+                _curCommand = null;
             }
         }
 
@@ -361,11 +418,11 @@ public class Boss: GameObject
 
     private void GenerateCommand(GameTime gameTime)
     {
-        if (_curCommand == null || _curCommand.Finished) 
+        if (_curCommand == null) 
         {
             _timeCounter -= (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
-                
+
         if (_timeCounter <= 0)
         {
             ICommand<Boss> command = GenerateSkill();
@@ -393,6 +450,10 @@ public class Boss: GameObject
 
     private ICommand<Boss> GenerateSkill()
     {
+        return new JumpCommand(_setAnim, _getMaxIndex,_jumpForce, _gravity, _checkAnimFinish, _checkOnGround);
+
+        return new SpikeCommand(_spawnBullet, _setAnim, _checkAnimFinish, _spikeNumb, _radius, _getMaxIndex(State.Spike) - 1);
+
         int sum = 0;
         foreach (Skill<State> skill in _skillSet)
         {
@@ -414,7 +475,7 @@ public class Boss: GameObject
                         return new SpikeCommand(_spawnBullet, _setAnim, _checkAnimFinish, _spikeNumb, _radius, _getMaxIndex(State.Spike) - 1);
                     
                     case State.Jump:
-                        return new JumpCommand(_setAnim, _jumpForce, _gravity, _getMaxIndex(State.Jump) - 1, _checkAnimFinish, _checkOnGround);
+                        return new JumpCommand(_setAnim, _getMaxIndex, _jumpForce, _gravity, _checkAnimFinish, _checkOnGround);
                     
                     case State.Punch:
                         return new PunchCommand(_speed, _skillSet[i].Damage, _getMaxIndex(State.Punch) - 1,_punchHitBox, _player, _setAnim,
@@ -427,10 +488,10 @@ public class Boss: GameObject
         return null;
     }
 
-    private void SpawnBullet(Vector2 direction, Vector2 spawnPos)
+    private void SpawnBullet(Vector2 direction, Vector2 spawnPos, float radAngle)
     {
-        Bullet bullet = _objectPooling.GetObj(ObjectPooling.ProjectileType.Bullet, _bulletTexture, _level);
-        bullet.Spawn(spawnPos, direction);
+        Bullet bullet = _objectPooling.GetObj(ObjectPooling.ProjectileType.BossBullet, _bulletTexture, _level);
+        bullet.Spawn(Constants.BossBulletSpriteMap,radAngle,spawnPos, direction, _bulletDamge, _bulletSpeed, 48,32, 0.05f, _bulletHitBox);
     }
 
     private void SetAnim(State state)
@@ -441,227 +502,13 @@ public class Boss: GameObject
 
     private bool SetOnGround()
     {
-        if (this.Collides(_groundBox))
+        if (_hitBox.Intersects(_groundBox))
         {
-            Rectangle collidedObject =this.Collide(_groundBox);
-            this.worldPos.Y += collidedObject.Height;
+            Rectangle collidedObject = Rectangle.Intersect(_hitBox, _groundBox);
+            this.worldPos.Y -= collidedObject.Height;
             return true;
         }
         return false;
     }
 }
 
-public class PunchCommand : ICommand<Boss>
-{
-    public bool Finished { set; get; }
-
-    private bool _faceRight;
-
-    private bool _waitAnim;
-
-    private float _speed;
-
-    private float _punchRange;
-
-    private int _damage;
-
-    private int _damgeFrame;
-
-    private int _endFrame;
-
-    private Rectangle _punchHitbox;
-
-    private Player _player;
-    
-    private Action<Boss.State> _setAnim;
-    
-    Func<Boss.State,int, bool> _checkFinishAnimation;
-    
-    internal PunchCommand(float speed, int damage, int endFrame,Rectangle punchHitBox, Player player, Action<Boss.State> setAnim, Func<Boss.State, int,bool> checkFinishAnimation)
-    {
-        _damgeFrame = 6;
-
-        _endFrame = endFrame;
-
-        _punchRange = punchHitBox.Width;
-        
-        _punchHitbox = punchHitBox; 
-        
-        _speed = speed;
-
-        _player = player;
-        
-        _checkFinishAnimation = checkFinishAnimation;
-        
-        _damage = damage; 
-        
-        Finished = false;
-
-        _waitAnim = false;
-        
-        _setAnim = setAnim;
-    }
-
-    public void Execute(Boss boss)
-    {
-        _setAnim(Boss.State.Idle);
-    }
-
-    public void Update(Boss boss, GameTime gameTime)
-    {
-        if (_waitAnim)
-        {
-            if (_checkFinishAnimation(Boss.State.Punch,_damgeFrame))
-            {
-                boss.LockDirection = true;
-
-                if (!_faceRight)
-                {
-                    _punchHitbox.X = _punchHitbox.X - boss.WorldPos.Width -  _punchHitbox.Width; 
-                }
-                if (_punchHitbox.Intersects(_player.WorldPos))
-                {
-                    _player.GetHit(_damage);
-                }
-
-            }
-
-            if(_checkFinishAnimation(Boss.State.Punch,_endFrame))
-            {
-                boss.LockDirection=false;
-                Finished = true;
-            }
-
-            boss.Velocity = Vector2.Zero;
-        }
-        else
-        {
-            if(boss.WorldPos.Intersects(_player.WorldPos))
-            {
-                _setAnim(Boss.State.Punch);
-                _faceRight = _player.WorldPos.X > boss.WorldPos.X;
-                _waitAnim = true;
-            }else
-            {
-                _setAnim(Boss.State.Walk);
-                
-                int dirMultipler = boss.FaceRight ? 1 : -1;
-
-                boss.Velocity = new Vector2(dirMultipler*_speed, 0);
-
-                boss.BossState = Boss.State.Walk;
-            }
-        }
-        
-    }
-}
-
-public class JumpCommand : ICommand<Boss>
-{
-    public bool Finished { set; get; }
-
-    private Action<Boss.State> _setAnim;
-
-    private Vector2 _jumpForce;
-
-    private float _gravity;
-    
-    private Func<Boss.State, int,bool> _checkFinishAnimation;
-    
-    private Func<bool> _onGround;
-
-    private int _endFrame;
-    
-    internal JumpCommand(Action<Boss.State> setAnim, Vector2 jumpForce, float gravity, int endFrame,Func<Boss.State, int,bool> checkFinishAnimation, Func<bool> onGround)
-    {
-        _setAnim = setAnim;
-        
-        _jumpForce = jumpForce;
-        
-        _checkFinishAnimation = checkFinishAnimation;
-        
-        _onGround = onGround;
-        
-        _gravity = gravity;
-
-        _endFrame = endFrame;
-    }
-    public void Execute(Boss boss)
-    {
-        _setAnim(Boss.State.Jump);
-        boss.Velocity = new Vector2(boss.Velocity.X, boss.Velocity.Y - _jumpForce.Y);
-    }
-
-    public void Update(Boss boss, GameTime gameTime)
-    {
-        boss.Velocity = new Vector2(boss.Velocity.X, boss.Velocity.Y + _gravity);
-        if (boss.Velocity.Y > 0)
-        {
-            _setAnim(Boss.State.Fall);
-        }
-        if (_checkFinishAnimation(Boss.State.Fall, _endFrame) && _onGround())
-        {
-            //Spawn spike
-            Finished = true;
-        }
-    }
-}
-
-public class SpikeCommand : ICommand<Boss>
-{
-    public bool Finished { set; get; }
-
-    private Action<Vector2, Vector2> _spawnBullet;
-    
-    private Action<Boss.State> _setAnim;
-    
-    Func<Boss.State, int,bool> _checkFinishAnimation;
-
-    private int _numbSpikes;
-
-    private float _radius;
-
-    private int _endFrame;
-
-    public SpikeCommand(Action<Vector2, Vector2> spawnBullet, Action<Boss.State> setAnim, Func<Boss.State, int, bool> checkFinishAnimation, int numbSpikes, float radius, int endFrame)
-    {   
-        _spawnBullet = spawnBullet;
-        
-        _radius = radius;
-        
-        _checkFinishAnimation = checkFinishAnimation;
-        
-        _numbSpikes = numbSpikes;
-        
-        _setAnim = setAnim;
-
-        _endFrame = endFrame;
-    }
-    
-
-    public void Execute(Boss gameObject)
-    {
-        _setAnim(Boss.State.Spike);
-    }
-
-    public void Update(Boss boss, GameTime gameTime)
-    {
-        if (_checkFinishAnimation(Boss.State.Spike, _endFrame))
-        {
-            int step = 360 / _numbSpikes;
-
-            for (int i = 0; i < 180; i += step)
-            {
-                float x = _radius * MathF.Cos(i);
-                float y = _radius * MathF.Sin(i);
-
-                Vector2 direction = (new Vector2(x, y) - new Vector2(boss.WorldPos.Center.X, boss.WorldPos.Center.Y));
-                direction.Normalize();
-                
-                _spawnBullet(direction, new Vector2(x,y));
-            }
-
-            Finished = true;
-        }
-    }
-}

@@ -9,34 +9,12 @@ public class ObjectPooling
     public enum ProjectileType
     {
         Bullet,
+        BossBullet,
     }
 
     private static ObjectPooling _instance;
     
     private Dictionary<ProjectileType, List<Bullet>> _pool;
-
-    public List<Bullet> Bullets
-    {
-        get
-        {
-            if (_pool.ContainsKey(ProjectileType.Bullet))
-            {
-                return _pool[ProjectileType.Bullet];
-            }
-            return new List<Bullet>();
-        }
-    }
-    public int BulletCount
-    {
-        get
-        {
-            if (_pool.ContainsKey(ProjectileType.Bullet))
-            {
-                return _pool[ProjectileType.Bullet].Count;
-            }
-            return -1;
-        }
-    }
 
     public static ObjectPooling Instance
     {
@@ -53,6 +31,24 @@ public class ObjectPooling
     private ObjectPooling()
     {
         _pool = new Dictionary<ProjectileType, List<Bullet>>();
+    }
+
+    public List<Bullet> GetBullets(ProjectileType type)
+    {
+        if (_pool.ContainsKey(type))
+        {
+            return _pool[type];
+        }
+        return new List<Bullet>();
+    }
+
+    public int GetBulletCount(ProjectileType type)
+    {
+        if (_pool.ContainsKey(ProjectileType.BossBullet))
+        {
+            return _pool[ProjectileType.BossBullet].Count;
+        }
+        return -1;
     }
 
     public Bullet GetObj(ProjectileType type, Texture2D texture, Level level)

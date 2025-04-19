@@ -71,6 +71,8 @@ namespace Lethal_Organization
 
         private Texture2D _bulletTexture;
 
+        private int _bulletSpeed;
+
         //Animation
         Animator<Player.State> _animator;
 
@@ -171,6 +173,8 @@ namespace Lethal_Organization
             
             _shootTimeCounter = 0;
 
+            _bulletSpeed = 10;
+
             _faceRight = true;
             
             this._level = level;
@@ -241,7 +245,7 @@ namespace Lethal_Organization
                 
                 Shoot(gameTime);
 
-                foreach(Bullet bullet in _objectPooling.Bullets)
+                foreach(Bullet bullet in _objectPooling.GetBullets(ObjectPooling.ProjectileType.Bullet))
                 {
                     if(bullet.Enabled)
                     {
@@ -266,12 +270,14 @@ namespace Lethal_Organization
             {
                 SpriteEffects effect = _faceRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
                 _animator.Draw(sb, displayPos, effect);
+
+                foreach (Bullet bullet in _objectPooling.GetBullets(ObjectPooling.ProjectileType.Bullet))
+                {
+                    bullet.Draw(sb, isDebug, _cameraOffset, effect);
+                }
             }
 
-            foreach(Bullet bullet in _objectPooling.Bullets)
-            {
-                bullet.Draw(sb, isDebug, _cameraOffset);
-            }
+          
 
             if (isDebug)
             {
@@ -468,7 +474,7 @@ namespace Lethal_Organization
                     int dirMultipler = _faceRight ? 1 : -1;
                     Vector2 spawnPos = new Vector2(this.worldPos.Center.X + dirMultipler * this.worldPos.Width / 2, this.worldPos.Center.Y);
                     _animator.SetState(State.Attack);
-                    bullet.Spawn(spawnPos, direction);
+                    bullet.Spawn(spawnPos, direction, damage, _bulletSpeed, 16,16);
                     _shootTimeCounter = _shootDelayTime;
                 }
                 

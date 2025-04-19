@@ -39,9 +39,22 @@ namespace Lethal_Organization
             LargeButtonPress,
             PauseMenu
         }
+        private int _screenWidth;
+
+        private int _screenHeight;
 
         private Texture2D _spriteSheet;
-        
+
+        private Texture2D _startGameSprite;
+
+        private Texture2D _loadGameSprite;
+
+        private Texture2D _exitSprite;
+
+        private Texture2D _optionSprite;
+
+        private Texture2D _openScreenSPrite;
+
         private Dictionary<Type, Rectangle> _textureMap;
         
         private List<(Rectangle textPos, Rectangle buttonPos)> _menuItems;
@@ -68,21 +81,85 @@ namespace Lethal_Organization
 
         private Action<GameManager.GameState> _changeState;
 
-        public Menu(Texture2D spriteSheet, string textureMapFile, Vector2 position, GameManager gameManager, Action<GameManager.GameState> changeState ,int scale = 5)
+        //New design _ Menu pos
+
+        private Button[] _newButtons;
+
+        private Rectangle _startPos;
+
+        private Rectangle _loadPos;
+
+        private Rectangle _optionPos;
+
+        private Rectangle _exitPos;
+
+        private int _menuSpacing;
+
+        public Menu(Texture2D spriteSheet, Texture2D openTheme, Texture2D loadGame, Texture2D startGame, Texture2D exit, Texture2D option,
+            int screenWidth, int screenHeight,
+            string textureMapFile, Vector2 position, GameManager gameManager, Action<GameManager.GameState> changeState ,int scale = 5)
         {
+            //Screen size
+            _screenHeight = screenHeight;
+
+            _screenWidth = screenWidth;
+
+            //Textur 2D
             _spriteSheet = spriteSheet;
+            
+            _openScreenSPrite = openTheme;
+
+            _loadGameSprite = loadGame;
+
+            _exitSprite = exit;
+            
+            _optionSprite = option;
+
+            _startGameSprite = startGame;
+
+            //Calculate menu pos
+
+            _menuSpacing = 30;
+
+            _startPos = new Rectangle(_screenWidth / 2 - _startGameSprite.Width / 2, _screenHeight / 2, _startGameSprite.Width, _startGameSprite.Height);
+
+           _loadPos = new Rectangle(_screenWidth / 2 - _loadGameSprite.Width / 2, _startPos.Y + _startPos.Height + _menuSpacing, _loadGameSprite.Width, _loadGameSprite.Height);
+
+            _optionPos = new Rectangle(_screenWidth / 2 - _optionSprite.Width / 2, _loadPos.Y + _loadPos.Height + _menuSpacing, _optionSprite.Width, _optionSprite.Height);
+
+            _exitPos = new Rectangle(_screenWidth / 2 - _exitSprite.Width / 2, _optionPos.Y + _optionPos.Height + _menuSpacing, _exitSprite.Width, _exitSprite.Height);
+
+
+            _newButtons = new Button[]
+            {
+                new Button(_startGameSprite, _startPos, null),
+                new Button(_loadGameSprite, _loadPos, null),
+                new Button(_optionSprite, _optionPos, null),
+                new Button(_exitSprite, _exitPos, null),
+            };
+          
+
+            //Proprety
             _position = position;
+            
             _scale = scale;
+            
             _textureMap = new Dictionary<Type, Rectangle>();
+           
             _menuItems = new List<(Rectangle, Rectangle)>();
+            
             _button = new Rectangle[4];
+            
             _text = new Rectangle[4];
+            
             _types = Enum.GetValues(typeof(Type)) as Type[];
+            
             gameManager.StateChangedAction += OnStateChange;
 
             _changeState = changeState;
 
             InitializeTextureMap(textureMapFile);
+            
             InitializeMenuLayout();
         }
 
@@ -286,15 +363,32 @@ namespace Lethal_Organization
             }
         }
 
+        public void Update(GameTime gameTime)
+        {
+            foreach (Button button in _newButtons)
+            {
+                button.Update(gameTime);
+            }
+        }
+
         public void Draw(SpriteBatch sb)
         {
             if (visible)
             {
                 MouseState mouseState = Mouse.GetState();
 
+                //Draw background_Button
+                sb.Draw(_openScreenSPrite, new Rectangle(0, 0, _screenWidth, _screenHeight), Color.White);
+
+              
+                foreach(Button button in _newButtons)
+                {
+                    button.Draw(sb);
+                }
+
                 for (int i = 0; i < 4; i++)
                 {
-                        _isHovered = _button[i].Contains(mouseState.Position);
+                    _isHovered = _button[i].Contains(mouseState.Position);
                     if (_isHovered)
                     {
                         sb.Draw(_spriteSheet, _button[i], _textureMap[Type.LargeButtonHover], Color.White);
@@ -317,9 +411,7 @@ namespace Lethal_Organization
                     }
                         // determine which text was intended for this button by its Y position
                         sb.Draw(_spriteSheet, _text[i], _textureMap[_types[i]], Color.White);
-
                 }
-                
             }
         }
     }

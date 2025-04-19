@@ -26,17 +26,18 @@ public class Game1 : Game
     private GameManager _gameManager;
 
     private ObjectPooling _objectPool;
-    
+
+    private Level _level;
+
     //Player Sprite    
     private Texture2D _playerSpriteSheet;
     
     private Texture2D _enemySprite;
     
-    private Texture2D _UISprite;
-
     private Texture2D _bulletSprite;
 
     //Level:
+
     private Texture2D _tileSpriteSheet;
 
     private Texture2D _skyBackground;
@@ -52,13 +53,29 @@ public class Game1 : Game
 
     private Texture2D _iceProjectile;
 
+    private Texture2D _iceSpike;
+
     private Boss _boss;
 
-    private Level _level;
+    //UI
+    private Texture2D _UISprite;
+
+    private Texture2D _startGameSprite;
+
+    private Texture2D _loadGameSprite;
+
+    private Texture2D _exitSprite;
+
+    private Texture2D _optionSprite;
+
+    private Texture2D _openScreenSPrite;
 
     private int _screenWidth;
     
     private int _screenHeight;
+    
+
+  
 
     public Game1()
     {
@@ -83,14 +100,22 @@ public class Game1 : Game
 
         _random = new Random();
 
+        //Boss
         _bossSpriteSheet = Content.Load<Texture2D>(Constants.BossSpriteSheet);
 
         _iceProjectile = Content.Load<Texture2D>(Constants.IceProjectileSprite);
 
+        _iceSpike = Content.Load<Texture2D>(Constants.BossSpike);
+
+        //Player
         _playerSpriteSheet = Content.Load<Texture2D>(Constants.PlayerSpriteSheet);
 
+        _bulletSprite = Content.Load<Texture2D>(Constants.BulletSprite);
+
+        //Enemy
         _enemySprite = Content.Load<Texture2D>(Constants.EnemySprite);
 
+        //Level_Map
         _tileSpriteSheet = Content.Load<Texture2D>(Constants.TileSpriteSheet);
 
         _skyBackground = Content.Load<Texture2D>(Constants.Sky);
@@ -101,12 +126,22 @@ public class Game1 : Game
 
         _bossBackground = Content.Load<Texture2D>(Constants.BossBackground);
 
-        _bulletSprite = Content.Load<Texture2D>(Constants.BulletSprite);
-
+        //UI
         _UISprite = Content.Load<Texture2D>(Constants.GUI);
 
         _font = Content.Load<SpriteFont>(Constants.Arial20);
 
+        _openScreenSPrite = Content.Load<Texture2D>(Constants.OpenTheme);
+
+        _startGameSprite = Content.Load<Texture2D>(Constants.StartGame);
+
+        _exitSprite = Content.Load<Texture2D>(Constants.Exit);
+
+        _optionSprite = Content.Load<Texture2D>(Constants.Options);
+
+        _loadGameSprite = Content.Load<Texture2D>(Constants.LoadGame);
+
+        //Window data
         _screenHeight = _graphics.GraphicsDevice.Viewport.Height;
 
         _screenWidth = _graphics.GraphicsDevice.Viewport.Width;
@@ -125,7 +160,9 @@ public class Game1 : Game
 
         _gameManager.Player = _player;
 
-        _menu = new Menu(_UISprite, Constants.MenuLayout, new Vector2(850, 350), _gameManager, _gameManager.ChangeState);
+        _menu = new Menu(_UISprite, _openScreenSPrite, _loadGameSprite, _startGameSprite, _exitSprite, _optionSprite,
+            _screenWidth, _screenHeight,
+            Constants.MenuLayout, new Vector2(850, 350), _gameManager, _gameManager.ChangeState);
 
         //_testEnemy = new Enemy(_enemySprite, _level[9, 2].DisplayPos, _player, _gameManager);
 
@@ -146,6 +183,8 @@ public class Game1 : Game
         _gameManager.Update(gameTime);
 
         _boss.Update(gameTime);
+
+        _menu.Update(gameTime);
         
         //_testEnemy.Update(gameTime);
         base.Update(gameTime);
@@ -214,9 +253,9 @@ public class Game1 : Game
 
             _spriteBatch.DrawString(
                 _font,
-                $"Boss Velcoity: {_boss.Velocity} \n" +
-                $"Face Right {_boss.FaceRight}",
-                 new Vector2(10, 250),
+                $"Boss Velcoity: {_boss.Velocity} \n \n" +
+                $"On Command {_boss.OnCommand}",
+                 new Vector2(10, 200),
                 Color.Yellow
             );
 
@@ -240,7 +279,7 @@ public class Game1 : Game
 
             _spriteBatch.DrawString(
                 _font,
-                $"Bullet pool count: {_objectPool.BulletCount}",
+                $"Bullet boss pool count: {_objectPool.GetBulletCount(ObjectPooling.ProjectileType.BossBullet)}",
                 new Vector2(10, 300),
                 Color.Aqua
                 );

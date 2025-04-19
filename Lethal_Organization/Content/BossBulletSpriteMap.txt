@@ -1,0 +1,6 @@
+//Use sprite sheet "Ice_Projectile.png"
+//Each frame size: Width 48, Height 32,
+//Naming convention: State_Index,Row Index,Col Index,Sprite Height,Sprite Width,IsLoop (1 is true, 0 is false), bool ForceFinish (1,0)
+Size,48,32
+Fly,0,0,32,480,1,0
+Hit,1,0,32,336,0,1

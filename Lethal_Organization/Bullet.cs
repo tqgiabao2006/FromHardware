@@ -7,6 +7,14 @@ namespace Lethal_Organization;
 
 public class Bullet
 {
+    private enum State
+    {
+        None,
+        Fly,
+        Hit
+    }
+
+    private State _curState;
     
     private bool _enabled;
 
@@ -23,7 +31,15 @@ public class Bullet
     private Level _level;
     
     // Asset
-    private Texture2D _texture;
+    private Texture2D _spriteSheet;
+
+    private Animator<State> _animator;
+
+    private bool _waitForAnim;
+
+    private bool _multipleAnimation;
+
+    private float _rotation;
     
     //Positions
     private Rectangle _displayPos; //For display only
@@ -33,6 +49,8 @@ public class Bullet
     private Rectangle _worldPos; //Real position to do with logic
 
     private Vector2 _spawnPos;
+
+    
     public bool Enabled
     {
         get
@@ -54,36 +72,115 @@ public class Bullet
         }
     }
 
-    //Debug-only
-    public int Speed
+    public float Rotation
     {
         get
         {
-            return _speed;
+         return _rotation;
         }
     }
 
-    public Bullet(Texture2D texture, Level level)
+    public Bullet(Texture2D spriteSheet, Level level)
     {
         this._level = level;
-        this._hitBoxRadius = 10;
-        this._range = 1000;
-        this._damge = 10;
-        this._speed = 10;
         this.SetActive(false);
-        this._texture = texture;
-        this._sourceImg = new Rectangle(0, 0, 16, 16);
-        this._worldPos = new Rectangle(0, 0, 16, 16);
+        this._spriteSheet = spriteSheet;
     }
-
-    public void Spawn(Vector2 worldPos, Vector2 direction)
+    
+    
+    /// <summary>
+    /// Pick to spawn bullet with multiple state
+    /// </summary>
+    /// <param name="spriteMapFile"></param>
+    /// <param name="worldPos"></param>
+    /// <param name="direction"></param>
+    /// <param name="damage"></param>
+    /// <param name="speed"></param>
+    /// <param name="frameWidth"></param>
+    /// <param name="frameHeight"></param>
+    /// <param name="framePerSecond"></param>
+    /// <param name="hitBoxRadius"></param>
+    /// <param name="range"></param>
+    public void Spawn(string spriteMapFile, float angle,Vector2 worldPos, Vector2 direction, int damage, int speed, int frameWidth, int frameHeight, float framePerSecond = 0.05f, int hitBoxRadius = 10, int range = 1000)
     {
+        _curState = State.Fly;
+        if (_animator == null)
+        {
+            _animator = new Animator<State>(_spriteSheet, State.None, spriteMapFile, 0.2f);
+        }
+
+        _waitForAnim = false;
+        
         _spawnPos = worldPos;
+       
+        this._hitBoxRadius =  hitBoxRadius;
+        this._range = range;
+        this._damge = damage;
+        this._speed = speed;
+
+        _multipleAnimation = true;
+
+        _rotation = angle;
+
+        this._sourceImg = new Rectangle(0, 0, frameWidth, frameHeight);
+        this._worldPos = new Rectangle(0, 0, frameWidth, frameHeight);
+
         this._worldPos.X= (int)worldPos.X;
         this._worldPos.Y = (int)worldPos.Y;
+       
+        this._enabled = true;
+        this._direction = direction;
+
+
+        _animator.SetState(_curState);
+
+        _direction.Normalize();
+    }
+    
+    
+
+    /// <summary>
+    /// Spawn bullet with only 1 state - animation loop
+    /// </summary>
+    /// <param name="worldPos"></param>
+    /// <param name="direction"></param>
+    /// <param name="damage"></param>
+    /// <param name="speed"></param>
+    /// <param name="frameWidth"></param>
+    /// <param name="frameHeight"></param>
+    /// <param name="framePerSecond"></param>
+    /// <param name="hitBoxRadius"></param>
+    /// <param name="range"></param>
+    public void Spawn(Vector2 worldPos, Vector2 direction, int damage, int speed, int frameWidth, int frameHeight, float framePerSecond = 0.05f, int hitBoxRadius = 10, int range = 1000)
+    {
+        _curState = State.Fly;
+        
+        if (_animator == null)
+        {
+            _animator = new Animator<State>(_spriteSheet, State.Fly, frameWidth, frameHeight, framePerSecond);
+        }
+
+        _waitForAnim = false;
+
+        _multipleAnimation = false;
+
+        _spawnPos = worldPos;
+       
+        this._hitBoxRadius =  hitBoxRadius;
+        this._range = range;
+        this._damge = damage;
+        this._speed = speed;
+
+        this._sourceImg = new Rectangle(0, 0, frameWidth, frameHeight);
+        this._worldPos = new Rectangle(0, 0, frameWidth, frameHeight);
+
+        this._worldPos.X= (int)worldPos.X;
+        this._worldPos.Y = (int)worldPos.Y;
+       
         this._enabled = true;
         this._direction = direction;
         _direction.Normalize();
+
     }
     public void SetActive(bool active)
     {
@@ -106,7 +203,18 @@ public class Bullet
                     Rectangle tilePos = _level[i, j].WorldPos;
                     if (tilePos.Intersects(_worldPos))
                     {
-                        SetActive(false);
+                        _curState = State.Hit;
+                        _animator.SetState(_curState);
+
+                        //If contain "impact" animation => wait before set active
+                        if (_multipleAnimation)
+                        {
+                            _waitForAnim = true;
+                        }
+                        else //If not, set active to false immidately when collide
+                        { 
+                            SetActive(false);
+                        }
                         return;
                     }
                 }
@@ -121,11 +229,25 @@ public class Bullet
             return;
         }
 
+        if (_waitForAnim)
+        {
+            if (_animator.CheckAnimationFinish(State.Hit, _animator.GetMaxIndex(State.Hit) - 1))
+            {
+                SetActive(false);
+            }
+        }
+
+        _animator.Update(gameTime);
+
         CheckCollision();
 
-        this._worldPos.X +=(int)_direction.X * _speed;
-        
-        this._worldPos.Y +=(int)_direction.Y * _speed;
+        if(!_waitForAnim)
+        {
+            this._worldPos.X += (int)(_direction.X * _speed);
+
+            this._worldPos.Y += (int)(_direction.Y * _speed);
+        }
+       
 
         if (Vector2.Distance(_spawnPos, new Vector2(_worldPos.X, _worldPos.Y)) > _range)
         {
@@ -134,20 +256,35 @@ public class Bullet
         }
     }
       
-    public void Draw(SpriteBatch sb, bool isDebug, Vector2 cameraOffset)
+    public void Draw(SpriteBatch sb, bool isDebug, Vector2 cameraOffset, SpriteEffects effects)
     {
-        _displayPos = new Rectangle(_worldPos.X + (int)cameraOffset.X,(int)_spawnPos.Y + (int)cameraOffset.Y, _worldPos.Width, _worldPos.Height); //Lock y axis
-
-        SpriteEffects effect = _direction.X > 0 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
+        _displayPos = new Rectangle(_worldPos.X + (int)cameraOffset.X,(int)_worldPos.Y + (int)cameraOffset.Y, _worldPos.Width, _worldPos.Height); //Lock y axis
 
         if (_enabled)
         {
-            sb.Draw(_texture, _displayPos, _sourceImg,Color.White, 0, Vector2.Zero, effect, 0);
+            _animator.Draw(sb, _displayPos, effects);
         }
 
         if (isDebug)
         {
             CustomDebug.DrawWireCircle(sb, new Vector2(_worldPos.X, _worldPos.Y),  _hitBoxRadius, 3, Color.Red);
+            CustomDebug.DrawWireCircle(sb, new Vector2(_displayPos.X, _displayPos.Y), _hitBoxRadius, 3, Color.Yellow);
+        }
+    }
+
+    public void Draw(SpriteBatch sb, bool isDebug, Vector2 cameraOffset, float angle)
+    {
+        _displayPos = new Rectangle(_worldPos.X + (int)cameraOffset.X, (int)_worldPos.Y + (int)cameraOffset.Y, _worldPos.Width, _worldPos.Height); //Lock y axis
+
+        if (_enabled)
+        {
+            _animator.Draw(sb, _displayPos, angle);
+        }
+
+        if (isDebug)
+        {
+            CustomDebug.DrawWireCircle(sb, new Vector2(_worldPos.X, _worldPos.Y), _hitBoxRadius, 3, Color.Red);
+            CustomDebug.DrawWireCircle(sb, new Vector2(_displayPos.X, _displayPos.Y), _hitBoxRadius, 3, Color.Yellow);
         }
     }
 }
