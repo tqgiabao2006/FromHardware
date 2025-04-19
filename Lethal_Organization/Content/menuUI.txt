@@ -1,17 +1,21 @@
 // Use sprite sheet: "GUI.png"
 // Naming convention: Type of UI, Row Index, Col Index
 // Size
-// Pixel is Row x Column: 16 x 32 = 16 width, 32 length
+// Pixel is Row x Column: 16 x 16 = 16 width, 16 length
 Size
 ============================
 48,16
 ============================
 AmmoBar,0,0
-HealthBar,0,4
+HealthBar,0,3
 BarPlaceholder,0,6
 MedButtonPlaceholder,1,4
 MedButton,1,7
 TextBox,0,9
+============================
+64,16
+============================
+HealthBarPlaceholder,1,0
 ============================
 16,16
 ============================
