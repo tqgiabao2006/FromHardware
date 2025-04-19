@@ -37,6 +37,8 @@ namespace Lethal_Organization
 
         public GameManager GameManager {  set { _gameManager = value; } }
 
+        public List<Enemy> EnemyList { get { return _enemyList; } }
+
         public EnemySpawner(Texture2D groundSpriteSheet, Texture2D flySpriteSheet, string filePath, Level level)
         {
             _groundSpriteSheet = groundSpriteSheet;
@@ -56,7 +58,7 @@ namespace Lethal_Organization
         {
             foreach (Enemy enemy in _enemyList)
             {
-                
+                enemy.Draw(sb);
             }
         }
 
