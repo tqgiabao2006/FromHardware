@@ -13,7 +13,7 @@ namespace Lethal_Organization;
 /// Save to fileIO the layout of level
 /// 
 /// </summary>
-public class Level: IStateChange
+internal class Level: IStateChange
 {
 
     private enum LevelLayer

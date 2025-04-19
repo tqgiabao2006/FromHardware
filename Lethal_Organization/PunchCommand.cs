@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 
 namespace Lethal_Organization
 {
-    public class PunchCommand : ICommand<Boss>
+    internal class PunchCommand : ICommand<Boss>
     {
         public bool Finished { set; get; }
 

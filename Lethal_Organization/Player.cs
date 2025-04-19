@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Lethal_Organization
 {
-    public class Player : GameObject, IStateChange
+    internal class Player : GameObject, IStateChange
     {
         public enum State
         {
@@ -72,6 +72,10 @@ namespace Lethal_Organization
         private Texture2D _bulletTexture;
 
         private int _bulletSpeed;
+
+        //Enemy list for collisions
+
+        private List<Enemy> _enemyList;
 
         //Animation
         Animator<Player.State> _animator;
@@ -141,6 +145,11 @@ namespace Lethal_Organization
             { 
                 return _cameraOffset; 
             }
+        }
+
+        public List<Enemy> EnemyList
+        {
+            get { return _enemyList; }
         }
         public Player(Texture2D playerSpriteSheet, string spriteMapFile ,Texture2D bulletTexture,GraphicsDeviceManager graphics, Level level, GameManager gameManager, ObjectPooling objectPooling)
         {            
@@ -487,7 +496,6 @@ namespace Lethal_Organization
         public void CollisionHandler(Level level)
         {
             bool groundRayHit = false;
-            bool collided = false;
             for (int i = 0; i < level.SizeX; i++)
             {
                 for (int j = 0; j < level.SizeY; j++)
@@ -510,8 +518,8 @@ namespace Lethal_Organization
                         _onGround = true;
                         groundRayHit = true;
                         
-                        //All three ray points
-                        if((IsInside(tilePos, _groundRayPoint) && IsInside(tilePos, _lefRayPoint) && IsInside(tilePos, _rightRayPoint)))
+                        //Middle ray point and either of the side raypoints
+                        if((IsInside(tilePos, _groundRayPoint) && (IsInside(tilePos, _lefRayPoint)  || IsInside(tilePos, _rightRayPoint))))
                         {
                             worldPos.Y -= collidedArea.Height;
                         }
@@ -554,6 +562,7 @@ namespace Lethal_Organization
                     }
                 }
             }
+            //die logic
         }
 
 
@@ -603,7 +612,7 @@ namespace Lethal_Organization
             }
             catch (FileNotFoundException e)
             {
-                Console.WriteLine("ERROR: Can not find the text file!");
+                 System.Diagnostics.Debug.WriteLine(e.Message);
             }
             finally
             {

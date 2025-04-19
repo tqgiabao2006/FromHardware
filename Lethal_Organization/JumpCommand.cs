@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 
 namespace Lethal_Organization
 {
-    public class JumpCommand : ICommand<Boss>
+    internal class JumpCommand : ICommand<Boss>
     {
         public bool Finished { set; get; }
 

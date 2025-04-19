@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Lethal_Organization;
 
-public class Bullet
+internal class Bullet
 {
     private enum State
     {
