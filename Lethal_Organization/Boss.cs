@@ -257,7 +257,7 @@ public class Boss: GameObject
         _getMaxIndex = _animator.GetMaxIndex;
 
         //Game state
-        manager.StateChangedAction += OnStateChange;
+        manager.OnStateChange += OnStateChange;
 
         isDebug = true;
     }

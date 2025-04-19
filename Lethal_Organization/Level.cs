@@ -137,7 +137,7 @@ public class Level: IStateChange
             Texture = bossBackground
         });
 
-        gameManager.StateChangedAction += OnStateChange;
+        gameManager.OnStateChange += OnStateChange;
         
         InitializeTextureMap(textureMapFile);
         InitializeMapDesign(levelDesignFile);

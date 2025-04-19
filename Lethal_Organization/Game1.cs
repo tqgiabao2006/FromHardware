@@ -18,9 +18,13 @@ public class Game1 : Game
     private Enemy _testEnemy;
 
     private Button _testButton;
+<<<<<<< Updated upstream
 
     private Menu _menu;
 
+=======
+       
+>>>>>>> Stashed changes
     private SpriteFont _font;
 
     private GameManager _gameManager;
@@ -58,6 +62,8 @@ public class Game1 : Game
     private Boss _boss;
 
     //UI
+    private UIManager _uiManager;
+
     private Texture2D _UISprite;
 
     private Texture2D _startGameSprite;
@@ -160,9 +166,9 @@ public class Game1 : Game
 
         _gameManager.Player = _player;
 
-        _menu = new Menu(_UISprite, _openScreenSPrite, _loadGameSprite, _startGameSprite, _exitSprite, _optionSprite,
-            _screenWidth, _screenHeight,
-            Constants.MenuLayout, new Vector2(850, 350), _gameManager, _gameManager.ChangeState);
+        _uiManager = new UIManager(_gameManager, _UISprite, _openScreenSPrite, _loadGameSprite, _startGameSprite, _exitSprite, _optionSprite
+            , _screenWidth, _screenHeight,
+            Constants.GUI, _gameManager.ChangeState);
 
         //_testEnemy = new Enemy(_enemySprite, _level[9, 2].DisplayPos, _player, _gameManager);
 
@@ -184,8 +190,13 @@ public class Game1 : Game
 
         _boss.Update(gameTime);
 
+<<<<<<< Updated upstream
         _menu.Update(gameTime);
 
+=======
+        _uiManager.Update(gameTime);
+        
+>>>>>>> Stashed changes
         //_testEnemy.Update(gameTime);
         base.Update(gameTime);
     }
@@ -204,9 +215,15 @@ public class Game1 : Game
         _level.Draw(_spriteBatch, _player.CameraOffset);
 
         _player.Draw(_spriteBatch);
+<<<<<<< Updated upstream
 
         _menu.Draw(_spriteBatch);
 
+=======
+        
+        _uiManager.Draw(_spriteBatch);
+        
+>>>>>>> Stashed changes
         _gameManager.Draw(_spriteBatch);
 
         _boss.Draw(_spriteBatch);

@@ -37,6 +37,7 @@ namespace Lethal_Organization
             
             _onClick = onClick;
 
+
             _hoverColor = Color.OrangeRed;
 
             _hoverScale = 1.2f;

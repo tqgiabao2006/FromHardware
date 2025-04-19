@@ -50,7 +50,7 @@ namespace Lethal_Organization
 
             _leftPlatform = leftPlatform;
 
-            gameManager.StateChangedAction += OnStateChange;
+            gameManager.OnStateChange += OnStateChange;
         }
 
         public void OnStateChange(GameManager.GameState state)
