@@ -17,6 +17,9 @@ public class Game1 : Game
 
     private Enemy _testEnemy;
 
+    
+    private EnemySpawner _enemySpawner;
+    
     private Button _testButton;
 
     private SpriteFont _font;
@@ -165,6 +168,7 @@ public class Game1 : Game
             Constants.GUI, _gameManager.ChangeState);
 
         //_testEnemy = new Enemy(_enemySprite, _level[9, 2].DisplayPos, _player, _gameManager);
+        _enemySpawner = new EnemySpawner(_enemySprite, _enemySprite, "EnemyPositions", _level);
 
         _boss = new Boss(_bossSpriteSheet, _iceProjectile, Constants.BossSpriteMap, _player, _level, _gameManager, _random, _objectPool);
 
@@ -176,6 +180,8 @@ public class Game1 : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
         _player.Update(gameTime);
+
+        _enemySpawner.Update(gameTime);
 
         // Update button state
         //_testButton.Update(gameTime);
@@ -207,6 +213,11 @@ public class Game1 : Game
 
         _uiManager.Draw(_spriteBatch);
 
+
+        _enemySpawner.Draw(_spriteBatch);
+        
+        _menu.Draw(_spriteBatch);
+        
         _gameManager.Draw(_spriteBatch);
 
         _boss.Draw(_spriteBatch);
