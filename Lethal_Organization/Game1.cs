@@ -25,13 +25,13 @@ public class Game1 : Game
     private Menu _menu;
 
 =======
-       
+
 >>>>>>> Stashed changes
 =======
-       
+
 >>>>>>> Stashed changes
 =======
-       
+
 >>>>>>> Stashed changes
     private SpriteFont _font;
 
@@ -198,19 +198,8 @@ public class Game1 : Game
 
         _boss.Update(gameTime);
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-        _menu.Update(gameTime);
-
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
         _uiManager.Update(gameTime);
         
->>>>>>> Stashed changes
         //_testEnemy.Update(gameTime);
         base.Update(gameTime);
     }
@@ -229,25 +218,9 @@ public class Game1 : Game
         _level.Draw(_spriteBatch, _player.CameraOffset);
 
         _player.Draw(_spriteBatch);
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 
-        _menu.Draw(_spriteBatch);
+        _uiManager.Draw(_spriteBatch);
 
-=======
-=======
-=======
-        
-        _uiManager.Draw(_spriteBatch);
->>>>>>> Stashed changes
-        
-        _uiManager.Draw(_spriteBatch);
->>>>>>> Stashed changes
-        
-        _uiManager.Draw(_spriteBatch);
-        
->>>>>>> Stashed changes
         _gameManager.Draw(_spriteBatch);
 
         _boss.Draw(_spriteBatch);
