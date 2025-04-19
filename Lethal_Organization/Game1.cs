@@ -28,6 +28,8 @@ public class Game1 : Game
 >>>>>>> Stashed changes
 =======
        
+=======
+       
 >>>>>>> Stashed changes
     private SpriteFont _font;
 
@@ -198,6 +200,7 @@ public class Game1 : Game
 <<<<<<< Updated upstream
         _menu.Update(gameTime);
 
+=======
 =======
 =======
 >>>>>>> Stashed changes
