@@ -74,7 +74,10 @@ namespace Lethal_Organization
                 && _currMouseState.LeftButton == ButtonState.Released)
             {
 
-               _onClick?.Invoke();
+                if(_onClick != null)
+                {
+                    _onClick();
+                }
             }
             
             _prevMouseState = _currMouseState;

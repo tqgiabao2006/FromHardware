@@ -89,6 +89,9 @@ namespace Lethal_Organization
                 new Button(_optionSprite, _optionPos, null),
                 new Button(_exitSprite, _exitPos, null),
             };
+
+
+            _changeState = changeState;
             
         }
 

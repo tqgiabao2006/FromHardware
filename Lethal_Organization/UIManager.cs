@@ -39,7 +39,7 @@ namespace Lethal_Organization
         PauseMenu
     }
 
-    public class UIManager
+    internal class UIManager
     {
         private List<UI> _UIs;
 
@@ -84,8 +84,7 @@ namespace Lethal_Organization
                     break;
 
                 case GameManager.GameState.Game:
-                    
-
+                    HideMenu<Menu>();
                     break;
 
                 case GameManager.GameState.GameOver:
@@ -134,12 +133,23 @@ namespace Lethal_Organization
                 {
                     menu.Show();
                 }
-                else
+
+            }
+        }
+
+        private void HideMenu<T>() where T : UI
+        {
+            for (int i = 0; i < _UIs.Count; i++)
+            {
+                UI menu = _UIs[i];
+                if (menu is T)
                 {
                     menu.Hide();
                 }
+
             }
         }
+
 
         public void LoadContent(Texture2D spriteSheet, string textureMapFile)
         {
