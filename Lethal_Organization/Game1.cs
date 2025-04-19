@@ -211,6 +211,7 @@ public class Game1 : Game
 
         _player.Draw(_spriteBatch);
 
+<<<<<<< Updated upstream
         _uiManager.Draw(_spriteBatch);
 
 
@@ -218,6 +219,12 @@ public class Game1 : Game
         
         _menu.Draw(_spriteBatch);
         
+=======
+        
+        _uiManager.Draw(_spriteBatch);
+
+
+>>>>>>> Stashed changes
         _gameManager.Draw(_spriteBatch);
 
         _boss.Draw(_spriteBatch);
