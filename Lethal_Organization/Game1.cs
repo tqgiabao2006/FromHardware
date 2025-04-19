@@ -216,8 +216,6 @@ public class Game1 : Game
 
         _enemySpawner.Draw(_spriteBatch);
         
-        _menu.Draw(_spriteBatch);
-        
         _gameManager.Draw(_spriteBatch);
 
         _boss.Draw(_spriteBatch);
