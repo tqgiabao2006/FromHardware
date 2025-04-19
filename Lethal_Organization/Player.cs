@@ -167,7 +167,7 @@ namespace Lethal_Organization
             
             _gravity = 0.3f;
 
-            _groundRayLength = 30;
+            _groundRayLength = 25;
 
             _shootDelayTime = 0.4f;
             

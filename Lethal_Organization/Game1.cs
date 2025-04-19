@@ -12,15 +12,15 @@ public class Game1 : Game
     private Random _random;
 
     private SpriteBatch _spriteBatch;
-    
+
     private Player _player;
-    
+
     private Enemy _testEnemy;
-    
+
     private Button _testButton;
-    
+
     private Menu _menu;
-   
+
     private SpriteFont _font;
 
     private GameManager _gameManager;
@@ -31,9 +31,9 @@ public class Game1 : Game
 
     //Player Sprite    
     private Texture2D _playerSpriteSheet;
-    
+
     private Texture2D _enemySprite;
-    
+
     private Texture2D _bulletSprite;
 
     //Level:
@@ -71,11 +71,11 @@ public class Game1 : Game
     private Texture2D _openScreenSPrite;
 
     private int _screenWidth;
-    
-    private int _screenHeight;
-    
 
-  
+    private int _screenHeight;
+
+
+
 
     public Game1()
     {
@@ -150,11 +150,11 @@ public class Game1 : Game
 
         _objectPool = ObjectPooling.Instance;
 
-        _level = new Level(_tileSpriteSheet,_skyBackground, _towerBackground, _collumBackground, _bossBackground,
-            Constants.TextureMapTxt, Constants.LevelDesignCsv, 
+        _level = new Level(_tileSpriteSheet, _skyBackground, _towerBackground, _collumBackground, _bossBackground,
+            Constants.TextureMapTxt, Constants.LevelDesignCsv,
             3, 3, _screenWidth, _screenHeight, _gameManager);
 
-        _player = new Player(_playerSpriteSheet, Constants.PlayerSpriteMap,  _bulletSprite,_graphics, _level, _gameManager, _objectPool);
+        _player = new Player(_playerSpriteSheet, Constants.PlayerSpriteMap, _bulletSprite, _graphics, _level, _gameManager, _objectPool);
 
         _level.Player = _player;
 
@@ -185,7 +185,7 @@ public class Game1 : Game
         _boss.Update(gameTime);
 
         _menu.Update(gameTime);
-        
+
         //_testEnemy.Update(gameTime);
         base.Update(gameTime);
     }
@@ -200,13 +200,13 @@ public class Game1 : Game
             null,
             null
         );
-        
+
         _level.Draw(_spriteBatch, _player.CameraOffset);
-       
+
         _player.Draw(_spriteBatch);
-        
+
         _menu.Draw(_spriteBatch);
-        
+
         _gameManager.Draw(_spriteBatch);
 
         _boss.Draw(_spriteBatch);
@@ -216,7 +216,7 @@ public class Game1 : Game
         //_testButton.Draw(_spriteBatch, true);
 
 
-        if(_gameManager.CurrentState == GameManager.GameState.Debug)
+        if (_gameManager.CurrentState == GameManager.GameState.Debug)
         {
             _spriteBatch.DrawString(
             _font,
@@ -249,7 +249,7 @@ public class Game1 : Game
             //   $"CameraPos: {_player.CameraPos.X}, {_player.CameraPos.Y}",
             //   new Vector2(10, 150),
             //   Color.Red);
-            
+
 
             _spriteBatch.DrawString(
                 _font,
