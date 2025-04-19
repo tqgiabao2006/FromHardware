@@ -20,6 +20,7 @@ public class Game1 : Game
     private Button _testButton;
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
     private Menu _menu;
 
@@ -28,6 +29,7 @@ public class Game1 : Game
 >>>>>>> Stashed changes
 =======
        
+>>>>>>> Stashed changes
 =======
        
 >>>>>>> Stashed changes
@@ -198,10 +200,12 @@ public class Game1 : Game
 
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         _menu.Update(gameTime);
 
 =======
 =======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
         _uiManager.Update(gameTime);
@@ -227,11 +231,16 @@ public class Game1 : Game
         _player.Draw(_spriteBatch);
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
         _menu.Draw(_spriteBatch);
 
 =======
 =======
+=======
+        
+        _uiManager.Draw(_spriteBatch);
+>>>>>>> Stashed changes
         
         _uiManager.Draw(_spriteBatch);
 >>>>>>> Stashed changes
