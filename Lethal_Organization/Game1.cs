@@ -15,7 +15,7 @@ public class Game1 : Game
     
     private Player _player;
     
-    private Enemy _testEnemy;
+    private EnemySpawner _enemySpawner;
     
     private Button _testButton;
     
@@ -165,6 +165,7 @@ public class Game1 : Game
             Constants.MenuLayout, new Vector2(850, 350), _gameManager, _gameManager.ChangeState);
 
         //_testEnemy = new Enemy(_enemySprite, _level[9, 2].DisplayPos, _player, _gameManager);
+        _enemySpawner = new EnemySpawner(_enemySprite, _enemySprite, "EnemyPositions", _level);
 
         _boss = new Boss(_bossSpriteSheet, _iceProjectile, Constants.BossSpriteMap, _player, _level, _gameManager, _random, _objectPool);
 
@@ -176,6 +177,8 @@ public class Game1 : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
         _player.Update(gameTime);
+
+        _enemySpawner.Update(gameTime);
 
         // Update button state
         //_testButton.Update(gameTime);
@@ -204,6 +207,8 @@ public class Game1 : Game
         _level.Draw(_spriteBatch, _player.CameraOffset);
        
         _player.Draw(_spriteBatch);
+
+        _enemySpawner.Draw(_spriteBatch);
         
         _menu.Draw(_spriteBatch);
         

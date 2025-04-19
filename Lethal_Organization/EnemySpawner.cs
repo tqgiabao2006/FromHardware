@@ -54,7 +54,15 @@ namespace Lethal_Organization
             LoadPosition(filePath);
         }
 
-        private void Draw(SpriteBatch sb)
+        public void Update(GameTime gameTime)
+        {
+            foreach (Enemy enemy in _enemyList)
+            {
+                enemy.Update(gameTime);
+            }
+        }
+
+        public void Draw(SpriteBatch sb)
         {
             foreach (Enemy enemy in _enemyList)
             {
