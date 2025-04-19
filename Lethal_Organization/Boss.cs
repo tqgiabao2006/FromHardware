@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Lethal_Organization;
 
-public class Boss: GameObject
+internal class Boss: GameObject
 {
     public enum State
     {

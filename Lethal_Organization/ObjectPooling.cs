@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Lethal_Organization;
 
-public class ObjectPooling
+internal class ObjectPooling
 {
     public enum ProjectileType
     {

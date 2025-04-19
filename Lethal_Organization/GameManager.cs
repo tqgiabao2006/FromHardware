@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Lethal_Organization
 {
-    public class GameManager: IDrawable
+    internal class GameManager: IDrawable
     {
         public enum GameState
         {

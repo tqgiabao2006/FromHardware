@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
 namespace Lethal_Organization
-{    public class SpikeCommand : ICommand<Boss>
+{
+    internal class SpikeCommand : ICommand<Boss>
     {
         public bool Finished { set; get; }
 
