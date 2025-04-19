@@ -213,6 +213,7 @@ public class Game1 : Game
 
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         _uiManager.Draw(_spriteBatch);
 
 
@@ -230,6 +231,12 @@ public class Game1 : Game
 <<<<<<< Updated upstream
 >>>>>>> Stashed changes
 =======
+>>>>>>> Stashed changes
+=======
+        
+        _uiManager.Draw(_spriteBatch);
+
+
 >>>>>>> Stashed changes
         _gameManager.Draw(_spriteBatch);
 
