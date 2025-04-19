@@ -21,7 +21,7 @@ namespace Lethal_Organization
             GameOver
         }
 
-        public event Action<GameState> StateChangedAction = delegate { };
+        public event Action<GameState> OnStateChange = delegate { };
 
         private GameState _currentState;
 
@@ -46,7 +46,7 @@ namespace Lethal_Organization
             set
             {
                 _currentState = value;
-                StateChangedAction(_currentState);
+                OnStateChange(_currentState);
             }
         }
 

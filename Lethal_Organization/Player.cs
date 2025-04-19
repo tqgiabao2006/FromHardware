@@ -188,7 +188,7 @@ namespace Lethal_Organization
             
             this._level = level;
 
-            gameManager.StateChangedAction += OnStateChange;
+            gameManager.OnStateChange += OnStateChange;
             
             _objectPooling = objectPooling;
 
@@ -196,9 +196,7 @@ namespace Lethal_Organization
 
             InitializePlayerSprites("playerTileMap");
         }
-
-
-        public void OnStateChange(GameManager.GameState state)
+       public void OnStateChange(GameManager.GameState state)
         {
             switch (state)
             {
@@ -233,7 +231,7 @@ namespace Lethal_Organization
                     isDebug = true;
                     break;
             }
-        }
+        } 
 
         public override void Update(GameTime gameTime)
         {
