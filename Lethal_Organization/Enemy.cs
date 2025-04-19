@@ -30,6 +30,8 @@ namespace Lethal_Organization
 
         private Vector2 _velocity;
 
+        public Player Player { set { _player = value; } }
+
 
 
         public Enemy(Texture2D sprite, Rectangle rightPlatform, Rectangle leftPlatform, Player player, GameManager gameManager)
