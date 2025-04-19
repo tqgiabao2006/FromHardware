@@ -75,10 +75,6 @@ namespace Lethal_Organization
             switch(_currentState)
             {
                 case GameState.Menu:
-                    if (_mouseState.LeftButton == ButtonState.Pressed)
-                    {
-                        CurrentState = GameState.Game;
-                    }
                     break;
 
                 case GameState.Game:

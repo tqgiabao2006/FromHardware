@@ -17,25 +17,41 @@ namespace Lethal_Organization
         LoadText,
         OptionsText,
         ExitText,
+
         AmmoBar,
         HealthBar,
+
+        HealthBarPlaceholder,
         BarPlaceholder,
         MedButtonPlaceholder,
+       
         MedButton,
         TextBox,
+
         SmallButton,
         SmallButtonPress,
         SmallButtonHover,
+        
         HomeIcon,
+       
         PauseIcon,
+        
         SaveText,
+        
         BackText,
+       
         CreditsText,
+       
         SoundText,
+       
         PlayerIcon,
+       
         LargeButton,
+       
         LargeButtonHover,
+      
         LargeButtonPress,
+       
         PauseMenu
     }
 
@@ -72,6 +88,8 @@ namespace Lethal_Organization
             LoadContent(spriteSheet, textureMapFile);
 
             _UIs.Add(new Menu(changeState, openTheme, loadGame, startGame, exit, option, screenWidth, screenHeight));
+
+            _UIs.Add(new HeatlhBar(spriteSheet, _textureMap[Type.HealthBar], _textureMap[Type.HealthBarPlaceholder]));
         }
 
        
@@ -85,6 +103,7 @@ namespace Lethal_Organization
 
                 case GameManager.GameState.Game:
                     HideMenu<Menu>();
+                    ShowMenu<HeatlhBar>();
                     break;
 
                 case GameManager.GameState.GameOver:
@@ -119,7 +138,6 @@ namespace Lethal_Organization
                 if(ui.Visible)
                 {
                    ui.Draw(sb);
-
                 }
             }
         }
@@ -190,7 +208,7 @@ namespace Lethal_Organization
                             (Type)Enum.Parse(typeof(Type), data[0]), //Tile Name
                             new Rectangle( //Source Rect
                                 int.Parse(data[2]) * 16, //X-pivot = ColIndex * 16 (16 is standard pixel scale, no space between tile)
-                                int.Parse(data[1]) * 32, //Y-pivot = RowIndex * 32
+                                int.Parse(data[1]) * 16, //Y-pivot = RowIndex * 16
                                 currentWidth,
                                 currentHeight)
                         );

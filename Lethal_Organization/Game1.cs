@@ -163,9 +163,10 @@ public class Game1 : Game
 
         _gameManager.Player = _player;
 
-        _uiManager = new UIManager(_gameManager, _UISprite, _openScreenSPrite, _loadGameSprite, _startGameSprite, _exitSprite, _optionSprite
-            , _screenWidth, _screenHeight,
-            Constants.GUI, _gameManager.ChangeState);
+        _uiManager = new UIManager(_gameManager, _UISprite, 
+            _openScreenSPrite, _loadGameSprite, _startGameSprite, _exitSprite, _optionSprite
+            ,_screenWidth, _screenHeight,
+            Constants.MenuLayout, _gameManager.ChangeState);
 
         //_testEnemy = new Enemy(_enemySprite, _level[9, 2].DisplayPos, _player, _gameManager);
         _enemySpawner = new EnemySpawner(_enemySprite, _enemySprite, "EnemyPositions", _level);
