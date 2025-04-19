@@ -211,9 +211,6 @@ public class Game1 : Game
 
         _player.Draw(_spriteBatch);
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
         _uiManager.Draw(_spriteBatch);
 
 
