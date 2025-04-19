@@ -13,7 +13,7 @@ namespace Lethal_Organization;
 /// Save to fileIO the layout of level
 /// 
 /// </summary>
-public class Level: IStateChange
+internal class Level: IStateChange
 {
 
     private enum LevelLayer
@@ -137,7 +137,7 @@ public class Level: IStateChange
             Texture = bossBackground
         });
 
-        gameManager.StateChangedAction += OnStateChange;
+        gameManager.OnStateChange += OnStateChange;
         
         InitializeTextureMap(textureMapFile);
         InitializeMapDesign(levelDesignFile);

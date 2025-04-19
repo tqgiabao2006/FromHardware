@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Lethal_Organization;
 
-public class Boss: GameObject
+internal class Boss: GameObject
 {
     public enum State
     {
@@ -257,7 +257,7 @@ public class Boss: GameObject
         _getMaxIndex = _animator.GetMaxIndex;
 
         //Game state
-        manager.StateChangedAction += OnStateChange;
+        manager.OnStateChange += OnStateChange;
 
         isDebug = true;
     }

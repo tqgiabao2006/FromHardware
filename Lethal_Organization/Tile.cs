@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Lethal_Organization;
 
-public class Tile
+internal class Tile
 {
     private Rectangle _worldPos;
 
