@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -62,6 +63,8 @@ namespace Lethal_Organization
 
         //Enemy
         public const string EnemySprite = "TestEnemy";
+
+        public const string EnemyPos = "../../../Content/EnemyPositions.txt";
 
       
     }
