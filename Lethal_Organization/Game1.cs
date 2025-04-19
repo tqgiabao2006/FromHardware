@@ -18,21 +18,7 @@ public class Game1 : Game
     private Enemy _testEnemy;
 
     private Button _testButton;
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 
-    private Menu _menu;
-
-=======
-
->>>>>>> Stashed changes
-=======
-
->>>>>>> Stashed changes
-=======
-
->>>>>>> Stashed changes
     private SpriteFont _font;
 
     private GameManager _gameManager;
