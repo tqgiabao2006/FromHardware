@@ -33,9 +33,12 @@ public class Game1 : Game
     //Player Sprite    
     private Texture2D _playerSpriteSheet;
 
-    private Texture2D _enemySprite;
-
     private Texture2D _bulletSprite;
+
+    //Enemey
+    private Texture2D _groundEnemySpriteSheet;
+
+    private Texture2D _flyEnemySpriteSheet;
 
     //Level:
 
@@ -116,7 +119,9 @@ public class Game1 : Game
         _bulletSprite = Content.Load<Texture2D>(Constants.BulletSprite);
 
         //Enemy
-        _enemySprite = Content.Load<Texture2D>(Constants.EnemySprite);
+        _groundEnemySpriteSheet = Content.Load<Texture2D>(Constants.GroundEnemySpriteSheet);
+
+        _flyEnemySpriteSheet = Content.Load<Texture2D>(Constants.FlyEnemySpriteSheet);
 
         //Level_Map
         _tileSpriteSheet = Content.Load<Texture2D>(Constants.TileSpriteSheet);
@@ -168,12 +173,13 @@ public class Game1 : Game
             ,_screenWidth, _screenHeight,
             Constants.MenuLayout, _gameManager.ChangeState);
 
-        //_testEnemy = new Enemy(_enemySprite, _level[9, 2].DisplayPos, _player, _gameManager);
-        _enemySpawner = new EnemySpawner(_enemySprite, _enemySprite, Constants.EnemyPos, _level, _gameManager, _player);
+        _enemySpawner = new EnemySpawner(_groundEnemySpriteSheet, _flyEnemySpriteSheet, _UISprite, _uiManager[Type.EnemyHealthBar],Constants.EnemyPos, _level, _gameManager, _player);
 
         _player.EnemyList = _enemySpawner.EnemyList;
 
         _boss = new Boss(_bossSpriteSheet, _iceProjectile, Constants.BossSpriteMap, _player, _level, _gameManager, _random, _objectPool);
+
+        _player.GetBossAcess(_boss);
 
         _gameManager.Start();
     }
@@ -186,16 +192,12 @@ public class Game1 : Game
 
         _enemySpawner.Update(gameTime);
 
-        // Update button state
-        //_testButton.Update(gameTime);
-
         _gameManager.Update(gameTime);
 
         _boss.Update(gameTime);
 
         _uiManager.Update(gameTime);
         
-        //_testEnemy.Update(gameTime);
         base.Update(gameTime);
     }
 
@@ -216,17 +218,13 @@ public class Game1 : Game
 
         _uiManager.Draw(_spriteBatch);
 
-
         _enemySpawner.Draw(_spriteBatch);
         
         _gameManager.Draw(_spriteBatch);
 
         _boss.Draw(_spriteBatch);
 
-        //_testEnemy.Draw(_spriteBatch, _player);
-        // Draw the test button
-        //_testButton.Draw(_spriteBatch, true);
-
+   
 
         if (_gameManager.CurrentState == GameManager.GameState.Debug)
         {
@@ -267,7 +265,7 @@ public class Game1 : Game
                 _font,
                 $"Boss Velcoity: {_boss.Velocity} \n \n" +
                 $"On Command {_boss.OnCommand}",
-                 new Vector2(10, 200),
+                 new Vector2(10, 300),
                 Color.Yellow
             );
 
@@ -292,7 +290,7 @@ public class Game1 : Game
             _spriteBatch.DrawString(
                 _font,
                 $"Bullet boss pool count: {_objectPool.GetBulletCount(ObjectPooling.ProjectileType.BossBullet)}",
-                new Vector2(10, 300),
+                new Vector2(10, 400),
                 Color.Aqua
                 );
 

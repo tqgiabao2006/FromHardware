@@ -24,7 +24,10 @@ namespace Lethal_Organization
         HealthBarPlaceholder,
         BarPlaceholder,
         MedButtonPlaceholder,
-       
+
+        EnemyHealthBarPlaceHolder,
+        EnemyHealthBar,
+
         MedButton,
         TextBox,
 
@@ -68,6 +71,19 @@ namespace Lethal_Organization
         private Type[] _types;
 
         private Texture2D _UISPriteSheet;
+
+        public Rectangle this[Type type]
+        {
+            get
+            {
+                if(_textureMap.ContainsKey(type))
+                {
+                    return _textureMap[type];
+
+                }
+                return Rectangle.Empty;
+            }
+        }
 
 
         public UIManager(GameManager gameManager, Player player,

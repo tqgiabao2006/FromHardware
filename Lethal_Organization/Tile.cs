@@ -13,6 +13,8 @@ internal class Tile
     
     private Texture2D _spriteSheet;
 
+    private Level.TileType _type;
+
     public Rectangle WorldPos
     {
         get { return _worldPos; }
@@ -20,6 +22,14 @@ internal class Tile
     public Rectangle DisplayPos
     {
         get { return _displayPos; }
+    }
+
+    public Level.TileType Type
+    {
+        get
+        {
+            return _type;
+        }
     }
 
     /// <summary>
@@ -30,11 +40,12 @@ internal class Tile
     /// <param name="colIndex">Which column is the source tile in the sprite sheet?</param>
     /// <param name = "width" > Pixel width of the tile
     /// <param name = "height" > Pixel height of the tile
-    public Tile(Rectangle worldPos, Rectangle sourceRect, Texture2D spriteSheet)
+    public Tile(Rectangle worldPos, Rectangle sourceRect, Texture2D spriteSheet, Level.TileType type)
     {
         this._spriteSheet = spriteSheet;
         this._worldPos = worldPos;
         this._sourceImg = sourceRect;
+        this._type = type;
         _displayPos = _worldPos;
     }
 

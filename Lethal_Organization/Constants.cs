@@ -10,8 +10,6 @@ namespace Lethal_Organization
     public static class Constants
     {
         //Player
-        public const string PlayerSpriteTexture = "TempTexture";
-
         public const string PlayerSpriteSheet = "PlayerSpriteSheet";
 
         public const string BulletSprite = "playerBullet";
@@ -62,7 +60,9 @@ namespace Lethal_Organization
         public const string OpenTheme = "Open Theme";
 
         //Enemy
-        public const string EnemySprite = "TestEnemy";
+        public const string GroundEnemySpriteSheet = "EnemySpriteSheet";
+
+        public const string FlyEnemySpriteSheet = "EnemyFlySpriteSheet";
 
         public const string EnemyPos = "../../../Content/EnemyPositions.txt";
 

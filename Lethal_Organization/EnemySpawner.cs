@@ -27,6 +27,10 @@ namespace Lethal_Organization
 
         private Texture2D _flySpriteSheet;
 
+        private Texture2D _UISpriteSheet;
+
+        private Rectangle _HPSourceImg;
+
         private Level _level;
 
         private Player _player;
@@ -40,11 +44,15 @@ namespace Lethal_Organization
             } 
         }
 
-        public EnemySpawner(Texture2D groundSpriteSheet, Texture2D flySpriteSheet, string filePath, Level level, GameManager gameManager, Player player)
+        public EnemySpawner(Texture2D groundSpriteSheet, Texture2D flySpriteSheet, Texture2D UISpriteSheet, Rectangle EnemyHPSourceImg,string filePath, Level level, GameManager gameManager, Player player)
         {
             _groundSpriteSheet = groundSpriteSheet;
 
             _flySpriteSheet = flySpriteSheet;
+
+            _UISpriteSheet = UISpriteSheet;
+
+            _HPSourceImg = EnemyHPSourceImg;
 
             _posMap = new Dictionary<EnemyType, Enemy>();
 
@@ -95,7 +103,7 @@ namespace Lethal_Organization
                     EnemyType type = (EnemyType)Enum.Parse(typeof(EnemyType), data[0]);
                     Rectangle leftBound = _level[int.Parse(data[1]), int.Parse(data[2])].WorldPos;
                     Rectangle rightBound = _level[int.Parse(data[3]), int.Parse(data[4])].WorldPos;
-                    Enemy enemy = new Enemy(_groundSpriteSheet, rightBound, leftBound, _player, _gameManager);
+                    Enemy enemy = new Enemy(_groundSpriteSheet, _UISpriteSheet,_HPSourceImg,rightBound, leftBound, _player, _gameManager);
 
                     _posMap.Add(type, enemy);
                     _enemyList.Add(enemy);

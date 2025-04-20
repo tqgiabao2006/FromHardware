@@ -15,7 +15,9 @@ namespace Lethal_Organization
         
         protected Rectangle worldPos; //Real position to do with logic
 
-        //Basic stats        
+        //Basic stats
+        protected bool enabled;
+
         protected float speed;
         
         protected int damage;
@@ -45,6 +47,16 @@ namespace Lethal_Organization
         public bool Visible
         {
             get { return visible; }
+        }
+
+        public bool Enabled
+        {
+            get { return enabled; }
+        }
+
+        public GameObject()
+        {
+            enabled = true; 
         }
 
 
@@ -138,13 +150,14 @@ namespace Lethal_Organization
 
             if(curHP <= 0)
             {
-                visible = false;
+                SetActive(false);   
             }
         }
 
         public void SetActive(bool enabled)
         {
-            visible = enabled;
+           this.enabled = enabled;
+           visible = enabled;
         }
 
     }

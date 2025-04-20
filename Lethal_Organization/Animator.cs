@@ -134,16 +134,16 @@ namespace Lethal_Organization
             }
         }
 
-        public void Draw(SpriteBatch sb, Rectangle displayPos, SpriteEffects effect)
+        public void Draw(SpriteBatch sb, Rectangle displayPos, SpriteEffects effect, Color color)
         {
             //Scale to two
-            sb.Draw(_spriteSheet, displayPos, _imageSource,Color.White, 0,Vector2.Zero,effect, 0);
+            sb.Draw(_spriteSheet, displayPos, _imageSource,color, 0,Vector2.Zero,effect, 0);
         }
 
-        public void Draw(SpriteBatch sb, Rectangle displayPos, float angle)
+        public void Draw(SpriteBatch sb, Rectangle displayPos, float angle, Color color)
         {
             Vector2 origin = new Vector2(_imageSource.Width / 2f, _imageSource.Height / 2f); //Rotate around the center of texture to avoid go outside hitbox
-            sb.Draw(_spriteSheet, displayPos, _imageSource, Color.White, angle, origin, SpriteEffects.None, 0);
+            sb.Draw(_spriteSheet, displayPos, _imageSource, color, angle, origin, SpriteEffects.None, 0);
 
         }
 
@@ -199,7 +199,7 @@ namespace Lethal_Organization
             string line = "";
             StreamReader reader = null;
             int spriteWidth = 0;
-            int spriteHeight = 0;
+            int aspriteHeight = 0;
             try
             {
                 reader = new StreamReader(filePath);

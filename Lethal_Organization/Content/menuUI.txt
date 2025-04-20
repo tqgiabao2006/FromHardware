@@ -35,6 +35,8 @@ ExitText,4,7
 OptionsText,4,10
 CreditsText,5,7
 SoundText,5,10
+EnemyHealthBarPlaceHolder,4,0
+EnemyHealthBar,5,0
 ============================
 64,32
 ============================

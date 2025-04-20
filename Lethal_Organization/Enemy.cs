@@ -30,19 +30,25 @@ namespace Lethal_Organization
 
         private Vector2 _velocity;
 
-        private bool getHit; //Track get hit frame to show health bar, change color 1 framce
+        //Get hit
+        private bool _getHit; //Track get hit frame to show health bar, change color 1 framce
 
-        private float _timeCounter;
+        private float _timeSinceHit;
 
         private float _showHPTime;
 
-        public delegate void ShowHP();
+        private bool _changeColorGetHit;
 
-        public event ShowHP showHP;
+        private float _sinceChangeColor;
 
-        public delegate void HideHP();
+        private float _changeColorTime;
 
-        public event HideHP hideHP;
+        //Render
+        private HealthBar _healthBar;
+
+        private Animator<EnemyState> _animator;
+
+       
 
         public Rectangle WorldPos
         {
@@ -52,27 +58,35 @@ namespace Lethal_Organization
             }
         }
 
-        public Enemy(Texture2D sprite, Rectangle rightPlatform, Rectangle leftPlatform, Player player, GameManager gameManager)
+        public Enemy(Texture2D sprite, Texture2D UISprite, Rectangle healthBarSourceImg,Rectangle rightPlatform, Rectangle leftPlatform, Player player, GameManager gameManager, int scale = 2)
         {
             _player = player;
 
             texture = sprite;
 
-            worldPos = new Rectangle(rightPlatform.X, rightPlatform.Y - 48, 48, 48);
+            worldPos = new Rectangle(rightPlatform.X, rightPlatform.Y - 38 * scale, 57 * scale, 42*scale);
+
+            _healthBar = new HealthBar(this, UISprite, healthBarSourceImg, new Rectangle(this.worldPos.X, this.worldPos.Y - 20, healthBarSourceImg.Width * 3, healthBarSourceImg.Height *3));
 
             displayPos = new Rectangle(0, 0, 48, 48);
 
+            _animator = new Animator<EnemyState>(sprite, EnemyState.Chase, 57, 42, 0.05f);
+
             speed = 2;
 
-            _showHPTime = 5;
+            curHP = 100;
 
-            _showHPTime = speed;
+            maxHp = 100;
+
+            _showHPTime = 5;
             
             _velocity = Vector2.Zero;
 
             _rightPlatform = rightPlatform;
 
             _leftPlatform = leftPlatform;
+
+            _changeColorTime = 0.2f;
 
             gameManager.OnStateChange += OnStateChange;
         }
@@ -88,7 +102,10 @@ namespace Lethal_Organization
                     break;
 
                 case GameManager.GameState.Game:
-                    visible = true;
+                    if(enabled)
+                    {
+                        visible = true;
+                    }
                     paused = false;
                     isDebug = false;
 
@@ -102,13 +119,11 @@ namespace Lethal_Organization
                     break;
                 case GameManager.GameState.Pause:
                     paused = true;
-                    visible = true;
                     isDebug = false;
 
                     break;
                 case GameManager.GameState.Debug:
                     paused = false;
-                    visible = true;
                     isDebug = true;
                     break;
             }
@@ -117,11 +132,18 @@ namespace Lethal_Organization
 
         public override void Update(GameTime gameTime)
         {
-            DisplayHP();
-
             _playerXPos = _player.WorldPos.X;
             worldPos.X +=(int)_velocity.X;
             worldPos.Y += (int)_velocity.Y;
+
+
+            _animator.Update(gameTime);
+
+            DisplayHP(gameTime);
+
+            GetHitEffect(gameTime);
+
+
             switch(_state)
             {
                 case EnemyState.Patrol:
@@ -176,13 +198,22 @@ namespace Lethal_Organization
 
             if (visible)
             {
-                sb.Draw(
-                 texture,
-                 displayPos,
-                Color.White);
+                SpriteEffects effect = _faceRight ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+
+                Color color = _changeColorGetHit ? Color.Red : Color.White;
+
+                _animator.Draw(sb, displayPos, effect, color);
+
+                _healthBar.UpdatePos(new Vector2(displayPos.X, displayPos.Y - 20));
+
+                if (_getHit)
+                {
+                    _healthBar.Draw(sb);
+                }
+
             }
 
-            if (isDebug)
+            if (isDebug && enabled)
             {
                 if (worldPos.Intersects(player.WorldPos))
                 {
@@ -195,26 +226,44 @@ namespace Lethal_Organization
             }
         }
 
-        private void DisplayHP()
+        private void DisplayHP(GameTime gameTime)
         {
-            if(getHit && _timeCounter >0)
-            {
-                showHP();
-                _timeCounter--;
-                showHP?.Invoke();
 
-            }else if(_timeCounter < 0 ||curHP <=0)
+            if(_getHit)
             {
-                getHit = false;
-                hideHP?.Invoke();
+                _timeSinceHit += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                _healthBar.Visible = true;
+
+                if(_timeSinceHit >= _showHPTime || curHP <= 0)
+                {
+                    _healthBar.Visible = false;
+                    _getHit = false;
+                }
             }
         }
 
         public override void GetHit(int damage)
         {
             base.GetHit(damage);
-            getHit = true;
-            _timeCounter = _showHPTime;
+            _getHit = true;
+            _timeSinceHit = 0;
+
+            _sinceChangeColor = 0;
+            _changeColorGetHit = true;
+        }
+
+        private void GetHitEffect(GameTime gameTime)
+        {
+            if(_changeColorGetHit)
+            {
+                _sinceChangeColor +=(float) gameTime.ElapsedGameTime.TotalSeconds;
+
+                if(_sinceChangeColor >= _changeColorTime || curHP <=0)
+                {
+                    _changeColorGetHit = false;
+                    _sinceChangeColor = 0;
+                }
+            }
         }
 
     }

@@ -25,8 +25,10 @@ namespace Lethal_Organization
         private KeyboardState _prevKb;
         
         private MouseState _mouse;
-        
+
         // Movement stat:
+        private int _scale;
+
         private Vector2 _velocity = Vector2.Zero;
         
         private float _gravity;
@@ -60,6 +62,9 @@ namespace Lethal_Organization
         //Animation:
         private Dictionary<string, Rectangle> _playerSprites;
 
+        Animator<Player.State> _animator;
+
+
         //Shoot
         private ObjectPooling _objectPooling;
         
@@ -73,17 +78,24 @@ namespace Lethal_Organization
 
         private int _bulletSpeed;
 
-        //Enemy list for collisions
-
+        //Target to deal damage
         private List<Enemy> _enemyList;
 
-        //Animation
-        Animator<Player.State> _animator;
+        private Boss _boss;
 
-        //Basic stat
+        private bool _getHit;
 
+        private float _sinceTimeGetHit;
 
+        private float _getHitBurnTime;
 
+        private bool _changeColorGetHit;
+
+        private float _sinceChangeColor;
+
+        private float _changeColorTime;
+
+        private int _burnDamge;
 
         public bool OnGround
         {
@@ -168,21 +180,26 @@ namespace Lethal_Organization
             gameManager.OnStateChange += OnStateChange;
 
             //Render
+            _scale = 2;
+
             _bulletTexture = bulletTexture;
             
-            displayPos = new Rectangle((graphics.PreferredBackBufferWidth - 75)/2, (graphics.PreferredBackBufferHeight - 48)/2,64, 48);
+            displayPos = new Rectangle((graphics.PreferredBackBufferWidth - 75)/2, (graphics.PreferredBackBufferHeight - 48)/2,64 * _scale, 48 * _scale);
             
             sourceImg = new Rectangle(0, 0,64, 48);
             
-            worldPos = new Rectangle(8, 384, 64, 48);
+            worldPos = new Rectangle(8, 310, 64 * _scale, 48 *2);
             
             _cameraOffset = new Vector2(0, 0);
 
-            hitBox = new Rectangle(worldPos.X, worldPos.Y, 16, 48);
+            hitBox = new Rectangle(worldPos.X, worldPos.Y, 16 * _scale, 48 * _scale);
             
             _playerState = State.Jump;
 
             //Movement
+
+            damage = 20;
+
             speed = 1;
             
             _maxSpeed.X = 4;
@@ -193,9 +210,10 @@ namespace Lethal_Organization
             
             _gravity = 0.3f;
 
-            _groundRayLength = 25;
+            _groundRayLength = 50;
 
             _faceRight = true;
+
 
             //Shoot
             _shootDelayTime = 0.4f;
@@ -210,10 +228,16 @@ namespace Lethal_Organization
 
             maxHp = curHP;
 
+            //Combat
+            _getHit = false;
 
-            
+            _sinceTimeGetHit = 0;
 
-            
+            _getHitBurnTime = 0.2f;
+
+            _changeColorTime = 0.1f;
+
+            _burnDamge = 0;
 
 
             InitializePlayerSprites("playerTileMap");
@@ -282,7 +306,13 @@ namespace Lethal_Organization
                     }
                 }
             }
-          
+
+            //Get hit logic
+            BurnHealthOverTime(gameTime);
+
+            ChangeColorEffect(gameTime);
+
+
             //Update hit box
             UpdateHitBox();
 
@@ -293,20 +323,35 @@ namespace Lethal_Organization
           
         }
 
+        public void GetBossAcess(Boss boss)
+        {
+            if(_boss ==null)
+            {
+                _boss = boss;
+            }
+        }
+
         public override void Draw(SpriteBatch sb)
         {
             if(visible)
             {
                 SpriteEffects effect = _faceRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
-                _animator.Draw(sb, displayPos, effect);
+                
+                
+                if(_changeColorGetHit)
+                {
+                    _animator.Draw(sb, displayPos, effect, Color.Red);
+                }else
+                {
+                    _animator.Draw(sb, displayPos, effect, Color.White);
+
+                }
 
                 foreach (Bullet bullet in _objectPooling.GetBullets(ObjectPooling.ProjectileType.Bullet))
                 {
                     bullet.Draw(sb, isDebug, _cameraOffset, effect);
                 }
             }
-
-          
 
             if (isDebug)
             {
@@ -503,7 +548,7 @@ namespace Lethal_Organization
                     int dirMultipler = _faceRight ? 1 : -1;
                     Vector2 spawnPos = new Vector2(this.worldPos.Center.X + dirMultipler * this.worldPos.Width / 2, this.worldPos.Center.Y);
                     _animator.SetState(State.Attack);
-                    bullet.Spawn(spawnPos, direction, damage, _bulletSpeed, 16,16);
+                    bullet.Spawn(spawnPos, _enemyList, _boss,direction, damage, _bulletSpeed,16,16,2);
                     _shootTimeCounter = _shootDelayTime;
                 }
                 
@@ -518,16 +563,19 @@ namespace Lethal_Organization
         public void CollisionHandler(Level level)
         {
             bool groundRayHit = false;
+
+            //die logic
+            bool hasCollided = false;
+
             for (int i = 0; i < level.SizeX; i++)
             {
                 for (int j = 0; j < level.SizeY; j++)
                 {
                     //Check collision
-                    if (level[i, j] == null)
+                    if (level[i, j] == null || level[i,j].Type == Level.TileType.Decoration)
                     {
                         continue;
                     }
-
                     Rectangle tilePos = level[i, j].WorldPos;
 
                     //Check on ground
@@ -536,6 +584,14 @@ namespace Lethal_Organization
                         && worldPos.Y < tilePos.Y && !isDebug) //Player on the top of the tile
                      
                     {
+                        if (_level[i, j].Type == Level.TileType.Spike)
+                        {
+                            hasCollided = true;
+                            _getHit = true;
+                            _burnDamge = 40;
+                            _getHitBurnTime = 0;
+                        }
+
                         Rectangle collidedArea = this.Collide(hitBox, tilePos);
                         _onGround = true;
                         groundRayHit = true;
@@ -554,6 +610,14 @@ namespace Lethal_Organization
 
                     if (this.Collides(hitBox, tilePos) && !isDebug)
                     {
+                        if (_level[i,j].Type == Level.TileType.Spike)
+                        {
+                            hasCollided = true;
+                            _getHit = true;
+                            _burnDamge = 40;
+                            _getHitBurnTime = 0;
+
+                        }
                         Rectangle collidedArea = this.Collide(hitBox, tilePos);
 
                         //Check horizontal collsion
@@ -584,10 +648,10 @@ namespace Lethal_Organization
                     }
                 }
             }
-            //die logic
+
             for (int i = 0; i < _enemyList.Count; i++)
             {
-                if (this.Collides(hitBox, _enemyList[i].WorldPos) && !isDebug && _enemyList[i].Visible)
+                if (this.Collides(hitBox, _enemyList[i].WorldPos) && !isDebug && _enemyList[i].Visible && _enemyList[i].Enabled)
                 {
                     Rectangle collidedArea = this.Collide(hitBox, _enemyList[i].WorldPos);
 
@@ -605,8 +669,12 @@ namespace Lethal_Organization
                         }
 
                         _velocity.X = 0;
+                        
                         //Player takes damage logic
-                        curHP--;
+                        _getHit = true;
+                        _burnDamge = 2;
+                         hasCollided = true;
+                        _getHitBurnTime = 0.2f;
                     }
 
                     //Check if hit object over-head
@@ -618,7 +686,10 @@ namespace Lethal_Organization
                         worldPos.Y += collidedArea.Height;
 
                         //Player takes damage logic
-                        curHP--;
+                        _getHit = true;
+                        hasCollided = true;
+                        _burnDamge = 2;
+                        _getHitBurnTime = 0.2f;
                     }
 
                     //Player jumps on enemy
@@ -640,6 +711,27 @@ namespace Lethal_Organization
                     }
                 }
             }
+
+            if(!hasCollided)
+            {
+                _getHit = false;
+                _sinceTimeGetHit = 0;
+            }
+        }
+
+        private void BurnHealthOverTime(GameTime gameTime)
+        {
+            if (_getHit)
+            {
+                _sinceTimeGetHit += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                if(_sinceTimeGetHit > _getHitBurnTime)
+                {
+                    GetHit(_burnDamge);
+                    _sinceTimeGetHit = 0;
+                }
+            }
+
         }
 
 
@@ -700,6 +792,27 @@ namespace Lethal_Organization
             }
         }
 
+        public override void GetHit(int damage)
+        {
+            base.GetHit(damage);
+            _changeColorGetHit = true;
+        }
+
+        private void ChangeColorEffect(GameTime gameTime)
+        {
+           if(_changeColorGetHit)
+            {
+                _sinceChangeColor += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                if(_sinceChangeColor > _changeColorTime)
+                {
+                    _sinceChangeColor = 0;
+                    _changeColorGetHit = false;
+                }
+            }
+
+        }
+
         /// <summary>
         /// Update hitbox with worldPos
         /// </summary>
@@ -727,6 +840,8 @@ namespace Lethal_Organization
             _cameraOffset.X = displayPos.X - worldPos.X;
             _cameraOffset.Y = displayPos.Y - worldPos.Y;
         }
+
+
 
 
         /// <summary>

@@ -15,11 +15,17 @@ namespace Lethal_Organization;
 /// </summary>
 internal class Level: IStateChange
 {
-
     private enum LevelLayer
     {
         Main,
         BossRoom
+    }
+
+    internal enum TileType
+    {
+        Normal, 
+        Spike,      //Deal damge
+        Decoration  //Allow to go through
     }
     private Texture2D _spriteSheet;
 
@@ -29,7 +35,7 @@ internal class Level: IStateChange
    
     private Player player;
 
-    private Dictionary<string, Rectangle> _textureMap;
+    private Dictionary<string, TileData> _textureMap;
     
     private Tile[,] _levelDesign;
 
@@ -103,10 +109,10 @@ internal class Level: IStateChange
 
         this._screenWidth = screenWidth;
         
-        _textureMap = new Dictionary<string, Rectangle>();
+        _textureMap = new Dictionary<string, TileData>();
 
         _backgroundLayers = new Dictionary<LevelLayer, List<BackgroundLayer>>();
-
+       
         _backgroundLayers.Add(LevelLayer.Main, new List<BackgroundLayer>());
 
         _backgroundLayers.Add(LevelLayer.BossRoom, new List<BackgroundLayer>());
@@ -212,15 +218,21 @@ internal class Level: IStateChange
                     currentWidth = int.Parse(data[0]);
                     currentHeight = int.Parse(data[1]);
                 }
-                else if (data.Length == 3)
+                else if (data.Length == 4)
                 {
                     _textureMap.Add(
                         data[0], //Tile Name
-                        new Rectangle( //Source Rect
+
+                        new TileData()
+                        {
+                            SoureImage = new Rectangle( //Source Rect
                             int.Parse(data[2]) * 16, //X-pivot = ColIndex * 16 (16 is standard pixel scale, no space between tile)
                             int.Parse(data[1]) * 16, //Y-pivot = RowIndex * 16 
-                            currentWidth, 
-                            currentHeight)
+                            currentWidth,
+                            currentHeight),
+
+                            Type = (Level.TileType)Enum.Parse(typeof(Level.TileType), data[3])
+                        }                      
                     );
                 }
             }
@@ -269,7 +281,7 @@ internal class Level: IStateChange
                     {
                         if (data[col] != "")
                         {
-                            Rectangle sourceRec = _textureMap[data[col]];
+                            Rectangle sourceRec = _textureMap[data[col]].SoureImage;
                             _levelDesign[currentRow, col] = new Tile
                             (
                                 //PosRec
@@ -278,7 +290,8 @@ internal class Level: IStateChange
                                                      sourceRec.Width *_drawWidthScale,
                                                      sourceRec.Height * _drawHeightScale),
                                 sourceRec,
-                                _spriteSheet
+                                _spriteSheet,
+                                _textureMap[data[col]].Type
                             );
                         }
                     }

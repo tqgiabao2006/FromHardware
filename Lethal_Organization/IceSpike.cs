@@ -69,7 +69,7 @@ namespace Lethal_Organization
         public void Draw(SpriteBatch sb, Vector2 playerCameraOffset, bool isDebug)
         {
             Rectangle displayPos = new Rectangle(_hitBox.X + (int)playerCameraOffset.X, _hitBox.Y + (int)playerCameraOffset.Y, _hitBoxWidth, _hitBoxHeight);
-            _animator.Draw(sb,displayPos, 0f);
+            _animator.Draw(sb,displayPos, 0f, Color.White);
             
             if(isDebug)
             {

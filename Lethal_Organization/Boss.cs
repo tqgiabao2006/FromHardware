@@ -308,7 +308,7 @@ internal class Boss: GameObject
 
         if(visible)
         {
-            _animator.Draw(sb, worldPos, _spriteEffects);
+            _animator.Draw(sb, worldPos, _spriteEffects, Color.White);
         }
 
         if (isDebug)
@@ -491,7 +491,7 @@ internal class Boss: GameObject
     private void SpawnBullet(Vector2 direction, Vector2 spawnPos, float radAngle)
     {
         Bullet bullet = _objectPooling.GetObj(ObjectPooling.ProjectileType.BossBullet, _bulletTexture, _level);
-        bullet.Spawn(Constants.BossBulletSpriteMap,radAngle,spawnPos, direction, _bulletDamge, _bulletSpeed, 48,32, 0.05f, _bulletHitBox);
+        bullet.Spawn(Constants.BossBulletSpriteMap,_player,radAngle,spawnPos, direction, _bulletDamge, _bulletSpeed, 48,32, 1,0.05f, _bulletHitBox);
     }
 
     private void SetAnim(State state)
