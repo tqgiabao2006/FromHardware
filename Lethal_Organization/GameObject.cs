@@ -26,14 +26,21 @@ namespace Lethal_Organization
 
         protected bool paused;
 
-        protected int hp;
-        public int HP
+        //HP
+        public delegate void OnHealthChanged(int currentHP, int maxHP);
+
+        public event OnHealthChanged onHealthChanged;
+
+        protected int curHP;
+        public int CurHP
         {
             get
             {
-                return hp;
+                return curHP;
             }
         }
+
+        protected int maxHp;
 
         public bool Visible
         {
@@ -124,9 +131,20 @@ namespace Lethal_Organization
 
         }
 
-        public void GetHit(int damage)
+        public virtual void GetHit(int damage)
         {
-            hp -= damage;
+            curHP =  MathHelper.Clamp(curHP - damage, 0, maxHp);
+            onHealthChanged?.Invoke(curHP, maxHp);
+
+            if(curHP <= 0)
+            {
+                visible = false;
+            }
+        }
+
+        public void SetActive(bool enabled)
+        {
+            visible = enabled;
         }
 
     }

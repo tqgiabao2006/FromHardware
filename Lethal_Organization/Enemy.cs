@@ -18,7 +18,7 @@ namespace Lethal_Organization
     {
         private EnemyState _state = EnemyState.Patrol;
         // false : left  ,  true : right
-        private bool _enemyDirection = true;
+        private bool _faceRight = true;
 
         private Player _player;
 
@@ -30,12 +30,27 @@ namespace Lethal_Organization
 
         private Vector2 _velocity;
 
+        private bool getHit; //Track get hit frame to show health bar, change color 1 framce
+
+        private float _timeCounter;
+
+        private float _showHPTime;
+
+        public delegate void ShowHP();
+
+        public event ShowHP showHP;
+
+        public delegate void HideHP();
+
+        public event HideHP hideHP;
+
         public Rectangle WorldPos
         {
-            get { return worldPos; }
+            get 
+            { 
+                return worldPos; 
+            }
         }
-        public Player Player { set { _player = value; } }
-
 
         public Enemy(Texture2D sprite, Rectangle rightPlatform, Rectangle leftPlatform, Player player, GameManager gameManager)
         {
@@ -48,6 +63,10 @@ namespace Lethal_Organization
             displayPos = new Rectangle(0, 0, 48, 48);
 
             speed = 2;
+
+            _showHPTime = 5;
+
+            _showHPTime = speed;
             
             _velocity = Vector2.Zero;
 
@@ -98,6 +117,8 @@ namespace Lethal_Organization
 
         public override void Update(GameTime gameTime)
         {
+            DisplayHP();
+
             _playerXPos = _player.WorldPos.X;
             worldPos.X +=(int)_velocity.X;
             worldPos.Y += (int)_velocity.Y;
@@ -105,47 +126,45 @@ namespace Lethal_Organization
             {
                 case EnemyState.Patrol:
                     //moves enemy based on which way it's facing
-                    if (_enemyDirection)
+                    if (_faceRight)
                     {
                         _velocity.X = speed;
                     }
-                    if (!_enemyDirection)
+                    if (!_faceRight)
                     {
                         _velocity.X = -speed;
                     }
                     //turns enemy around at the edge of a platform
                     if (worldPos.X <= _leftPlatform.X)
                     {
-                        _enemyDirection = true;
+                        _faceRight = true;
                     }
                     if (worldPos.X + worldPos.Width >= _rightPlatform.X + _rightPlatform.Width)
                     {
-                        _enemyDirection = false;
+                        _faceRight = false;
                     }
                     
                     break;
 
                 case EnemyState.Chase:
                     //moves enemy based on which way it's facing
-                    if (_enemyDirection)
+                    if (_faceRight)
                     {
                         _velocity.X = speed;
                     }
-                    if (!_enemyDirection)
+                    if (!_faceRight)
                     {
                         _velocity.X = -speed;
                     }
                     //turns enemy around at the edge of a platform
                     if (Math.Abs(worldPos.X - _playerXPos) <= 50 && _playerXPos >= worldPos.X)
                     {
-                        _enemyDirection = true;
+                        _faceRight = true;
                     }
                     if (Math.Abs(worldPos.X - _playerXPos) <= 50 && _playerXPos < worldPos.X)
                     {
-                        _enemyDirection = false;
+                        _faceRight = false;
                     }
-
-
                     break;
             }
         }
@@ -176,9 +195,27 @@ namespace Lethal_Organization
             }
         }
 
-        public void SetActive(bool enabled)
+        private void DisplayHP()
         {
-            visible = enabled;
+            if(getHit && _timeCounter >0)
+            {
+                showHP();
+                _timeCounter--;
+                showHP?.Invoke();
+
+            }else if(_timeCounter < 0 ||curHP <=0)
+            {
+                getHit = false;
+                hideHP?.Invoke();
+            }
         }
+
+        public override void GetHit(int damage)
+        {
+            base.GetHit(damage);
+            getHit = true;
+            _timeCounter = _showHPTime;
+        }
+
     }
 }

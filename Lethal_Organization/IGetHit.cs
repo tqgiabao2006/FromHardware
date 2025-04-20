@@ -8,7 +8,7 @@ namespace Lethal_Organization
 {
     public interface IGetHit
     {
-        public int HP { get; }
+        public int CurHP { get; }
         public void GetHit(int damage);
     }
 }

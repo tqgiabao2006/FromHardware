@@ -2,23 +2,25 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Graphics;
 using System.Diagnostics;
 
 namespace Lethal_Organization
 {
-    class HeatlhBar: UI
+    class PlayerHUB: UI
     {
         private Texture2D _UISPriteSHeet;
 
         private Rectangle _healthBarSourceImg;
 
-        private Rectangle _borderSourceImg;
-
         private Rectangle _healthDisplayPos;
 
+        private Rectangle _borderSourceImg;
+
         private Rectangle _borderDisplayPos;
+
+        private Rectangle _playerIconSourceImg;
+
+        private Rectangle _playerIconPos;
 
         private float HP;
 
@@ -27,17 +29,23 @@ namespace Lethal_Organization
     
         public bool Visible { get; set; }
 
-        public HeatlhBar(Texture2D spriteSheet, Rectangle sourceImage, Rectangle placeholderSource)
+        public PlayerHUB(Player player, Texture2D spriteSheet, Rectangle healthBarSource, Rectangle placeholderSource, Rectangle playerIconSource)
         {
+            player.onHealthChanged += UpdateHP;
+
             _UISPriteSHeet = spriteSheet; 
 
-            _healthBarSourceImg = sourceImage;
+            _healthBarSourceImg = healthBarSource;
 
             _borderSourceImg = placeholderSource;
 
-            _healthDisplayPos = new Rectangle(100, 103, sourceImage.Width * 5, sourceImage.Height * 3);
+            _playerIconSourceImg = playerIconSource;
 
-            _borderDisplayPos = new Rectangle(100, 100, placeholderSource.Width * 5, placeholderSource.Height * 3);
+            _healthDisplayPos = new Rectangle(110, 153, healthBarSource.Width * 10, healthBarSource.Height * 4);
+
+            _borderDisplayPos = new Rectangle(100, 150, placeholderSource.Width * 10, placeholderSource.Height * 4);
+
+            _playerIconPos = new Rectangle(100, _healthDisplayPos.Y - _healthDisplayPos.Height - 30, _playerIconSourceImg.Width * 4, _playerIconSourceImg.Height * 4);
 
             HP = 100;
 
@@ -48,6 +56,7 @@ namespace Lethal_Organization
         {
             sb.Draw(_UISPriteSHeet, _borderDisplayPos, _borderSourceImg, Color.White);
             sb.Draw(_UISPriteSHeet, _healthDisplayPos, _healthBarSourceImg, Color.White);
+            sb.Draw(_UISPriteSHeet, _playerIconPos, _playerIconSourceImg, Color.White);
         }
 
         public void Hide()
@@ -62,10 +71,12 @@ namespace Lethal_Organization
 
         public void Update(Microsoft.Xna.Framework.GameTime gameTime)
         {
-            HP -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+         
+        }
 
-            float width = _healthDisplayPos.Width;
-            float newWidth = (HP/_maxHP) * width;
+        private void UpdateHP(int curHP, int maxHP)
+        {
+            float newWidth = (HP / _maxHP) * _healthDisplayPos.Width;
             _healthDisplayPos.Width = (int)newWidth;
         }
     }

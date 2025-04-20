@@ -163,8 +163,8 @@ public class Game1 : Game
 
         _gameManager.Player = _player;
 
-        _uiManager = new UIManager(_gameManager, _UISprite, 
-            _openScreenSPrite, _loadGameSprite, _startGameSprite, _exitSprite, _optionSprite
+        _uiManager = new UIManager(_gameManager,_player, 
+            _UISprite, _openScreenSPrite, _loadGameSprite, _startGameSprite, _exitSprite, _optionSprite
             ,_screenWidth, _screenHeight,
             Constants.MenuLayout, _gameManager.ChangeState);
 

@@ -201,7 +201,7 @@ internal class Boss: GameObject
         _objectPooling = objectPooling;
         
         //Movement
-        hp = 1000;
+        curHP = 1000;
 
         _phase2Hp = 1000 / 2;
 
@@ -379,7 +379,7 @@ internal class Boss: GameObject
         }
         else
         {
-            if (hp < _phase2Hp)
+            if (curHP < _phase2Hp)
             {
                 //Add new skill
                 _skillSet.Add(new Skill<State>()

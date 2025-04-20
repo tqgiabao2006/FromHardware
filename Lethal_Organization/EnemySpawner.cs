@@ -33,11 +33,12 @@ namespace Lethal_Organization
 
         private GameManager _gameManager;
 
-        public Player Player { set { _player = value; } }
-
-        public GameManager GameManager {  set { _gameManager = value; } }
-
-        public List<Enemy> EnemyList { get { return _enemyList; } }
+        public List<Enemy> EnemyList { 
+            get 
+            { 
+                return _enemyList;
+            } 
+        }
 
         public EnemySpawner(Texture2D groundSpriteSheet, Texture2D flySpriteSheet, string filePath, Level level, GameManager gameManager, Player player)
         {

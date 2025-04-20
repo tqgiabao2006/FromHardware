@@ -80,6 +80,11 @@ namespace Lethal_Organization
         //Animation
         Animator<Player.State> _animator;
 
+        //Basic stat
+
+
+
+
         public bool OnGround
         {
             get { return _onGround; }
@@ -152,7 +157,17 @@ namespace Lethal_Organization
             set { _enemyList = value; }
         }
         public Player(Texture2D playerSpriteSheet, string spriteMapFile ,Texture2D bulletTexture,GraphicsDeviceManager graphics, Level level, GameManager gameManager, ObjectPooling objectPooling)
-        {            
+        {
+            //Class
+            this._level = level;
+
+            _objectPooling = objectPooling;
+
+            _animator = new Animator<State>(playerSpriteSheet, State.Idle, spriteMapFile, 0.1f);
+
+            gameManager.OnStateChange += OnStateChange;
+
+            //Render
             _bulletTexture = bulletTexture;
             
             displayPos = new Rectangle((graphics.PreferredBackBufferWidth - 75)/2, (graphics.PreferredBackBufferHeight - 48)/2,64, 48);
@@ -166,10 +181,12 @@ namespace Lethal_Organization
             hitBox = new Rectangle(worldPos.X, worldPos.Y, 16, 48);
             
             _playerState = State.Jump;
-            
+
+            //Movement
             speed = 1;
             
             _maxSpeed.X = 4;
+
             _maxSpeed.Y = 10;
             
             _jumpForce = -10;
@@ -178,21 +195,26 @@ namespace Lethal_Organization
 
             _groundRayLength = 25;
 
+            _faceRight = true;
+
+            //Shoot
             _shootDelayTime = 0.4f;
             
             _shootTimeCounter = 0;
 
             _bulletSpeed = 10;
 
-            _faceRight = true;
-            
-            this._level = level;
+            //Basic stat
 
-            gameManager.OnStateChange += OnStateChange;
-            
-            _objectPooling = objectPooling;
+            curHP = 100;
 
-            _animator = new Animator<State>(playerSpriteSheet, State.Idle, spriteMapFile, 0.1f);
+            maxHp = curHP;
+
+
+            
+
+            
+
 
             InitializePlayerSprites("playerTileMap");
         }
@@ -584,7 +606,7 @@ namespace Lethal_Organization
 
                         _velocity.X = 0;
                         //Player takes damage logic
-                        hp--;
+                        curHP--;
                     }
 
                     //Check if hit object over-head
@@ -596,7 +618,7 @@ namespace Lethal_Organization
                         worldPos.Y += collidedArea.Height;
 
                         //Player takes damage logic
-                        hp--;
+                        curHP--;
                     }
 
                     //Player jumps on enemy
@@ -613,7 +635,7 @@ namespace Lethal_Organization
                             worldPos.Y -= collidedArea.Height;
                             //kill enemy logic
 
-                            _enemyList[i].SetActive(false);
+                            _enemyList[i].GetHit(100);
                         }
                     }
                 }

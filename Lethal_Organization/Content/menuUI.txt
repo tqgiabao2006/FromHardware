@@ -38,7 +38,7 @@ SoundText,5,10
 ============================
 64,32
 ============================
-PlayerIcon,0,2
+PlayerIcon,2,0
 LargeButton,6,0
 LargeButtonPress,8,0
 LargeButtonHover,10,0

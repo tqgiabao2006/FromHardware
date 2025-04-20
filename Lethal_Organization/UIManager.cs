@@ -70,7 +70,7 @@ namespace Lethal_Organization
         private Texture2D _UISPriteSheet;
 
 
-        public UIManager(GameManager gameManager,
+        public UIManager(GameManager gameManager, Player player,
             Texture2D spriteSheet, Texture2D openTheme, Texture2D loadGame, Texture2D startGame, Texture2D exit, Texture2D option,
             int screenWidth, int screenHeight,
             string textureMapFile, Action<GameManager.GameState> changeState, int scale = 5)
@@ -89,7 +89,7 @@ namespace Lethal_Organization
 
             _UIs.Add(new Menu(changeState, openTheme, loadGame, startGame, exit, option, screenWidth, screenHeight));
 
-            _UIs.Add(new HeatlhBar(spriteSheet, _textureMap[Type.HealthBar], _textureMap[Type.HealthBarPlaceholder]));
+            _UIs.Add(new PlayerHUB(player, spriteSheet, _textureMap[Type.HealthBar], _textureMap[Type.HealthBarPlaceholder], _textureMap[Type.PlayerIcon]));
         }
 
        
@@ -103,7 +103,7 @@ namespace Lethal_Organization
 
                 case GameManager.GameState.Game:
                     HideMenu<Menu>();
-                    ShowMenu<HeatlhBar>();
+                    ShowMenu<PlayerHUB>();
                     break;
 
                 case GameManager.GameState.GameOver:

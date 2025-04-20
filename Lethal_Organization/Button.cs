@@ -40,7 +40,7 @@ namespace Lethal_Organization
 
             _hoverColor = Color.OrangeRed;
 
-            _hoverScale = 1.2f;
+            _hoverScale = 1.1f;
 
         }
 
@@ -48,7 +48,7 @@ namespace Lethal_Organization
         {
             if (_isHovered)
             {
-                sb.Draw(_texture, new Vector2(_displayPos.X, _displayPos.Y), null, _hoverColor, 0f, new Vector2(0.5f, 0.5f), _hoverScale, SpriteEffects.None, 0f);                   
+                sb.Draw(_texture, new Vector2(_displayPos.X, _displayPos.Y), null, _hoverColor, 0f, Vector2.Zero, _hoverScale, SpriteEffects.None, 0f);                   
             }
             else
             {
