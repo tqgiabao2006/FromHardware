@@ -101,8 +101,8 @@ namespace Lethal_Organization
 
                     string[] data = line.Split(',');
                     EnemyType type = (EnemyType)Enum.Parse(typeof(EnemyType), data[0]);
-                    Rectangle leftBound = new Rectangle(16 * int.Parse(data[1]), 16 * int.Parse(data[2]),0,0);
-                    Rectangle rightBound = new Rectangle(16 * int.Parse(data[3]), 16 * int.Parse(data[4]), 0, 0); //Each tile of the the map 16 x 3 = 48
+                    Vector2 leftBound = new Vector2(48 * int.Parse(data[1]), 48 * int.Parse(data[2]));
+                    Vector2 rightBound = new Vector2(48 * int.Parse(data[3]), 48 * int.Parse(data[4])); //Each tile of the the map 16 x 3 = 48
                     Enemy enemy = new Enemy(_groundSpriteSheet, _UISpriteSheet,_HPSourceImg,rightBound, leftBound, _player, _gameManager);
 
                     _posMap.Add(type, enemy);

@@ -22,15 +22,16 @@ namespace Lethal_Organization
 
         private Player _player;
 
-        private int _playerXPos;
+        private Vector2 _rightPlatform;
 
-        private Rectangle _rightPlatform;
-
-        private Rectangle _leftPlatform;
+        private Vector2 _leftPlatform;
 
         private Vector2 _velocity;
 
         private float _chasingRadius;
+
+        private bool _hasChased; //This to avoid enemy turn back and froth immidately
+                                 //when player move around edge of checking radius
 
         //Get hit
         private bool _getHit; //Track get hit frame to show health bar, change color 1 framce
@@ -50,10 +51,6 @@ namespace Lethal_Organization
 
         private Animator<EnemyState> _animator;
 
-
-
-       
-
         public Rectangle WorldPos
         {
             get 
@@ -62,39 +59,43 @@ namespace Lethal_Organization
             }
         }
 
-        public Enemy(Texture2D sprite, Texture2D UISprite, Rectangle healthBarSourceImg,Rectangle rightPlatform, Rectangle leftPlatform, Player player, GameManager gameManager, int scale = 2)
+        public Enemy(Texture2D sprite, Texture2D UISprite, Rectangle healthBarSourceImg, Vector2 rightPlatform, Vector2 leftPlatform, Player player, GameManager gameManager, int scale = 2)
         {
             _player = player;
 
             texture = sprite;
 
-            worldPos = new Rectangle(rightPlatform.X, rightPlatform.Y * scale, 57* scale, 42*scale);
+            _rightPlatform = rightPlatform;
 
-            _healthBar = new HealthBar(this, UISprite, healthBarSourceImg, new Rectangle(this.worldPos.X, this.worldPos.Y - 20, healthBarSourceImg.Width * 3, healthBarSourceImg.Height *3));
-
-            displayPos = new Rectangle(0, 0, 48, 48);
-
-            _animator = new Animator<EnemyState>(sprite, EnemyState.Chase, 57, 42, 0.05f);
-
-            speed = 2;
+            _leftPlatform = leftPlatform;
+            
+            speed = 5;
 
             curHP = 100;
 
             maxHp = 100;
 
-            _showHPTime = 5;
+            _showHPTime = 3;
             
             _velocity = Vector2.Zero;
 
-            _rightPlatform = rightPlatform;
+            _chasingRadius = 100;
 
-            _leftPlatform = leftPlatform;
+            _faceRight = false;
+
+            gameManager.OnStateChange += OnStateChange;
+
+            //UI_Render
+            worldPos = new Rectangle((int)rightPlatform.X, (int)rightPlatform.Y - scale * 42, 57 * scale, 42 * scale);
+
+            _healthBar = new HealthBar(this, UISprite, healthBarSourceImg, new Rectangle(this.worldPos.X, this.worldPos.Y - 20, healthBarSourceImg.Width * 3, healthBarSourceImg.Height * 3));
+
+            displayPos = new Rectangle(0, 0, 48, 48);
+
+            _animator = new Animator<EnemyState>(sprite, EnemyState.Chase, 57, 42, 0.05f);
 
             _changeColorTime = 0.2f;
 
-            _chasingRadius = 200;
-
-            gameManager.OnStateChange += OnStateChange;
         }
 
         public void OnStateChange(GameManager.GameState state)
@@ -141,7 +142,6 @@ namespace Lethal_Organization
                 return;
             }
 
-            _playerXPos = _player.WorldPos.X;
             worldPos.X +=(int)_velocity.X;
             worldPos.Y += (int)_velocity.Y;
 
@@ -153,38 +153,58 @@ namespace Lethal_Organization
             GetHitEffect(gameTime);
 
             float distance = _player.WorldPos.Center.X - worldPos.Center.X;
+            
+            _velocity.X = _faceRight ? speed : -speed;
 
             switch (_state)
             {
                 case EnemyState.Patrol:
-                    _velocity.X = _faceRight ? speed : -speed;
 
-                    if (worldPos.X <= _leftPlatform.X)
+                    if(!_faceRight && this.worldPos.X < _leftPlatform.X)
                     {
                         _faceRight = true;
+                        if (_hasChased && this.worldPos.X < (_rightPlatform.X - _leftPlatform.X) * 0.7f)
+                        {
+                            _hasChased = false;
+                        }
+
                     }
-                    else if (worldPos.X + worldPos.Width >= _rightPlatform.X + _rightPlatform.Width)
+                    else if(_faceRight && this.worldPos.X > _rightPlatform.X)
                     {
+                        //Allow chase after move over the 70% of the path
+                        if(_hasChased && this.worldPos.X > (_rightPlatform.X - _leftPlatform.X) * 0.7f)
+                        {
+                            _hasChased = false;
+                        }
                         _faceRight = false;
                     }
 
-                    if(distance < _chasingRadius)
+            
+                    if(Math.Abs(distance) < _chasingRadius && !_hasChased)
                     {
                         _state = EnemyState.Chase;
                     }
+
+
                     break;
 
                 case EnemyState.Chase:
 
-                    _faceRight = distance < 0;
+                    //Lock direction, avoid enemy turn back and forth too fast
+                    if(distance < 0 && !_hasChased)
+                    {
+                        _faceRight = false;
+                        _hasChased = true;
+                    }
+                    else if(distance > 0 )
+                    {
+                        _faceRight = true;
+                    }
 
-                    _velocity.X = _faceRight ? speed : -speed;
-                    
-                    if(distance > _chasingRadius || this.worldPos.X > _rightPlatform.X || this.worldPos.X < _rightPlatform.X)
+                    if (Math.Abs(distance) > _chasingRadius || this.worldPos.X < _leftPlatform.X || this.worldPos.X > _rightPlatform.X)
                     {
                         _state = EnemyState.Patrol;
                     }
-
                     break;
             }
 
@@ -214,7 +234,15 @@ namespace Lethal_Organization
 
             if (isDebug && enabled)
             {
-                CustomDebug.DrawWireCircle(sb, new Vector2(displayPos.Center.X, displayPos.Center.Y), _chasingRadius, 3, Color.Yellow);
+                Color color = _state == EnemyState.Patrol ? Color.Yellow : Color.Red;
+                CustomDebug.DrawWireCircle(sb, new Vector2(displayPos.Center.X, displayPos.Center.Y), _chasingRadius, 3, color);
+
+                CustomDebug.DrawWireCircle(sb, new Vector2(worldPos.Center.X, worldPos.Center.Y), _chasingRadius, 3, color);
+
+
+                CustomDebug.DrawWireCircle(sb, _leftPlatform, 20, 3, Color.Purple);
+
+                CustomDebug.DrawWireCircle(sb, _rightPlatform, 20,3, Color.Purple);
 
                 if (worldPos.Intersects(player.WorldPos))
                 {
