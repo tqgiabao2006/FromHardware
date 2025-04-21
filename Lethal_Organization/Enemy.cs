@@ -176,14 +176,11 @@ namespace Lethal_Organization
 
                 case EnemyState.Chase:
 
-                    if (Math.Abs(distance) > 10) 
-                    {
-                        _faceRight = distance > 0;
-                    }
+                    _faceRight = distance < 0;
 
                     _velocity.X = _faceRight ? speed : -speed;
                     
-                    if(distance > _chasingRadius)
+                    if(distance > _chasingRadius || this.worldPos.X > _rightPlatform.X || this.worldPos.X < _rightPlatform.X)
                     {
                         _state = EnemyState.Patrol;
                     }
