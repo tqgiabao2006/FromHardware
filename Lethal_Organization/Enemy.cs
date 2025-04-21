@@ -59,7 +59,7 @@ namespace Lethal_Organization
             }
         }
 
-        public Enemy(Texture2D sprite, Texture2D UISprite, Rectangle healthBarSourceImg, Vector2 rightPlatform, Vector2 leftPlatform, Player player, GameManager gameManager, int scale = 2)
+        public Enemy(Texture2D sprite, Texture2D UISprite, Rectangle healthBarSourceImg, Vector2 rightPlatform, Vector2 leftPlatform, Player player, GameManager gameManager, int frameWidth, int frameHeight, int speed, int scale = 2)
         {
             _player = player;
 
@@ -69,7 +69,7 @@ namespace Lethal_Organization
 
             _leftPlatform = leftPlatform;
             
-            speed = 5;
+            this.speed = speed;
 
             curHP = 100;
 
@@ -86,13 +86,13 @@ namespace Lethal_Organization
             gameManager.OnStateChange += OnStateChange;
 
             //UI_Render
-            worldPos = new Rectangle((int)rightPlatform.X, (int)rightPlatform.Y - scale * 42, 57 * scale, 42 * scale);
+            worldPos = new Rectangle((int)rightPlatform.X, (int)rightPlatform.Y - scale * frameHeight, frameWidth * scale, frameHeight * scale);
 
             _healthBar = new HealthBar(this, UISprite, healthBarSourceImg, new Rectangle(this.worldPos.X, this.worldPos.Y - 20, healthBarSourceImg.Width * 3, healthBarSourceImg.Height * 3));
 
             displayPos = new Rectangle(0, 0, 48, 48);
 
-            _animator = new Animator<EnemyState>(sprite, EnemyState.Chase, 57, 42, 0.05f);
+            _animator = new Animator<EnemyState>(sprite, EnemyState.Chase, frameWidth, frameHeight, 0.05f);
 
             _changeColorTime = 0.2f;
 
@@ -152,7 +152,8 @@ namespace Lethal_Organization
 
             GetHitEffect(gameTime);
 
-            float distance = _player.WorldPos.Center.X - worldPos.Center.X;
+            float dst = Vector2.DistanceSquared(new Vector2(_player.WorldPos.Center.X, _player.WorldPos.Center.Y), new Vector2( worldPos.Center.X, worldPos.Center.Y));
+            float xDistance = _player.WorldPos.Center.X - worldPos.Center.X;
             
             _velocity.X = _faceRight ? speed : -speed;
 
@@ -169,7 +170,7 @@ namespace Lethal_Organization
                         }
 
                     }
-                    else if(_faceRight && this.worldPos.X > _rightPlatform.X)
+                    else if(_faceRight && this.worldPos.X  + this.worldPos.Width > _rightPlatform.X)
                     {
                         //Allow chase after move over the 70% of the path
                         if(_hasChased && this.worldPos.X > (_rightPlatform.X - _leftPlatform.X) * 0.7f)
@@ -180,7 +181,7 @@ namespace Lethal_Organization
                     }
 
             
-                    if(Math.Abs(distance) < _chasingRadius && !_hasChased)
+                    if(Math.Abs(dst) < _chasingRadius * _chasingRadius && !_hasChased)
                     {
                         _state = EnemyState.Chase;
                     }
@@ -191,17 +192,17 @@ namespace Lethal_Organization
                 case EnemyState.Chase:
 
                     //Lock direction, avoid enemy turn back and forth too fast
-                    if(distance < 0 && !_hasChased)
+                    if(xDistance < 0 && !_hasChased)
                     {
                         _faceRight = false;
                         _hasChased = true;
                     }
-                    else if(distance > 0 )
+                    else if(xDistance > 0 )
                     {
                         _faceRight = true;
                     }
 
-                    if (Math.Abs(distance) > _chasingRadius || this.worldPos.X < _leftPlatform.X || this.worldPos.X > _rightPlatform.X)
+                    if (Math.Abs(dst) > _chasingRadius * _chasingRadius || this.worldPos.X < _leftPlatform.X || this.worldPos.X > _rightPlatform.X)
                     {
                         _state = EnemyState.Patrol;
                     }

@@ -19,8 +19,6 @@ namespace Lethal_Organization
 
     internal class EnemySpawner
     {
-        private Dictionary<EnemyType, Enemy> _posMap;
-
         private List<Enemy> _enemyList;
 
         private Texture2D _groundSpriteSheet;
@@ -53,8 +51,6 @@ namespace Lethal_Organization
             _UISpriteSheet = UISpriteSheet;
 
             _HPSourceImg = EnemyHPSourceImg;
-
-            _posMap = new Dictionary<EnemyType, Enemy>();
 
             _enemyList = new List<Enemy>();
 
@@ -103,10 +99,17 @@ namespace Lethal_Organization
                     EnemyType type = (EnemyType)Enum.Parse(typeof(EnemyType), data[0]);
                     Vector2 leftBound = new Vector2(48 * int.Parse(data[1]), 48 * int.Parse(data[2]));
                     Vector2 rightBound = new Vector2(48 * int.Parse(data[3]), 48 * int.Parse(data[4])); //Each tile of the the map 16 x 3 = 48
-                    Enemy enemy = new Enemy(_groundSpriteSheet, _UISpriteSheet,_HPSourceImg,rightBound, leftBound, _player, _gameManager);
 
-                    _posMap.Add(type, enemy);
-                    _enemyList.Add(enemy);
+                    if(type == EnemyType.Ground)
+                    {
+                        Enemy enemy = new Enemy(_groundSpriteSheet, _UISpriteSheet, _HPSourceImg, rightBound, leftBound, _player, _gameManager, 57, 42,2);
+                        _enemyList.Add(enemy);
+                    }
+                    else if(type == EnemyType.Fly) 
+                    {
+                        Enemy enemy = new Enemy(_flySpriteSheet, _UISpriteSheet, _HPSourceImg, rightBound, leftBound, _player, _gameManager, 83, 64,3);
+                        _enemyList.Add(enemy);
+                    }               
                 }
             }
             catch (Exception e)
