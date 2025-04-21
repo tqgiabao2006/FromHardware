@@ -321,7 +321,7 @@ internal class Boss: GameObject
         }
     }
 
-    public void OnStateChange(GameManager.GameState state)
+    private void OnStateChange(GameManager.GameState state)
     {
         switch (state)
         {

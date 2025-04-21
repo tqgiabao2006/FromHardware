@@ -32,13 +32,13 @@ namespace Lethal_Organization
 
             _playerIconSourceImg = playerIconSource;
 
-            Rectangle healthDisplayPos = new Rectangle(110, 153, healthBarSource.Width * 10, healthBarSource.Height * 4);
+            Rectangle healthDisplayPos = new Rectangle(60, 103, healthBarSource.Width * 10, healthBarSource.Height * 4);
 
-            _borderDisplayPos = new Rectangle(100, 150, placeholderSource.Width * 10, placeholderSource.Height * 4);
+            _borderDisplayPos = new Rectangle(50, 100, placeholderSource.Width * 10, placeholderSource.Height * 4);
 
             _healthBar = new HealthBar(player, spriteSheet, healthBarSource, healthDisplayPos);
 
-            _playerIconPos = new Rectangle(100, healthDisplayPos.Y - healthDisplayPos.Height - 30, _playerIconSourceImg.Width * 4, _playerIconSourceImg.Height * 4);
+            _playerIconPos = new Rectangle(_borderDisplayPos.X, healthDisplayPos.Y - healthDisplayPos.Height - 30, _playerIconSourceImg.Width * 4, _playerIconSourceImg.Height * 4);
         }
 
         public void Draw(SpriteBatch sb)

@@ -66,10 +66,6 @@ namespace Lethal_Organization
 
         private Dictionary<Type, Rectangle> _textureMap;
 
-        private List<(Rectangle textPos, Rectangle buttonPos)> _menuItems;
-
-        private Type[] _types;
-
         private Texture2D _UISPriteSheet;
 
         public Rectangle this[Type type]
@@ -88,6 +84,7 @@ namespace Lethal_Organization
 
         public UIManager(GameManager gameManager, Player player,
             Texture2D spriteSheet, Texture2D openTheme, Texture2D loadGame, Texture2D startGame, Texture2D exit, Texture2D option,
+            Texture2D endScreen, Texture2D again,
             int screenWidth, int screenHeight,
             string textureMapFile, Action<GameManager.GameState> changeState, int scale = 5)
         {
@@ -106,6 +103,12 @@ namespace Lethal_Organization
             _UIs.Add(new Menu(changeState, openTheme, loadGame, startGame, exit, option, screenWidth, screenHeight));
 
             _UIs.Add(new PlayerHUB(player, spriteSheet, _textureMap[Type.HealthBar], _textureMap[Type.HealthBarPlaceholder], _textureMap[Type.PlayerIcon]));
+
+            _UIs.Add(new EndScreen(changeState, endScreen, again, screenWidth, screenHeight));
+
+            _UIs.Add(new Setting(changeState, spriteSheet, 
+                _textureMap[Type.HomeIcon], _textureMap[Type.PauseIcon], _textureMap[Type.SmallButton], _textureMap[Type.SmallButtonPress], _textureMap[Type.SmallButtonHover],
+                screenWidth, screenHeight));
         }
 
        
@@ -115,16 +118,21 @@ namespace Lethal_Organization
             {
                 case GameManager.GameState.Menu:
                     ShowMenu<Menu>();
+                    HideMenu<PlayerHUB>();
+                    HideMenu<EndScreen>();
+                    HideMenu<Setting>();
                     break;
 
                 case GameManager.GameState.Game:
                     HideMenu<Menu>();
                     ShowMenu<PlayerHUB>();
+                    ShowMenu<Setting>();
                     break;
 
                 case GameManager.GameState.GameOver:
-
-                   
+                    HideMenu<PlayerHUB>();
+                    HideMenu<Setting>();
+                    ShowMenu<EndScreen>();
                     break;
                 case GameManager.GameState.Pause:
                  

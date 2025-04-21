@@ -288,11 +288,11 @@ namespace Lethal_Organization
             //Update camera offset
             UpdateCameraOffset();
 
-            //Animator
-            _animator.Update(gameTime);
-
             if(visible && !paused)
             {
+                //Animator
+                _animator.Update(gameTime);
+
                 //Update move logic
                 StateMachine(_level);
                 

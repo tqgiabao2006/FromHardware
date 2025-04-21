@@ -59,6 +59,10 @@ namespace Lethal_Organization
 
         public const string OpenTheme = "Open Theme";
 
+        public const string EndTheme = "Game_Over";
+
+        public const string Again = "Again_Game_Typo";
+
         //Enemy
         public const string GroundEnemySpriteSheet = "EnemySpriteSheet";
 

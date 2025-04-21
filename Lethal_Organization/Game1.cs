@@ -76,6 +76,10 @@ public class Game1 : Game
 
     private Texture2D _openScreenSPrite;
 
+    private Texture2D _againSprite;
+
+    private Texture2D _endTheme;
+
     private int _screenWidth;
 
     private int _screenHeight;
@@ -149,6 +153,10 @@ public class Game1 : Game
 
         _loadGameSprite = Content.Load<Texture2D>(Constants.LoadGame);
 
+        _againSprite = Content.Load<Texture2D>(Constants.Again);
+
+        _endTheme = Content.Load<Texture2D>(Constants.EndTheme);
+
         //Window data
         _screenHeight = _graphics.GraphicsDevice.Viewport.Height;
 
@@ -169,7 +177,8 @@ public class Game1 : Game
         _gameManager.Player = _player;
 
         _uiManager = new UIManager(_gameManager,_player, 
-            _UISprite, _openScreenSPrite, _loadGameSprite, _startGameSprite, _exitSprite, _optionSprite
+            _UISprite, _openScreenSPrite, _loadGameSprite, _startGameSprite, _exitSprite, _optionSprite,
+            _endTheme, _againSprite
             ,_screenWidth, _screenHeight,
             Constants.MenuLayout, _gameManager.ChangeState);
 

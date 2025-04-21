@@ -21,7 +21,11 @@ namespace Lethal_Organization
 
         private Rectangle _displayPos;
 
-        private Action _onClick;
+        private Action _toggleOn;
+
+        private Action _toggleOff;
+
+        private bool _isToggled;
 
         private MouseState _prevMouseState;
 
@@ -29,14 +33,19 @@ namespace Lethal_Organization
 
         private bool _isHovered;
 
-        public Button(Texture2D texture, Rectangle displayPos, Action onClick)
+        private bool _isPressed;
+
+        public Button(Texture2D texture, Rectangle displayPos, Action toggleOn, Action toggleOff = null)
         {
             _displayPos = displayPos;
             
             _texture = texture; 
             
-            _onClick = onClick;
+            _toggleOn = toggleOn;
 
+            _toggleOff = toggleOff;
+
+            _isToggled = false;
 
             _hoverColor = Color.OrangeRed;
 
@@ -53,6 +62,22 @@ namespace Lethal_Organization
             else
             {
                 sb.Draw(_texture, new Vector2(_displayPos.X, _displayPos.Y), null, Color.White, 0f, Vector2.Zero, 1, SpriteEffects.None, 0f);
+            }
+        }
+
+        public void Draw(SpriteBatch sb, Rectangle press, Rectangle hover, Rectangle normal)
+        {
+            if(_isHovered)
+            {
+                sb.Draw(_texture, _displayPos, hover, _hoverColor, 0f, Vector2.Zero,  SpriteEffects.None, 0f);
+            }
+            else if(_isPressed)
+            {
+                sb.Draw(_texture, _displayPos, press, _hoverColor, 0f, Vector2.Zero, SpriteEffects.None, 0f);
+            }
+            else
+            {
+                sb.Draw(_texture, _displayPos, normal, _hoverColor, 0f, Vector2.Zero, SpriteEffects.None, 0f);
             }
         }
 
@@ -74,9 +99,20 @@ namespace Lethal_Organization
                 && _currMouseState.LeftButton == ButtonState.Released)
             {
 
-                if(_onClick != null)
+                if(_toggleOn != null && !_isToggled)
                 {
-                    _onClick();
+                    _toggleOn();
+                    _isToggled = true;
+                }else if(_isToggled)
+                {
+                    if(_toggleOff != null)
+                    {
+                        _toggleOff();   
+                    }else if(_toggleOn != null)
+                    {
+                        _toggleOn();
+                    }
+                    _isToggled=false;
                 }
             }
             
