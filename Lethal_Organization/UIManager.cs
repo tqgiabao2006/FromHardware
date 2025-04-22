@@ -82,7 +82,8 @@ namespace Lethal_Organization
         }
 
 
-        public UIManager(GameManager gameManager, Player player,
+        public UIManager(GameManager gameManager, Player player, Boss boss,
+            SpriteFont font,
             Texture2D spriteSheet, Texture2D openTheme, Texture2D loadGame, Texture2D startGame, Texture2D exit, Texture2D option,
             Texture2D endScreen, Texture2D again,
             int screenWidth, int screenHeight,
@@ -109,6 +110,8 @@ namespace Lethal_Organization
             _UIs.Add(new Setting(changeState, spriteSheet, 
                 _textureMap[Type.HomeIcon], _textureMap[Type.PauseIcon], _textureMap[Type.SmallButton], _textureMap[Type.SmallButtonPress], _textureMap[Type.SmallButtonHover],
                 screenWidth, screenHeight));
+
+            _UIs.Add(new BossHUB(boss, font, spriteSheet, _textureMap[Type.HealthBar], screenWidth, screenHeight));
         }
 
        
@@ -121,25 +124,33 @@ namespace Lethal_Organization
                     HideMenu<PlayerHUB>();
                     HideMenu<EndScreen>();
                     HideMenu<Setting>();
+                    HideMenu<BossHUB>();
                     break;
 
                 case GameManager.GameState.Game:
                     HideMenu<Menu>();
                     ShowMenu<PlayerHUB>();
                     ShowMenu<Setting>();
+                    HideMenu<BossHUB>();
+                    break;
+
+                case GameManager.GameState.Boss:
+                    ShowMenu<BossHUB>();
+                    ShowMenu<PlayerHUB>();
+                    ShowMenu<Setting>();
+                    HideMenu<EndScreen>();
+
                     break;
 
                 case GameManager.GameState.GameOver:
                     HideMenu<PlayerHUB>();
                     HideMenu<Setting>();
+                    HideMenu<BossHUB>();    
                     ShowMenu<EndScreen>();
                     break;
                 case GameManager.GameState.Pause:
-                 
-
                     break;
                 case GameManager.GameState.Debug:
-                    
                     break;
             }
         }

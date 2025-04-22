@@ -58,6 +58,10 @@ internal class Bullet
 
     private Boss _boss;
 
+    //Deal damge
+
+    private bool _canDealDamge; //Avoid get hit mutliple frame
+
     public bool Enabled
     {
         get
@@ -111,9 +115,12 @@ internal class Bullet
     public void Spawn(string spriteMapFile, Player player, float angle,Vector2 worldPos, Vector2 direction, int damage, int speed, int frameWidth, int frameHeight, int scale, float framePerSecond = 0.05f, int hitBoxRadius = 10, int range = 1000)
     {
         _curState = State.Fly;
+        
+        _canDealDamge = true;
+
         if (_animator == null)
         {
-            _animator = new Animator<State>(_spriteSheet, State.None, spriteMapFile, 0.2f);
+            _animator = new Animator<State>(_spriteSheet, State.None, spriteMapFile, 0.1f);
         }
 
         if(_player == null)
@@ -163,13 +170,15 @@ internal class Bullet
     /// <param name="framePerSecond"></param>
     /// <param name="hitBoxRadius"></param>
     /// <param name="range"></param>
-    public void Spawn(Vector2 worldPos, List<Enemy> enemyList, Boss boss,Vector2 direction, int damage, int speed, int frameWidth, int frameHeight, int scale,float framePerSecond = 0.05f, int hitBoxRadius = 10, int range = 1000)
+    public void Spawn(Vector2 worldPos, List<Enemy> enemyList, Boss boss,Vector2 direction,int damage, int speed, int frameWidth, int frameHeight, int scale,float framePerSecond = 0.05f, int hitBoxRadius = 10, int range = 1000)
     {
         _curState = State.Fly;
+
+        _canDealDamge = true;
         
         if (_animator == null)
         {
-            _animator = new Animator<State>(_spriteSheet, State.Fly, frameWidth, frameHeight, framePerSecond);
+            _animator = new Animator<State>(_spriteSheet, State.Fly, frameWidth, frameHeight, framePerSecond, true);
         }
 
         if (_enemyList == null)
@@ -216,12 +225,12 @@ internal class Bullet
             return;
         }
 
-        if (this._worldPos.Intersects(player.WorldPos) && player.Enabled)
+        if (this.CollideWith(player.WorldPos) && player.Enabled && _canDealDamge)
         {
             player.GetHit(_damge);
+            _canDealDamge = false;
             Destroy();
             return;
-
         }
 
     }
@@ -233,18 +242,20 @@ internal class Bullet
             return;
         }
 
-        if(this._worldPos.Intersects(boss.WorldPos) && boss.Enabled)
+        if(this.CollideWith(boss.HitBox) && boss.Enabled && _canDealDamge)
         {
             boss.GetHit(_damge);
+            _canDealDamge = false;
             Destroy();
         }
 
         foreach (Enemy enemy in enemyList)
         {
-            if(this._worldPos.Intersects( enemy.WorldPos) && enemy.Enabled)
+            if(this.CollideWith( enemy.WorldPos) && enemy.Enabled && _canDealDamge)
             {
                 enemy.GetHit(_damge);
                 Destroy();
+                _canDealDamge = false;
                 return;
             }
         }
@@ -322,10 +333,10 @@ internal class Bullet
 
     private void Destroy()
     {
-
         //If contain "impact" animation => wait before set active
         if (_multipleAnimation)
         {
+            _animator.SetState(State.Hit); 
             _waitForAnim = true;
         }
         else //If not, set active to false immidately when collide
@@ -334,13 +345,14 @@ internal class Bullet
         }
     }
        
-    public void Draw(SpriteBatch sb, bool isDebug, Vector2 cameraOffset, SpriteEffects effects)
+    public void Draw(SpriteBatch sb, bool isDebug, Vector2 cameraOffset)
     {
         _displayPos = new Rectangle(_worldPos.X + (int)cameraOffset.X,(int)_worldPos.Y + (int)cameraOffset.Y, _worldPos.Width, _worldPos.Height); //Lock y axis
 
+        SpriteEffects effect = _direction.X  > 0 ? SpriteEffects.None : SpriteEffects.FlipHorizontally; 
         if (_enabled)
         {
-            _animator.Draw(sb, _displayPos, effects, Color.White);
+            _animator.Draw(sb, _displayPos, effect, Color.White);
         }
 
         if (isDebug)
@@ -350,9 +362,10 @@ internal class Bullet
         }
     }
 
-    public void Draw(SpriteBatch sb, bool isDebug, Vector2 cameraOffset, float angle)
+    public void Draw(SpriteBatch sb, bool isDebug, Vector2 cameraOffset, float angle, int scale = 1)
     {
-        _displayPos = new Rectangle(_worldPos.X + (int)cameraOffset.X, (int)_worldPos.Y + (int)cameraOffset.Y, _worldPos.Width, _worldPos.Height); //Lock y axis
+        _displayPos = new Rectangle(_worldPos.X + (int)cameraOffset.X - (scale - 1) * _worldPos.Width, (int)_worldPos.Y - (scale - 1) *_worldPos.Height  + (int)cameraOffset.Y,
+            _worldPos.Width * scale, _worldPos.Height * scale); 
 
         if (_enabled)
         {
@@ -364,5 +377,15 @@ internal class Bullet
             CustomDebug.DrawWireCircle(sb, new Vector2(_worldPos.X, _worldPos.Y), _hitBoxRadius, 3, Color.Red);
             CustomDebug.DrawWireCircle(sb, new Vector2(_displayPos.X, _displayPos.Y), _hitBoxRadius, 3, Color.Yellow);
         }
+    }
+
+    private bool CollideWith(Rectangle target)
+    {
+        float closestX = MathHelper.Clamp(_worldPos.Center.X, target.X, target.X + target.Width);
+        float closestY = MathHelper.Clamp(_worldPos.Center.Y, target.Y, target.Y + target.Height);
+
+        float distance = Vector2.Distance(new Vector2(_worldPos.Center.X, _worldPos.Center.Y), new Vector2(closestX, closestY));
+
+        return distance < _hitBoxRadius;
     }
 }

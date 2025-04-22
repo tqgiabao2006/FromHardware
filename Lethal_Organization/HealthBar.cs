@@ -17,7 +17,6 @@ namespace Lethal_Organization
         private Rectangle _healthBarSourceImg;
 
         private Rectangle _healthDisplayPos;
-
         public HealthBar(GameObject target, Texture2D UISPriteSHeet, Rectangle sourceImage, Rectangle displayPos)
         {
             target.onHealthChanged += UpdateHP;
@@ -57,7 +56,5 @@ namespace Lethal_Organization
             float newWidth = (curHP / (float)maxHP) * _healthDisplayPos.Width;
             _healthDisplayPos.Width = (int)newWidth;
         }
-
-
     }
 }

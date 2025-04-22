@@ -92,7 +92,7 @@ namespace Lethal_Organization
 
             displayPos = new Rectangle(0, 0, 48, 48);
 
-            _animator = new Animator<EnemyState>(sprite, EnemyState.Chase, frameWidth, frameHeight, 0.05f);
+            _animator = new Animator<EnemyState>(sprite, EnemyState.Chase, frameWidth, frameHeight, 0.05f, true);
 
             _changeColorTime = 0.2f;
 

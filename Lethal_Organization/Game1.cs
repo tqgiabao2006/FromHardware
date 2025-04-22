@@ -176,19 +176,21 @@ public class Game1 : Game
 
         _gameManager.Player = _player;
 
-        _uiManager = new UIManager(_gameManager,_player, 
-            _UISprite, _openScreenSPrite, _loadGameSprite, _startGameSprite, _exitSprite, _optionSprite,
-            _endTheme, _againSprite
-            ,_screenWidth, _screenHeight,
-            Constants.MenuLayout, _gameManager.ChangeState);
 
-        _enemySpawner = new EnemySpawner(_groundEnemySpriteSheet, _flyEnemySpriteSheet, _UISprite, _uiManager[Type.EnemyHealthBar],Constants.EnemyPos, _level, _gameManager, _player);
-
-        _player.EnemyList = _enemySpawner.EnemyList;
-
-        _boss = new Boss(_bossSpriteSheet, _iceProjectile, Constants.BossSpriteMap, _player, _level, _gameManager, _random, _objectPool);
+        _boss = new Boss(_bossSpriteSheet, _iceProjectile, _iceSpike,  Constants.BossSpriteMap, _player, _level, _gameManager, _random, _objectPool);
 
         _player.GetBossAcess(_boss);
+
+        _uiManager = new UIManager(_gameManager, _player, _boss,
+         _font,
+         _UISprite, _openScreenSPrite, _loadGameSprite, _startGameSprite, _exitSprite, _optionSprite,
+         _endTheme, _againSprite
+         , _screenWidth, _screenHeight,
+         Constants.MenuLayout, _gameManager.ChangeState);
+
+        _enemySpawner = new EnemySpawner(_groundEnemySpriteSheet, _flyEnemySpriteSheet, _UISprite, _uiManager[Type.EnemyHealthBar], Constants.EnemyPos, _level, _gameManager, _player);
+
+        _player.EnemyList = _enemySpawner.EnemyList;
 
         _gameManager.Start();
     }
@@ -236,7 +238,8 @@ public class Game1 : Game
    
 
         if (_gameManager.CurrentState == GameManager.GameState.Debug)
-        {
+        {   
+            //Debug-only
             _spriteBatch.DrawString(
             _font,
             $"On ground: {_player.OnGround} ",
@@ -245,7 +248,9 @@ public class Game1 : Game
 
             _spriteBatch.DrawString(
                 _font,
-                $"Boss state {_boss.BossState}",
+                $"Boss state {_boss.BossState} " +
+                $"\n Free {_boss.Free}" +
+                $"\n Command Count {_boss.CommandCount}",
                 new Vector2(10, 200),
                 Color.Yellow
                 );
@@ -272,7 +277,7 @@ public class Game1 : Game
 
             _spriteBatch.DrawString(
                 _font,
-                $"Boss Velcoity: {_boss.Velocity} \n \n" +
+                $"Boss Velcoity: {_boss.Velocity} \n" +
                 $"On Command {_boss.OnCommand}",
                  new Vector2(10, 300),
                 Color.Yellow

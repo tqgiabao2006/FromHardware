@@ -16,6 +16,7 @@ namespace Lethal_Organization
         {
             Menu,
             Game,
+            Boss,
             Debug,
             Pause,
             GameOver

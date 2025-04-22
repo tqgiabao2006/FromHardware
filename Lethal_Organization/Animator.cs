@@ -59,7 +59,7 @@ namespace Lethal_Organization
             _currentFrame = 0; 
         }
 
-        public Animator(Texture2D spriteSheet, T defaultState, int frameWidth, int frameHeight, float secondPerFrame)
+        public Animator(Texture2D spriteSheet, T defaultState, int frameWidth, int frameHeight, float secondPerFrame, bool isLoop)
         {
             _spriteSheet = spriteSheet;
 
@@ -82,7 +82,7 @@ namespace Lethal_Organization
             _animMap.Add(_curState, new Animation(
                 new Rectangle(0, 0, spriteSheet.Width, spriteSheet.Height),
                 spriteSheet.Width / frameWidth,
-                true,
+                isLoop,
                 false));
 
             SwitchToState(defaultState);
@@ -106,7 +106,7 @@ namespace Lethal_Organization
             //Change frame
             if (_curAnim.IsLoop)
             {
-                _currentFrame = (_currentFrame + 1) % _curAnim.MaxIndex;  //Wrap around the max Index
+                 _currentFrame = (_currentFrame + 1) % _curAnim.MaxIndex;  //Wrap around the max Index
             }
             else
             {
@@ -136,7 +136,6 @@ namespace Lethal_Organization
 
         public void Draw(SpriteBatch sb, Rectangle displayPos, SpriteEffects effect, Color color)
         {
-            //Scale to two
             sb.Draw(_spriteSheet, displayPos, _imageSource,color, 0,Vector2.Zero,effect, 0);
         }
 

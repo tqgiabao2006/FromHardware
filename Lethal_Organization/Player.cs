@@ -64,7 +64,6 @@ namespace Lethal_Organization
 
         Animator<Player.State> _animator;
 
-
         //Shoot
         private ObjectPooling _objectPooling;
         
@@ -188,7 +187,7 @@ namespace Lethal_Organization
             
             sourceImg = new Rectangle(0, 0,64, 48);
             
-            worldPos = new Rectangle(8, 310, 64 * _scale, 48 *2);
+            worldPos = new Rectangle(5 * 48, 50 * 48, 64 * _scale, 48 * _scale);//8,310
             
             _cameraOffset = new Vector2(0, 0);
 
@@ -310,8 +309,7 @@ namespace Lethal_Organization
             //Get hit logic
             BurnHealthOverTime(gameTime);
 
-            ChangeColorEffect(gameTime);
-
+            ChangeColorEffect(gameTime); 
 
             //Update hit box
             UpdateHitBox();
@@ -336,7 +334,7 @@ namespace Lethal_Organization
             if(visible)
             {
                 SpriteEffects effect = _faceRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
-                
+               
                 
                 if(_changeColorGetHit)
                 {
@@ -349,7 +347,7 @@ namespace Lethal_Organization
 
                 foreach (Bullet bullet in _objectPooling.GetBullets(ObjectPooling.ProjectileType.Bullet))
                 {
-                    bullet.Draw(sb, isDebug, _cameraOffset, effect);
+                    bullet.Draw(sb, isDebug, _cameraOffset);
                 }
             }
 
@@ -794,8 +792,13 @@ namespace Lethal_Organization
 
         public override void GetHit(int damage)
         {
+            if (isDebug) //God mod
+            { 
+                return;
+            }
             base.GetHit(damage);
             _changeColorGetHit = true;
+            
         }
 
         private void ChangeColorEffect(GameTime gameTime)

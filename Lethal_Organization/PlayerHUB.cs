@@ -21,7 +21,6 @@ namespace Lethal_Organization
         private Rectangle _playerIconPos;
 
 
-    
         public bool Visible { get; set; }
 
         public PlayerHUB(Player player, Texture2D spriteSheet,Rectangle healthBarSource, Rectangle placeholderSource, Rectangle playerIconSource)

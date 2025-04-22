@@ -32,8 +32,6 @@ internal class Boss: GameObject
     private Random _random;
     
     private ObjectPooling _objectPooling;
-
-    private Spike _spike;
     
     private Animator<State> _animator;
 
@@ -43,8 +41,12 @@ internal class Boss: GameObject
     
     //Asset
     private Texture2D _bulletTexture;
-    
+
+    private Texture2D _iceSpikeTexture;
+
     //Delegate
+    private Action<GameManager.GameState> _changeState;
+
     private Action<Vector2, Vector2, float> _spawnBullet;
 
     private Action<State> _setAnim;
@@ -54,11 +56,13 @@ internal class Boss: GameObject
     private Func<State, int,bool> _checkAnimFinish;
 
     private Func<State, int> _getMaxIndex;
-    
-    //Skill
-    private bool _triggered;
 
-    private Rectangle _triggerBound;
+    //Skill
+    private IceSpike _iceSpike;
+
+    private Action _spawnSpike;
+
+    private bool _triggered;
 
     private Rectangle _punchHitBox;
 
@@ -68,9 +72,13 @@ internal class Boss: GameObject
 
     private int _phase2Hp;
 
-    private float _delayTime;
+    private float _generateCommandTime;
 
     private float _timeCounter;
+
+    private float _processCommandTimeGap;
+
+    private float _sinceLastCommand;
 
     //Movement
     private Vector2 _velocity;
@@ -106,13 +114,41 @@ internal class Boss: GameObject
 
     private SpriteEffects _spriteEffects;
 
+    //Get hit effect
+    private bool _changeColorGetHit;
+
+    private float _sinceChangeColor;
+
+    private float _changeColorTime;
+
+
     //Debug
     public bool OnCommand
     {
         get { return _curCommand != null && !_curCommand.Finished; }
     }
 
+    public bool Free
+    {
+        get
+        {
+            return _isFree;
+        }
+    }
 
+    public int CommandCount
+    {
+        get
+        {
+            if(_commandQueue == null)
+            {
+                return -1;
+            }
+            return _commandQueue.Count;
+
+        }
+    }
+ 
     public Rectangle HitBox
     {
         get 
@@ -160,8 +196,9 @@ internal class Boss: GameObject
             _currentState = value;
         }
     }
-    
-    public Boss(Texture2D spriteSheet, Texture2D bulletTexture,string textureMapFile, 
+
+    public Boss(Texture2D spriteSheet, Texture2D bulletTexture, Texture2D iceSpike,
+        string textureMapFile, 
         Player player, Level level,
         GameManager manager, Random random, ObjectPooling objectPooling)
     {
@@ -175,24 +212,40 @@ internal class Boss: GameObject
         texture = spriteSheet;
         
         _bulletTexture = bulletTexture;
+        
+        //Render
+        _iceSpikeTexture = iceSpike;
 
         _animator = new Animator<State>(spriteSheet, _currentState, textureMapFile, 0.1f);
 
         _skillSet = new List<Skill<State>>()
         {
-            new Skill<State>
-            {
-                State = State.Punch,
-                Rate = 50,
-                Damage = 20
-            },
+
             new Skill<State>
             {
                 State = State.Spike,
                 Rate = 30,
                 Damage = 20
+            },
+            new Skill<State>
+            {
+                State = State.Punch,
+                Rate = 30,
+                Damage = 10
+            },
+            new Skill<State>
+            {
+                State = State.Jump,
+                Rate = 30,
+                Damage = 20,
             }
         };
+
+        //Gethit effect
+        _sinceChangeColor = 0;
+        _changeColorGetHit = false;
+        _changeColorTime = 0.1f;
+      
         
         _commandQueue = new Queue<ICommand<Boss>>();
         
@@ -201,28 +254,34 @@ internal class Boss: GameObject
         _objectPooling = objectPooling;
         
         //Movement
-        curHP = 1000;
+        curHP = 5000;
 
+        maxHp = 5000;
+        
         _phase2Hp = 1000 / 2;
 
-        _delayTime = 8;
+        _generateCommandTime = 3;
 
         _timeCounter = 3;
+
+        _processCommandTimeGap = 3;
+
+        _sinceLastCommand = 0;
         
         _velocity = new Vector2(0, 0);
 
-        _speed = 2;
+        _speed = 3;
 
         _jumpForce = new Vector2(_speed * 3, -10);
 
         _gravity = 0.2f;
 
         //Shoot
-        _spikeNumb = 10;
+        _spikeNumb = 30;
 
         _radius = 300;
 
-        _bulletHitBox = 20;
+        _bulletHitBox = 30;
 
         _bulletRange = 1500;
 
@@ -231,20 +290,23 @@ internal class Boss: GameObject
         _bulletDamge = 10;
 
         //Position_HitBox
-        worldPos = new Rectangle(0,200, 192, 96);
 
-        _hitBox = new Rectangle(0, 200, 100, 96);
+        _groundBox = new Rectangle(4 * 48, 47 * 48, 32 * 48, 14 * 48); // Grid Pos (4,47), Width 32 Node, Height 14 Node
+
+        worldPos = new Rectangle(_groundBox.Center.X,_groundBox.Y + _groundBox.Height - 96 * 3, 192 * 3, 96 *3);           //3 is scale
+
+        _hitBox = new Rectangle(0,0, 192 * 3, 96 * 3 );
         
-        _punchHitBox = new Rectangle(0, 200, 300, 64);
-
-        _groundBox = new Rectangle(0, 300, 1000, 1009);
-
-        _triggerBound = new Rectangle(0, 200, 300, 300);
-
+        _punchHitBox = new Rectangle(worldPos.Center.X, worldPos.Y, 250, 300);
 
         //Sprite effect
         _spriteEffects = SpriteEffects.None;
 
+        //Skill
+        _iceSpike = new IceSpike(iceSpike, new Rectangle(_groundBox.X, _groundBox.Y + _groundBox.Height - 48, _groundBox.Width, 48), player);
+
+        _spawnSpike = _iceSpike.Spawn;
+        
         //Delegate
         _checkAnimFinish = _animator.CheckAnimationFinish;
         
@@ -259,17 +321,21 @@ internal class Boss: GameObject
         //Game state
         manager.OnStateChange += OnStateChange;
 
-        isDebug = true;
+        _changeState = manager.ChangeState;
     }
+
+
 
     public override void Update(GameTime gameTime)
     {
-        if (!visible || paused)
+        if (!visible || paused || !enabled)
         {
             return;
         }
 
         _animator.Update(gameTime);
+
+        _iceSpike.Update(gameTime);
 
         worldPos.X += (int)_velocity.X;
 
@@ -283,6 +349,8 @@ internal class Boss: GameObject
             }
         }
 
+        ChangeColorEffect(gameTime);
+
         UpdateHitBox();
 
         StateUpdate();
@@ -294,30 +362,52 @@ internal class Boss: GameObject
 
     public void Draw(SpriteBatch sb)
     {
-        foreach (Bullet bullet in _objectPooling.GetBullets(ObjectPooling.ProjectileType.BossBullet))
+        if(!enabled)
         {
-            bullet.Draw(sb, isDebug, _player.CameraOffset, bullet.Rotation);
+            return;
         }
 
-        displayPos = new Rectangle(worldPos.X + (int)_player.CameraOffset.X, worldPos.Y + (int)_player.CameraOffset.Y, worldPos.Width, worldPos.Height);
+        foreach (Bullet bullet in _objectPooling.GetBullets(ObjectPooling.ProjectileType.BossBullet))
+        {
+            bullet.Draw(sb, isDebug, _player.CameraOffset, bullet.Rotation, 2);
+        }
+
+        displayPos = new Rectangle(worldPos.X + (int)_player.CameraOffset.X, worldPos.Y + (int)_player.CameraOffset.Y, worldPos.Width,
+            worldPos.Height);
+
+        Rectangle groundBoxDisplayPos = new Rectangle(_groundBox.X + (int)_player.CameraOffset.X, _groundBox.Y + (int)_player.CameraOffset.Y, 
+            _groundBox.Width, _groundBox.Height);
+
+        Rectangle hitBoxDisplayPos = new Rectangle(_hitBox.X + (int)_player.CameraOffset.X, _hitBox.Y + (int)_player.CameraOffset.Y, 
+            _hitBox.Width, _hitBox.Height);
+
+        Rectangle punchHitBox = new Rectangle(worldPos.Center.X + (int)_player.CameraOffset.X, WorldPos.Y + (int)_player.CameraOffset.Y,
+            _punchHitBox.Width, _punchHitBox.Height);
 
         if (!LockDirection) //Avoid change direction when using skill
         {
             _spriteEffects = _faceRight ? SpriteEffects.FlipHorizontally : SpriteEffects.None; //Sprite face left by default;
-        } 
-
-        if(visible)
-        {
-            _animator.Draw(sb, worldPos, _spriteEffects, Color.White);
         }
+
+        _iceSpike.Draw(sb, _player.CameraOffset, isDebug);
+
+        if (_changeColorGetHit)
+        {
+            _animator.Draw(sb, displayPos, _spriteEffects ,Color.Red);
+        }
+        else
+        {
+            _animator.Draw(sb, displayPos, _spriteEffects, Color.White);
+
+        }        
 
         if (isDebug)
         {
             CustomDebug.DrawWireCircle(sb, new Vector2(HitBox.Center.X, HitBox.Center.Y), _radius, 3, Color.Beige);
             CustomDebug.DrawWireRectangle(sb, worldPos, 2, Color.BlueViolet);
-          
-            CustomDebug.DrawWireRectangle(sb, _groundBox, 5, Color.Cyan);
-            CustomDebug.DrawWireRectangle(sb, _hitBox, 2, Color.Yellow);
+            CustomDebug.DrawWireRectangle(sb, punchHitBox, 2, Color.Black);
+            CustomDebug.DrawWireRectangle(sb, groundBoxDisplayPos, 5, Color.Cyan);
+            CustomDebug.DrawWireRectangle(sb, hitBoxDisplayPos, 2, Color.Red);
         }
     }
 
@@ -346,8 +436,6 @@ internal class Boss: GameObject
                 break;
             case GameManager.GameState.Pause:
                 paused = true;
-                visible = true;
-                isDebug = false;
 
                 break;
             case GameManager.GameState.Debug:
@@ -368,8 +456,9 @@ internal class Boss: GameObject
             _faceRight = true;
         }
 
-        if (!_triggered && _triggerBound.Contains(_player.WorldPos))
+        if (!_triggered && _groundBox.Contains(_player.WorldPos))
          {
+            _changeState(GameManager.GameState.Boss);
             _animator.SetState(State.Revive);
             _animator.SetState(State.Idle);
             _currentState = State.Idle;
@@ -377,28 +466,22 @@ internal class Boss: GameObject
             _triggered = true;
             _isFree = true;
         }
-        else
-        {
-            if (curHP < _phase2Hp)
-            {
-                //Add new skill
-                _skillSet.Add(new Skill<State>()
-                {
-                    State = State.Jump,
-                    Damage = 50,
-                    Rate = 20,
-                });
-            }
-        }
+       
 
     }
 
     private void ProcessCommand(GameTime gameTime)
     {
-        if (_curCommand != null && _isFree)
+        if(_isFree)
+        {
+            _sinceLastCommand += (float)gameTime.TotalGameTime.TotalSeconds;
+        }
+
+        if (_curCommand != null && _isFree && _sinceLastCommand > _processCommandTimeGap)
         {
             _curCommand.Execute(this);
             _isFree = false;
+            _sinceLastCommand = 0;
         }
 
         if(_curCommand != null)
@@ -436,31 +519,27 @@ internal class Boss: GameObject
                 _curCommand = _commandQueue.Dequeue();
             }
 
-            _timeCounter = _delayTime;
+            _timeCounter = _generateCommandTime;
         }
     }
 
     private void UpdateHitBox()
     {
-        _hitBox.X = worldPos.Center.X - worldPos.Width / 4;
+        _hitBox.X = worldPos.Center.X - worldPos.Width / 8;
         _hitBox.Y = worldPos.Y;
-        _hitBox.Width = worldPos.Width / 2;
+        _hitBox.Width = worldPos.Width / 4;
         _hitBox.Height = worldPos.Height;
     }
 
     private ICommand<Boss> GenerateSkill()
     {
-        return new JumpCommand(_setAnim, _getMaxIndex,_jumpForce, _gravity, _checkAnimFinish, _checkOnGround);
-
-        return new SpikeCommand(_spawnBullet, _setAnim, _checkAnimFinish, _spikeNumb, _radius, _getMaxIndex(State.Spike) - 1);
-
         int sum = 0;
         foreach (Skill<State> skill in _skillSet)
         {
             sum += skill.Rate;
         }
         
-        int randomRate = _random.Next(sum +1);
+        int randomRate = _random.Next(0,sum +1);
 
         int accum = 0;
         
@@ -475,14 +554,13 @@ internal class Boss: GameObject
                         return new SpikeCommand(_spawnBullet, _setAnim, _checkAnimFinish, _spikeNumb, _radius, _getMaxIndex(State.Spike) - 1);
                     
                     case State.Jump:
-                        return new JumpCommand(_setAnim, _getMaxIndex, _jumpForce, _gravity, _checkAnimFinish, _checkOnGround);
-                    
+                        return new JumpCommand(_spawnSpike, _setAnim, _getMaxIndex, _jumpForce, _gravity, _checkAnimFinish, _checkOnGround);
+
                     case State.Punch:
                         return new PunchCommand(_speed, _skillSet[i].Damage, _getMaxIndex(State.Punch) - 1,_punchHitBox, _player, _setAnim,
                             _checkAnimFinish);
                 }
             }
-            return null;
         }
         
         return null;
@@ -500,12 +578,47 @@ internal class Boss: GameObject
         _animator.SetState(_currentState);
     }
 
+    public override void GetHit(int damage)
+    {
+        base.GetHit(damage);    
+        if(Free)
+        {
+            GetHitCommand takeHit = new GetHitCommand(_setAnim, _checkAnimFinish, _getMaxIndex);
+            _commandQueue.Enqueue(takeHit);
+        }
+
+        _changeColorGetHit = true;
+    }
+    private void ChangeColorEffect(GameTime gameTime)
+    {
+        if (_changeColorGetHit)
+        {
+            _sinceChangeColor += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (_sinceChangeColor > _changeColorTime)
+            {
+                _sinceChangeColor = 0;
+                _changeColorGetHit = false;
+            }
+        }
+
+    }
+
     private bool SetOnGround()
     {
-        if (_hitBox.Intersects(_groundBox))
+        if(HitBox.X < _groundBox.X)
         {
-            Rectangle collidedObject = Rectangle.Intersect(_hitBox, _groundBox);
-            this.worldPos.Y -= collidedObject.Height;
+            this.worldPos.X += _groundBox.X - HitBox.X;
+        }
+
+        if(HitBox.X + HitBox.Width > _groundBox.X + _groundBox.Width)
+        {
+            this.worldPos.X -= HitBox.X + HitBox.Width - (_groundBox.X + _groundBox.Width);
+        }
+
+        if (HitBox.Y + HitBox.Height > _groundBox.Y + _groundBox.Height)
+        {
+            this.worldPos.Y -= HitBox.Y + HitBox.Height - (_groundBox.Y + _groundBox.Height);
             return true;
         }
         return false;

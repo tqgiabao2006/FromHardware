@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace Lethal_Organization
 {
     internal class JumpCommand : ICommand<Boss>
     {
+        private Action _spawnSpike;
         public bool Finished { set; get; }
 
         private Action<Boss.State> _setAnim;
@@ -27,8 +28,10 @@ namespace Lethal_Organization
 
         private bool _onGround;
 
-        internal JumpCommand(Action<Boss.State> setAnim, Func<Boss.State, int> getMaxIndex, Vector2 jumpForce, float gravity, Func<Boss.State, int, bool> checkFinishAnimation, Func<bool> onGround)
+        internal JumpCommand(Action spawnSpike, Action<Boss.State> setAnim, Func<Boss.State, int> getMaxIndex, Vector2 jumpForce, float gravity, Func<Boss.State, int, bool> checkFinishAnimation, Func<bool> onGround)
         {
+            _spawnSpike = spawnSpike;
+
             _setAnim = setAnim;
 
             _getMaxIndex = getMaxIndex;
@@ -88,6 +91,7 @@ namespace Lethal_Organization
                 {
                     //Spawn spike
                     boss.LockDirection = false;
+                    _spawnSpike();
                     Finished = true;
                 }
             }

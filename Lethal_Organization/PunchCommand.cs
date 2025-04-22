@@ -33,6 +33,8 @@ namespace Lethal_Organization
 
         Func<Boss.State, int, bool> _checkFinishAnimation;
 
+        private bool _canDamage;
+
         internal PunchCommand(float speed, int damage, int endFrame, Rectangle punchHitBox, Player player, Action<Boss.State> setAnim, Func<Boss.State, int, bool> checkFinishAnimation)
         {
             _damgeFrame = 6;
@@ -56,6 +58,8 @@ namespace Lethal_Organization
             _waitAnim = false;
 
             _setAnim = setAnim;
+
+            _canDamage = true;
         }
 
         public void Execute(Boss boss)
@@ -65,6 +69,8 @@ namespace Lethal_Organization
 
         public void Update(Boss boss, GameTime gameTime)
         {
+            _punchHitbox.X = boss.WorldPos.Center.X;
+            _punchHitbox.Y = boss.WorldPos.Y;
             if (_waitAnim)
             {
                 if (_checkFinishAnimation(Boss.State.Punch, _damgeFrame))
@@ -73,11 +79,13 @@ namespace Lethal_Organization
 
                     if (!_faceRight)
                     {
-                        _punchHitbox.X = _punchHitbox.X - boss.WorldPos.Width - _punchHitbox.Width;
+                        _punchHitbox.X = _punchHitbox.X - _punchHitbox.Width;
                     }
-                    if (_punchHitbox.Intersects(_player.WorldPos))
+
+                    if (_punchHitbox.Intersects(_player.WorldPos) && _canDamage)
                     {
                         _player.GetHit(_damage);
+                        _canDamage = false;
                     }
 
                 }
