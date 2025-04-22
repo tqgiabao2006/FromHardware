@@ -492,6 +492,7 @@ internal class Boss: GameObject
         _curCommand = null;
         _isFree = true;
         SetActive(true);
+        _objectPooling.ClearType(ObjectPooling.ProjectileType.BossBullet);
         RaiseHealthChanged(curHP);
     }
 

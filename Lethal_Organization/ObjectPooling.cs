@@ -82,4 +82,12 @@ internal class ObjectPooling
         _pool[type].Add(bullet);
         return bullet;
     }
+  
+    public void ClearType(ProjectileType type)
+    {
+        foreach(Bullet obj in _pool[type])
+        {
+            obj.SetActive(false);
+        }
+    }
 }

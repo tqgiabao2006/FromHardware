@@ -328,6 +328,7 @@ namespace Lethal_Organization
             worldPos.Y = (int)_checkPoints[_lowestFloor].Y;
             _velocity = Vector2.Zero;
             SetActive(true);
+            _objectPooling.ClearType(ObjectPooling.ProjectileType.Bullet);
             RaiseHealthChanged(curHP);
         }
         public override void Update(GameTime gameTime)

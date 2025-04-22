@@ -36,7 +36,7 @@ namespace Lethal_Organization
 
             imagePos = new Rectangle(0,0 , screenWidth, screenHeight);
 
-            textPos = new Vector2(screenWidth / 2 - 200, screenHeight / 2 + 400);
+            textPos = new Vector2(screenWidth / 2 - 200, screenHeight / 2 + 200);
 
 
         }
