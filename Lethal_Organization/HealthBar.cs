@@ -17,12 +17,15 @@ namespace Lethal_Organization
         private Rectangle _healthBarSourceImg;
 
         private Rectangle _healthDisplayPos;
+
+        private float _healthBarWidth;
         public HealthBar(GameObject target, Texture2D UISPriteSHeet, Rectangle sourceImage, Rectangle displayPos)
         {
             target.onHealthChanged += UpdateHP;
             _UISPriteSHeet = UISPriteSHeet;
             _healthDisplayPos = displayPos;
             _healthBarSourceImg = sourceImage;
+            _healthBarWidth = displayPos.Width;
         }
 
         public void Draw(SpriteBatch sb)
@@ -53,8 +56,15 @@ namespace Lethal_Organization
 
         private void UpdateHP(int curHP, int maxHP)
         {
-            float newWidth = (curHP / (float)maxHP) * _healthDisplayPos.Width;
-            _healthDisplayPos.Width = (int)newWidth;
+            float percentage = curHP / (float)maxHP;
+            int newWidth = (int)(_healthBarWidth * percentage);
+
+            _healthDisplayPos = new Rectangle(
+                _healthDisplayPos.X,
+                _healthDisplayPos.Y,
+                newWidth,
+                _healthDisplayPos.Height
+            );
         }
     }
 }

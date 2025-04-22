@@ -63,6 +63,8 @@ namespace Lethal_Organization
 
         public const string Again = "Again_Game_Typo";
 
+        public const string YouDie = "You_Die";
+
         //Enemy
         public const string GroundEnemySpriteSheet = "EnemySpriteSheet";
 

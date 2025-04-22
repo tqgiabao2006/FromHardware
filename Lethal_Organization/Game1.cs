@@ -80,6 +80,8 @@ public class Game1 : Game
 
     private Texture2D _endTheme;
 
+    private Texture2D _youDie;
+
     private int _screenWidth;
 
     private int _screenHeight;
@@ -157,6 +159,8 @@ public class Game1 : Game
 
         _endTheme = Content.Load<Texture2D>(Constants.EndTheme);
 
+        _youDie = Content.Load<Texture2D>(Constants.YouDie);
+
         //Window data
         _screenHeight = _graphics.GraphicsDevice.Viewport.Height;
 
@@ -174,8 +178,6 @@ public class Game1 : Game
 
         _level.Player = _player;
 
-        _gameManager.Player = _player;
-
 
         _boss = new Boss(_bossSpriteSheet, _iceProjectile, _iceSpike,  Constants.BossSpriteMap, _player, _level, _gameManager, _random, _objectPool);
 
@@ -184,7 +186,7 @@ public class Game1 : Game
         _uiManager = new UIManager(_gameManager, _player, _boss,
          _font,
          _UISprite, _openScreenSPrite, _loadGameSprite, _startGameSprite, _exitSprite, _optionSprite,
-         _endTheme, _againSprite
+        _youDie, _endTheme, _againSprite
          , _screenWidth, _screenHeight,
          Constants.MenuLayout, _gameManager.ChangeState);
 
@@ -247,10 +249,18 @@ public class Game1 : Game
             Color.White);
 
             _spriteBatch.DrawString(
+               _font,
+               $"Player HP: {_player.CurHP} \n" +
+               $"Floor:  {_player.LowestFloor}",
+                new Vector2(10, 100),
+               Color.Yellow
+           );
+
+            _spriteBatch.DrawString(
                 _font,
                 $"Boss state {_boss.BossState} " +
                 $"\n Free {_boss.Free}" +
-                $"\n Command Count {_boss.CommandCount}",
+                $"\n Boss HP: {_boss.CurHP}",
                 new Vector2(10, 200),
                 Color.Yellow
                 );

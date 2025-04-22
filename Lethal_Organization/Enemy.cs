@@ -124,6 +124,7 @@ namespace Lethal_Organization
                     isDebug = false;
 
                     break;
+                case GameManager.GameState.Die:
                 case GameManager.GameState.Pause:
                     paused = true;
                     break;

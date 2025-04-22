@@ -51,7 +51,7 @@ namespace Lethal_Organization
             _sinceAnimEnd = 0;
             _waitAnim = false;
             _canDealDamage = true;
-            
+       
         }
 
         public void Update(GameTime gameTime)

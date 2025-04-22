@@ -19,6 +19,13 @@ namespace Lethal_Organization
             Die
         }
 
+        public enum Floor
+        {
+            Floor1,
+            Floor2,
+            BossRoom,
+        }
+
         //Input
         private KeyboardState _currentKb;
 
@@ -96,9 +103,32 @@ namespace Lethal_Organization
 
         private int _burnDamge;
 
+        //Respawn system
+        private Dictionary<Floor, Vector2> _checkPoints;
+
+        private Floor _lowestFloor;
+
+        //State change
+        private Action<GameManager.GameState> _changeState;
+
         public bool OnGround
         {
             get { return _onGround; }
+        }
+        public int CurHp
+        {
+            get
+            {
+                return curHP;
+            }
+        }
+
+        public Floor LowestFloor
+        {
+            get
+            {
+                return _lowestFloor;
+            }
         }
         public Vector2 GroundCheckPoint
         {
@@ -123,17 +153,14 @@ namespace Lethal_Organization
             }
         }
 
-        public Vector2 Velocity
+        public Rectangle HitBox
         {
             get
             {
-                return _velocity;
-            }
-            set
-            {
-                _velocity = value;
+                return hitBox;
             }
         }
+
         /// <summary>
         /// Read only position property for use with enemy patrol
         /// </summary>
@@ -167,8 +194,8 @@ namespace Lethal_Organization
         {
             set { _enemyList = value; }
         }
-        public Player(Texture2D playerSpriteSheet, string spriteMapFile ,Texture2D bulletTexture,GraphicsDeviceManager graphics, Level level, GameManager gameManager, ObjectPooling objectPooling)
-        {
+        public Player(Texture2D playerSpriteSheet, string spriteMapFile, Texture2D bulletTexture, GraphicsDeviceManager graphics, Level level, GameManager gameManager, ObjectPooling objectPooling)
+        { 
             //Class
             this._level = level;
 
@@ -177,6 +204,16 @@ namespace Lethal_Organization
             _animator = new Animator<State>(playerSpriteSheet, State.Idle, spriteMapFile, 0.1f);
 
             gameManager.OnStateChange += OnStateChange;
+
+            _changeState = gameManager.ChangeState;
+
+            //Check points
+            _checkPoints = new Dictionary<Floor, Vector2>();
+            _checkPoints.Add(Floor.Floor1, new Vector2(48 * 1, 48 * 4));
+            _checkPoints.Add(Floor.Floor2, new Vector2(48 * 47, 48 * 14));
+            _checkPoints.Add(Floor.BossRoom, new Vector2(48 * 10, 48 * 50));
+
+            _lowestFloor = Floor.Floor1;
 
             //Render
             _scale = 2;
@@ -187,13 +224,14 @@ namespace Lethal_Organization
             
             sourceImg = new Rectangle(0, 0,64, 48);
             
-            worldPos = new Rectangle(5 * 48, 50 * 48, 64 * _scale, 48 * _scale);//8,310
+            worldPos = new Rectangle((int)_checkPoints[_lowestFloor].X, (int)_checkPoints[_lowestFloor].Y, 64 * _scale, 48 * _scale);//8,310
             
             _cameraOffset = new Vector2(0, 0);
 
             hitBox = new Rectangle(worldPos.X, worldPos.Y, 16 * _scale, 48 * _scale);
             
             _playerState = State.Jump;
+
 
             //Movement
 
@@ -264,10 +302,15 @@ namespace Lethal_Organization
                     isDebug = false;
 
                     break;
+
+                case GameManager.GameState.Die:
+                    Respawn();
+                    paused = true;
+                    break;
+
                 case GameManager.GameState.Pause:
                     paused = true;
-                    visible = true;
-                    isDebug = false;
+  ;
 
                     break;
                 case GameManager.GameState.Debug:
@@ -278,8 +321,21 @@ namespace Lethal_Organization
             }
         } 
 
+        private void Respawn()
+        {
+            curHP = maxHp;
+            worldPos.X = (int)_checkPoints[_lowestFloor].X;
+            worldPos.Y = (int)_checkPoints[_lowestFloor].Y;
+            _velocity = Vector2.Zero;
+            SetActive(true);
+            RaiseHealthChanged(curHP);
+        }
         public override void Update(GameTime gameTime)
         {
+            if(paused || !visible || !enabled)
+            {
+                return;
+            }
             //Update input
             _currentKb = Keyboard.GetState();
             _mouse = Mouse.GetState();
@@ -287,25 +343,24 @@ namespace Lethal_Organization
             //Update camera offset
             UpdateCameraOffset();
 
-            if(visible && !paused)
-            {
-                //Animator
-                _animator.Update(gameTime);
+            UpdateFurthesLevel();
 
-                //Update move logic
-                StateMachine(_level);
+            //Animator
+            _animator.Update(gameTime);
+
+            //Update move logic
+            StateMachine(_level);
                 
-                Shoot(gameTime);
+            Shoot(gameTime);
 
-                foreach(Bullet bullet in _objectPooling.GetBullets(ObjectPooling.ProjectileType.Bullet))
+            foreach(Bullet bullet in _objectPooling.GetBullets(ObjectPooling.ProjectileType.Bullet))
+            {
+                if(bullet.Enabled)
                 {
-                    if(bullet.Enabled)
-                    {
-                        bullet.Update(gameTime);
-                    }
+                    bullet.Update(gameTime);
                 }
             }
-
+ 
             //Get hit logic
             BurnHealthOverTime(gameTime);
 
@@ -798,7 +853,12 @@ namespace Lethal_Organization
             }
             base.GetHit(damage);
             _changeColorGetHit = true;
-            
+
+
+            if (curHP <= 0)
+            {
+                _changeState(GameManager.GameState.Die);
+            }
         }
 
         private void ChangeColorEffect(GameTime gameTime)
@@ -855,6 +915,20 @@ namespace Lethal_Organization
         private bool IsSinglePressed(Keys key)
         {
             return (_currentKb.IsKeyDown(key) && _prevKb.IsKeyUp(key));
+        }
+
+        private void UpdateFurthesLevel()
+        {
+            int level1Y = 11 * 48;
+            int level2Y = 25 * 48;
+            int levelBoss = 48 * 48;
+            if(worldPos.Y < level2Y && worldPos.Y > level1Y && _lowestFloor == Floor.Floor1)
+            {
+                _lowestFloor = Floor.Floor2;
+            }else if(_lowestFloor == Floor.Floor2 && worldPos.Y > levelBoss)
+            {
+                _lowestFloor = Floor.BossRoom;
+            }
         }
 
 

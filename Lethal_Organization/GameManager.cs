@@ -16,9 +16,9 @@ namespace Lethal_Organization
         {
             Menu,
             Game,
-            Boss,
             Debug,
             Pause,
+            Die,
             GameOver
         }
 
@@ -30,12 +30,8 @@ namespace Lethal_Organization
 
         private KeyboardState _prevKbState;
 
-        private MouseState _mouseState;
-
         private SpriteFont _font;
         
-        private Player _player;
-
         public Action<GameState> ChangeState;
 
         public GameState CurrentState
@@ -50,13 +46,6 @@ namespace Lethal_Organization
                 OnStateChange(_currentState);
             }
         }
-
-        public Player Player
-        {
-            get { return _player; }
-            set { _player = value; }
-        }
-
         public GameManager(SpriteFont font)
         {
             _font = font;
@@ -71,7 +60,6 @@ namespace Lethal_Organization
         public void Update(GameTime gameTime)
         {
             _kbState = Keyboard.GetState();
-            _mouseState = Mouse.GetState();
 
             switch(_currentState)
             {
@@ -114,14 +102,19 @@ namespace Lethal_Organization
                         CurrentState = GameState.Pause;
                     }
                     break;
+                case GameState.Die:
+                    if (IsSinglePressed(Keys.Enter))
+                    {
+                        CurrentState = GameState.Game;
 
+                    }
+                    break;
                 case GameState.GameOver:
                     if (IsSinglePressed(Keys.Enter))
                     {
                         CurrentState = GameState.Menu;
-                        _player.WorldPos = new Rectangle(8, 384, 64, 48);
-                        _player.Velocity = Vector2.Zero;
                     }
+
                     break;
 
             }

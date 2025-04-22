@@ -35,6 +35,11 @@ namespace Lethal_Organization
 
         private bool _canDamage;
 
+        private float _sinceRunTime;
+
+        private float _maxTimeToPunch; //Max time to find place to pung
+
+
         internal PunchCommand(float speed, int damage, int endFrame, Rectangle punchHitBox, Player player, Action<Boss.State> setAnim, Func<Boss.State, int, bool> checkFinishAnimation)
         {
             _damgeFrame = 6;
@@ -60,6 +65,10 @@ namespace Lethal_Organization
             _setAnim = setAnim;
 
             _canDamage = true;
+
+            _sinceRunTime = 0;
+
+            _maxTimeToPunch = 2;
         }
 
         public void Execute(Boss boss)
@@ -100,15 +109,17 @@ namespace Lethal_Organization
             }
             else
             {
-                if (boss.WorldPos.Intersects(_player.WorldPos))
+                if (boss.WorldPos.Intersects(_player.HitBox) || _sinceRunTime > _maxTimeToPunch)
                 {
                     _setAnim(Boss.State.Punch);
-                    _faceRight = _player.WorldPos.X > boss.WorldPos.X;
+                    _faceRight = _player.WorldPos.X > boss.HitBox.X;
                     _waitAnim = true;
                 }
                 else
                 {
                     _setAnim(Boss.State.Walk);
+
+                    _sinceRunTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
                     int dirMultipler = boss.FaceRight ? 1 : -1;
 

@@ -28,6 +28,8 @@ namespace Lethal_Organization
 
         private bool _onGround;
 
+
+
         internal JumpCommand(Action spawnSpike, Action<Boss.State> setAnim, Func<Boss.State, int> getMaxIndex, Vector2 jumpForce, float gravity, Func<Boss.State, int, bool> checkFinishAnimation, Func<bool> onGround)
         {
             _spawnSpike = spawnSpike;
@@ -47,6 +49,8 @@ namespace Lethal_Organization
             _hasJump = false;
 
             _onGround = true;
+
+         
         }
         public void Execute(Boss boss)
         {

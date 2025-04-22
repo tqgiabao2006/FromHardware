@@ -57,6 +57,8 @@ internal class Boss: GameObject
 
     private Func<State, int> _getMaxIndex;
 
+    public event Action OnBossFightEvent;
+
     //Skill
     private IceSpike _iceSpike;
 
@@ -121,8 +123,17 @@ internal class Boss: GameObject
 
     private float _changeColorTime;
 
+    private bool _hasGetHitFrame;
 
     //Debug
+
+    public Rectangle GroundBox
+    {
+        get
+        {
+            return _groundBox;
+        }
+    }
     public bool OnCommand
     {
         get { return _curCommand != null && !_curCommand.Finished; }
@@ -136,18 +147,14 @@ internal class Boss: GameObject
         }
     }
 
-    public int CommandCount
+    public int CurHP
     {
         get
         {
-            if(_commandQueue == null)
-            {
-                return -1;
-            }
-            return _commandQueue.Count;
-
+            return curHP;
         }
     }
+
  
     public Rectangle HitBox
     {
@@ -252,19 +259,17 @@ internal class Boss: GameObject
         this._random = random;
         
         _objectPooling = objectPooling;
-        
+
         //Movement
-        curHP = 5000;
+        curHP = 2000;
 
-        maxHp = 5000;
+        maxHp = 2000;
         
-        _phase2Hp = 1000 / 2;
-
-        _generateCommandTime = 3;
+        _generateCommandTime = 2;
 
         _timeCounter = 3;
 
-        _processCommandTimeGap = 3;
+        _processCommandTimeGap = 2;
 
         _sinceLastCommand = 0;
         
@@ -434,6 +439,11 @@ internal class Boss: GameObject
                 isDebug = false;
 
                 break;
+            case GameManager.GameState.Die:
+                Respawn();
+                visible = false;
+                paused = true;
+                break;
             case GameManager.GameState.Pause:
                 paused = true;
 
@@ -458,7 +468,11 @@ internal class Boss: GameObject
 
         if (!_triggered && _groundBox.Contains(_player.WorldPos))
          {
-            _changeState(GameManager.GameState.Boss);
+            if(OnBossFightEvent != null)
+            {
+                OnBossFightEvent();
+            }
+
             _animator.SetState(State.Revive);
             _animator.SetState(State.Idle);
             _currentState = State.Idle;
@@ -468,6 +482,17 @@ internal class Boss: GameObject
         }
        
 
+    }
+
+    private void Respawn()
+    {
+        curHP = maxHp;
+        _triggered = false;
+        _commandQueue.Clear();
+        _curCommand = null;
+        _isFree = true;
+        SetActive(true);
+        RaiseHealthChanged(curHP);
     }
 
     private void ProcessCommand(GameTime gameTime)
@@ -501,7 +526,7 @@ internal class Boss: GameObject
 
     private void GenerateCommand(GameTime gameTime)
     {
-        if (_curCommand == null) 
+        if (_curCommand == null || _curCommand is GetHitCommand) 
         {
             _timeCounter -= (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
@@ -509,6 +534,11 @@ internal class Boss: GameObject
         if (_timeCounter <= 0)
         {
             ICommand<Boss> command = GenerateSkill();
+            
+            if(command is not GetHitCommand)
+            {
+                _hasGetHitFrame = false;
+            }
             if (command != null)
             {
                 _commandQueue.Enqueue(command);
@@ -581,10 +611,11 @@ internal class Boss: GameObject
     public override void GetHit(int damage)
     {
         base.GetHit(damage);    
-        if(Free)
+        if(Free && !_hasGetHitFrame)
         {
             GetHitCommand takeHit = new GetHitCommand(_setAnim, _checkAnimFinish, _getMaxIndex);
             _commandQueue.Enqueue(takeHit);
+            _hasGetHitFrame = true;
         }
 
         _changeColorGetHit = true;

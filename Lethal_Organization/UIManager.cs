@@ -67,7 +67,6 @@ namespace Lethal_Organization
         private Dictionary<Type, Rectangle> _textureMap;
 
         private Texture2D _UISPriteSheet;
-
         public Rectangle this[Type type]
         {
             get
@@ -85,12 +84,15 @@ namespace Lethal_Organization
         public UIManager(GameManager gameManager, Player player, Boss boss,
             SpriteFont font,
             Texture2D spriteSheet, Texture2D openTheme, Texture2D loadGame, Texture2D startGame, Texture2D exit, Texture2D option,
+            Texture2D youDie,
             Texture2D endScreen, Texture2D again,
             int screenWidth, int screenHeight,
             string textureMapFile, Action<GameManager.GameState> changeState, int scale = 5)
         {
 
             _gameManager = gameManager;
+
+            boss.OnBossFightEvent += ShowBossHub;   
 
             _gameManager.OnStateChange += OnStateChange;
 
@@ -112,6 +114,8 @@ namespace Lethal_Organization
                 screenWidth, screenHeight));
 
             _UIs.Add(new BossHUB(boss, font, spriteSheet, _textureMap[Type.HealthBar], screenWidth, screenHeight));
+
+            _UIs.Add(new YouDie(youDie, font, screenWidth, screenHeight));
         }
 
        
@@ -124,30 +128,26 @@ namespace Lethal_Organization
                     HideMenu<PlayerHUB>();
                     HideMenu<EndScreen>();
                     HideMenu<Setting>();
-                    HideMenu<BossHUB>();
+                    HideMenu<BossHUB>();    
                     break;
 
                 case GameManager.GameState.Game:
                     HideMenu<Menu>();
                     ShowMenu<PlayerHUB>();
                     ShowMenu<Setting>();
-                    HideMenu<BossHUB>();
-                    break;
-
-                case GameManager.GameState.Boss:
-                    ShowMenu<BossHUB>();
-                    ShowMenu<PlayerHUB>();
-                    ShowMenu<Setting>();
-                    HideMenu<EndScreen>();
-
+                    HideMenu<YouDie>();
                     break;
 
                 case GameManager.GameState.GameOver:
                     HideMenu<PlayerHUB>();
                     HideMenu<Setting>();
-                    HideMenu<BossHUB>();    
-                    ShowMenu<EndScreen>();
+                    HideMenu<BossHUB>();
                     break;
+
+                case GameManager.GameState.Die:
+                    ShowMenu<YouDie>();
+                    break;
+
                 case GameManager.GameState.Pause:
                     break;
                 case GameManager.GameState.Debug:
@@ -162,7 +162,6 @@ namespace Lethal_Organization
                 if (ui.Visible)
                 {
                     ui.Update(gameTime);
-
                 }
             }
         }
@@ -201,6 +200,11 @@ namespace Lethal_Organization
                 }
 
             }
+        }
+
+        private void ShowBossHub()
+        {
+            ShowMenu<BossHUB>();
         }
 
 
