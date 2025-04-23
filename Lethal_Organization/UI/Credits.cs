@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Lethal_Organization.UI
 {
-    internal class Credits
+    internal class Credits:UI
     {
+
     }
 }
