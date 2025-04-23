@@ -272,9 +272,9 @@ internal class Boss: GameObject
         _objectPooling = objectPooling;
 
         //Movement
-        curHP = 10;
+        curHP = 200;
 
-        maxHp = 10;
+        maxHp = 200;
         
         _generateCommandTime = 2;
 
