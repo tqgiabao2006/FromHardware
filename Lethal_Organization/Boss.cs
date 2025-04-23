@@ -25,6 +25,8 @@ internal class Boss: GameObject
 
     private State _currentState;
 
+    private bool _dying;
+
     private Player _player;
     
     private Level _level;
@@ -261,9 +263,9 @@ internal class Boss: GameObject
         _objectPooling = objectPooling;
 
         //Movement
-        curHP = 2000;
+        curHP = 10;
 
-        maxHp = 2000;
+        maxHp = 10;
         
         _generateCommandTime = 2;
 
@@ -356,13 +358,25 @@ internal class Boss: GameObject
 
         ChangeColorEffect(gameTime);
 
-        UpdateHitBox();
 
-        StateUpdate();
+        if(_dying)
+        {
+            if(_animator.CheckAnimationFinish(State.Die, _animator.GetMaxIndex(State.Die) - 1))
+            {
+                this.SetActive(false);
+                _changeState(GameManager.GameState.GameOver);
+            }
+        }else
+        {
+            UpdateHitBox();
 
-        GenerateCommand(gameTime);
+            StateUpdate();
 
-        ProcessCommand(gameTime);
+            GenerateCommand(gameTime);
+
+            ProcessCommand(gameTime);
+        }
+        
     }
 
     public void Draw(SpriteBatch sb)
@@ -421,6 +435,7 @@ internal class Boss: GameObject
         switch (state)
         {
             case GameManager.GameState.Menu:
+                Respawn();
                 paused = false;
                 visible = false;
                 isDebug = false;
@@ -493,7 +508,7 @@ internal class Boss: GameObject
         _isFree = true;
         SetActive(true);
         _objectPooling.ClearType(ObjectPooling.ProjectileType.BossBullet);
-        RaiseHealthChanged(curHP);
+        HPChanged(curHP);
     }
 
     private void ProcessCommand(GameTime gameTime)
@@ -611,13 +626,22 @@ internal class Boss: GameObject
 
     public override void GetHit(int damage)
     {
-        base.GetHit(damage);    
-        if(Free && !_hasGetHitFrame)
+        curHP = MathHelper.Clamp(curHP - damage, 0, maxHp);
+        HPChanged(curHP);
+
+        if (Free && !_hasGetHitFrame)
         {
             GetHitCommand takeHit = new GetHitCommand(_setAnim, _checkAnimFinish, _getMaxIndex);
             _commandQueue.Enqueue(takeHit);
             _hasGetHitFrame = true;
         }
+
+        if(curHP <= 0)
+        {
+            _animator.SetState(State.Die);
+            _dying = true;
+        }
+
 
         _changeColorGetHit = true;
     }

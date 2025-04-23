@@ -284,10 +284,13 @@ namespace Lethal_Organization
             switch (state)
             {
                 case GameManager.GameState.Menu:
+                    _lowestFloor = Floor.Floor1;
+                    Respawn();
                     paused = false;
                     visible = false;
                     isDebug = false;
                     break;
+
 
                 case GameManager.GameState.Game:
                     visible = true;
@@ -329,7 +332,7 @@ namespace Lethal_Organization
             _velocity = Vector2.Zero;
             SetActive(true);
             _objectPooling.ClearType(ObjectPooling.ProjectileType.Bullet);
-            RaiseHealthChanged(curHP);
+            HPChanged(curHP);
         }
         public override void Update(GameTime gameTime)
         {

@@ -160,7 +160,7 @@ namespace Lethal_Organization
            visible = enabled;
         }
 
-        protected void RaiseHealthChanged(int curHp)
+        protected void HPChanged(int curHp)
         {
             onHealthChanged?.Invoke(curHp, maxHp);
         }

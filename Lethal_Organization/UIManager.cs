@@ -142,6 +142,7 @@ namespace Lethal_Organization
                     HideMenu<PlayerHUB>();
                     HideMenu<Setting>();
                     HideMenu<BossHUB>();
+                    ShowMenu<EndScreen>();
                     break;
 
                 case GameManager.GameState.Die:

@@ -85,6 +85,11 @@ internal class ObjectPooling
   
     public void ClearType(ProjectileType type)
     {
+        if(!_pool.ContainsKey(type))
+        {
+            return;
+        }
+
         foreach(Bullet obj in _pool[type])
         {
             obj.SetActive(false);

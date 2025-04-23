@@ -44,6 +44,12 @@
 /processorParam:TextureFormat=Compressed
 /build:Arial20.spritefont
 
+#begin Boss_Jump.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Boss_Jump.wav
+
 #begin bossBackground.png
 /importer:TextureImporter
 /processor:TextureProcessor
