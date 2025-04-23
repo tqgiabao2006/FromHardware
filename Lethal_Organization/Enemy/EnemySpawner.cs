@@ -35,6 +35,8 @@ namespace Lethal_Organization
 
         private GameManager _gameManager;
 
+        private AudioManager _audioManager;
+
         public List<Enemy> EnemyList { 
             get 
             { 
@@ -42,8 +44,10 @@ namespace Lethal_Organization
             } 
         }
 
-        public EnemySpawner(Texture2D groundSpriteSheet, Texture2D flySpriteSheet, Texture2D UISpriteSheet, Rectangle EnemyHPSourceImg,string filePath, Level level, GameManager gameManager, Player player)
+        public EnemySpawner(Texture2D groundSpriteSheet, Texture2D flySpriteSheet, Texture2D UISpriteSheet, Rectangle EnemyHPSourceImg,string filePath, Level level, GameManager gameManager, AudioManager audioManager, Player player)
         {
+            _audioManager = audioManager;
+
             _groundSpriteSheet = groundSpriteSheet;
 
             _flySpriteSheet = flySpriteSheet;
@@ -102,12 +106,12 @@ namespace Lethal_Organization
 
                     if(type == EnemyType.Ground)
                     {
-                        Enemy enemy = new Enemy(_groundSpriteSheet, _UISpriteSheet, _HPSourceImg, rightBound, leftBound, _player, _gameManager, 57, 42,2);
+                        Enemy enemy = new Enemy(_groundSpriteSheet, _UISpriteSheet, _HPSourceImg, rightBound, leftBound, _player, _gameManager, _audioManager,57, 42,2);
                         _enemyList.Add(enemy);
                     }
                     else if(type == EnemyType.Fly) 
                     {
-                        Enemy enemy = new Enemy(_flySpriteSheet, _UISpriteSheet, _HPSourceImg, rightBound, leftBound, _player, _gameManager, 83, 64,3);
+                        Enemy enemy = new Enemy(_flySpriteSheet, _UISpriteSheet, _HPSourceImg, rightBound, leftBound, _player, _gameManager, _audioManager, 83, 64,3);
                         _enemyList.Add(enemy);
                     }               
                 }

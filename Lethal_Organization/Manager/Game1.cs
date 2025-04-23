@@ -1,7 +1,9 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 
 namespace Lethal_Organization;
 
@@ -86,6 +88,24 @@ public class Game1 : Game
 
     private int _screenHeight;
 
+    //SFX
+    private Song _bossSong;
+    private Song _endSong;
+    private Song _mainSong;
+    private Song _openSong;
+
+    private SoundEffect _bossJump;
+    private SoundEffect _buttonClick;
+    private SoundEffect _iceCrack;
+    private SoundEffect _spikeSound;
+    private SoundEffect _playerJump;
+    private SoundEffect _playerShoot;
+    private SoundEffect _swoosh;
+    private SoundEffect _dieSFX;
+    private SoundEffect _getHitSFX;
+
+    private AudioManager _audioManager;
+
 
 
 
@@ -111,6 +131,33 @@ public class Game1 : Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
         _random = new Random();
+
+        //SFX
+        _bossSong = Content.Load<Song>(Constants.BossSong);
+
+        _endSong = Content.Load<Song>(Constants.EndSong);
+
+        _mainSong = Content.Load<Song>(Constants.MainSong);
+
+        _openSong = Content.Load<Song>(Constants.OpenSong);
+
+        _bossJump = Content.Load<SoundEffect>(Constants.BossJump);
+
+        _buttonClick = Content.Load<SoundEffect>(Constants.ButtonClick);
+
+        _iceCrack = Content.Load<SoundEffect>(Constants.IceCrack);
+
+        _spikeSound = Content.Load<SoundEffect>(Constants.SpikeSound);
+
+        _playerJump = Content.Load<SoundEffect>(Constants.PlayerJump);
+
+        _playerShoot = Content.Load<SoundEffect>(Constants.PlayerShoot);
+
+        _swoosh = Content.Load<SoundEffect>(Constants.Swoosh);
+
+        _dieSFX = Content.Load<SoundEffect>(Constants.DieSFX);
+
+        _getHitSFX = Content.Load<SoundEffect>(Constants.GetHit);
 
         //Boss
         _bossSpriteSheet = Content.Load<Texture2D>(Constants.BossSpriteSheet);
@@ -170,16 +217,21 @@ public class Game1 : Game
 
         _objectPool = ObjectPooling.Instance;
 
+        _audioManager = new AudioManager(_gameManager,
+            _bossSong, _endSong, _mainSong, _openSong, _bossJump, 
+            _buttonClick, _iceCrack, _spikeSound, _playerJump, _playerShoot, _swoosh, _dieSFX, _getHitSFX);
+        
+
         _level = new Level(_tileSpriteSheet, _skyBackground, _towerBackground, _collumBackground, _bossBackground,
             Constants.TextureMapTxt, Constants.LevelDesignCsv,
             3, 3, _screenWidth, _screenHeight, _gameManager);
 
-        _player = new Player(_playerSpriteSheet, Constants.PlayerSpriteMap, _bulletSprite, _graphics, _level, _gameManager, _objectPool);
+        _player = new Player(_playerSpriteSheet, Constants.PlayerSpriteMap, _bulletSprite, _graphics, _level,_audioManager, _gameManager, _objectPool);
 
         _level.Player = _player;
 
 
-        _boss = new Boss(_bossSpriteSheet, _iceProjectile, _iceSpike,  Constants.BossSpriteMap, _player, _level, _gameManager, _random, _objectPool);
+        _boss = new Boss(_bossSpriteSheet, _iceProjectile, _iceSpike,  Constants.BossSpriteMap, _player, _level, _gameManager, _audioManager,_random, _objectPool);
 
         _player.GetBossAcess(_boss);
 
@@ -190,7 +242,8 @@ public class Game1 : Game
          , _screenWidth, _screenHeight,
          Constants.MenuLayout, _gameManager.ChangeState);
 
-        _enemySpawner = new EnemySpawner(_groundEnemySpriteSheet, _flyEnemySpriteSheet, _UISprite, _uiManager[Type.EnemyHealthBar], Constants.EnemyPos, _level, _gameManager, _player);
+        _enemySpawner = new EnemySpawner(_groundEnemySpriteSheet, _flyEnemySpriteSheet, _UISprite, _uiManager[Type.EnemyHealthBar], Constants.EnemyPos,
+            _level, _gameManager, _audioManager, _player);
 
         _player.EnemyList = _enemySpawner.EnemyList;
 

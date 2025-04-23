@@ -37,11 +37,16 @@ namespace Lethal_Organization
 
         private float _sinceRunTime;
 
-        private float _maxTimeToPunch; //Max time to find place to pung
+        private float _maxTimeToPunch; //Max time to find place to punch
 
 
-        internal PunchCommand(float speed, int damage, int endFrame, Rectangle punchHitBox, Player player, Action<Boss.State> setAnim, Func<Boss.State, int, bool> checkFinishAnimation)
+        private Action<AudioManager.SFXID, float, float, float> _playSFX;
+
+
+        internal PunchCommand(Action<AudioManager.SFXID, float, float, float> playSFX, float speed, int damage, int endFrame, Rectangle punchHitBox, Player player, Action<Boss.State> setAnim, Func<Boss.State, int, bool> checkFinishAnimation)
         {
+            _playSFX = playSFX;
+
             _damgeFrame = 6;
 
             _endFrame = endFrame;
@@ -111,6 +116,7 @@ namespace Lethal_Organization
             {
                 if (boss.WorldPos.Intersects(_player.HitBox) || _sinceRunTime > _maxTimeToPunch)
                 {
+                    _playSFX(AudioManager.SFXID.Swoosh, 1, 0, 0);
                     _setAnim(Boss.State.Punch);
                     _faceRight = _player.WorldPos.X > boss.HitBox.X;
                     _waitAnim = true;

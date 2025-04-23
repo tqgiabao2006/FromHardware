@@ -28,10 +28,12 @@ namespace Lethal_Organization
 
         private bool _onGround;
 
+        private Action<AudioManager.SFXID, float, float, float> _playSFX;
 
-
-        internal JumpCommand(Action spawnSpike, Action<Boss.State> setAnim, Func<Boss.State, int> getMaxIndex, Vector2 jumpForce, float gravity, Func<Boss.State, int, bool> checkFinishAnimation, Func<bool> onGround)
+        internal JumpCommand(Action<AudioManager.SFXID, float, float, float>  playSFX, Action spawnSpike, Action<Boss.State> setAnim, Func<Boss.State, int> getMaxIndex, Vector2 jumpForce, float gravity, Func<Boss.State, int, bool> checkFinishAnimation, Func<bool> onGround)
         {
+            _playSFX = playSFX;
+
             _spawnSpike = spawnSpike;
 
             _setAnim = setAnim;
@@ -94,6 +96,8 @@ namespace Lethal_Organization
                 if (_checkFinishAnimation(Boss.State.Fall, _getMaxIndex(Boss.State.Fall) - 1))
                 {
                     //Spawn spike
+                    _playSFX(AudioManager.SFXID.IceCrack, 1, 0, 0);
+
                     boss.LockDirection = false;
                     _spawnSpike();
                     Finished = true;

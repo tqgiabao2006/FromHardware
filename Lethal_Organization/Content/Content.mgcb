@@ -50,6 +50,12 @@
 /processorParam:Quality=Best
 /build:Boss_Jump.wav
 
+#begin Boss_Song.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Boss_Song.mp3
+
 #begin bossBackground.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -74,6 +80,12 @@
 /processorParam:TextureFormat=Color
 /build:BossSpriteSheet.png
 
+#begin ButtonClick_SFX.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:ButtonClick_SFX.mp3
+
 #begin Collum.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -85,6 +97,12 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Collum.png
+
+#begin End_Song.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:End_Song.mp3
 
 #begin EnemyFlySpriteSheet.png
 /importer:TextureImporter
@@ -146,6 +164,18 @@
 /processorParam:TextureFormat=Color
 /build:Game_Over.png
 
+#begin Hit.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Hit.mp3
+
+#begin Ice_Crack_SFX.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Ice_Crack_SFX.mp3
+
 #begin Ice_Projectile.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -158,6 +188,12 @@
 /processorParam:TextureFormat=Color
 /build:Ice_Projectile.png
 
+#begin Ice_Spike_sfx.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Ice_Spike_sfx.mp3
+
 #begin Load_Game_Typo.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -169,6 +205,12 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Load_Game_Typo.png
+
+#begin Main_Song.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Main_Song.mp3
 
 #begin menu_button01.png
 /importer:TextureImporter
@@ -194,6 +236,12 @@
 /processorParam:TextureFormat=Color
 /build:Open Theme.png
 
+#begin Open_Song.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Open_Song.mp3
+
 #begin Option_Game_Typo.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -205,6 +253,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Option_Game_Typo.png
+
+#begin Player_Jump_SFX.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Player_Jump_SFX.mp3
+
+#begin Player_Shoot_SFX.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Player_Shoot_SFX.mp3
 
 #begin playerBullet.png
 /importer:TextureImporter
@@ -266,6 +326,12 @@
 /processorParam:TextureFormat=Color
 /build:Start_Game_Typo.png
 
+#begin Swoosh_SFX.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Swoosh_SFX.mp3
+
 #begin TestEnemy.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -313,4 +379,10 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:You_Die.png
+
+#begin YouDie_SFX.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:YouDie_SFX.mp3
 

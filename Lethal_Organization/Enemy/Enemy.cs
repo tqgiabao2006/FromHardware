@@ -51,6 +51,8 @@ namespace Lethal_Organization
 
         private Animator<EnemyState> _animator;
 
+        //SFX
+        private AudioManager _audioManager;
         public Rectangle WorldPos
         {
             get 
@@ -59,11 +61,13 @@ namespace Lethal_Organization
             }
         }
 
-        public Enemy(Texture2D sprite, Texture2D UISprite, Rectangle healthBarSourceImg, Vector2 rightPlatform, Vector2 leftPlatform, Player player, GameManager gameManager, int frameWidth, int frameHeight, int speed, int scale = 2)
+        public Enemy(Texture2D sprite, Texture2D UISprite, Rectangle healthBarSourceImg, Vector2 rightPlatform, Vector2 leftPlatform, Player player, GameManager gameManager, AudioManager audioManager,int frameWidth, int frameHeight, int speed, int scale = 2)
         {
             _player = player;
 
             texture = sprite;
+
+            _audioManager = audioManager;
 
             _rightPlatform = rightPlatform;
 
@@ -281,6 +285,8 @@ namespace Lethal_Organization
 
             _sinceChangeColor = 0;
             _changeColorGetHit = true;
+
+            _audioManager.PlaySFX(AudioManager.SFXID.GetHit);
         }
 
         private void GetHitEffect(GameTime gameTime)

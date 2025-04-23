@@ -72,7 +72,32 @@ namespace Lethal_Organization
 
         public const string EnemyPos = "../../../Content/EnemyPositions.txt";
 
-      
+        //SFX
+        public const string BossJump = "Boss_Jump";
+
+        public const string BossSong = "Boss_Song";
+
+        public const string ButtonClick = "ButtonClick_SFX";
+
+        public const string EndSong = "End_Song";
+
+        public const string IceCrack = "Ice_Crack_SFX";
+
+        public const string SpikeSound = "Ice_Spike_sfx";
+
+        public const string MainSong = "Main_Song";
+
+        public const string OpenSong = "Open_Song";
+
+        public const string PlayerJump = "Player_Jump_SFX";
+
+        public const string PlayerShoot = "Player_Shoot_SFX";
+
+        public const string Swoosh = "Swoosh_SFX";
+
+        public const string DieSFX = "YouDie_SFX";
+
+        public const string GetHit = "Hit";
     }
 
 }

@@ -23,8 +23,13 @@ namespace Lethal_Organization
 
         private int _endFrame;
 
-        public SpikeCommand(Action<Vector2, Vector2, float> spawnBullet, Action<Boss.State> setAnim, Func<Boss.State, int, bool> checkFinishAnimation, int numbSpikes, float radius, int endFrame)
+        private Action<AudioManager.SFXID, float, float, float> _playSFX;
+
+
+        public SpikeCommand(Action<AudioManager.SFXID, float, float, float> playSFX, Action<Vector2, Vector2, float> spawnBullet, Action<Boss.State> setAnim, Func<Boss.State, int, bool> checkFinishAnimation, int numbSpikes, float radius, int endFrame)
         {
+            _playSFX = playSFX;
+
             _spawnBullet = spawnBullet;
 
             _radius = radius;
@@ -65,7 +70,7 @@ namespace Lethal_Organization
                     Vector2 spawnPos = new Vector2(boss.HitBox.Center.X, boss.HitBox.Center.Y);
                     _spawnBullet(direction, spawnPos, radians);
                 }
-
+                _playSFX(AudioManager.SFXID.SpikeSound, 1, 0, 0);
                 Finished = true;
             }
         }

@@ -25,6 +25,8 @@ namespace Lethal_Organization
             Floor2,
             BossRoom,
         }
+        //Manager
+        AudioManager _audioManager;
 
         //Input
         private KeyboardState _currentKb;
@@ -194,7 +196,7 @@ namespace Lethal_Organization
         {
             set { _enemyList = value; }
         }
-        public Player(Texture2D playerSpriteSheet, string spriteMapFile, Texture2D bulletTexture, GraphicsDeviceManager graphics, Level level, GameManager gameManager, ObjectPooling objectPooling)
+        public Player(Texture2D playerSpriteSheet, string spriteMapFile, Texture2D bulletTexture, GraphicsDeviceManager graphics, Level level, AudioManager audioManager,GameManager gameManager, ObjectPooling objectPooling)
         { 
             //Class
             this._level = level;
@@ -202,6 +204,8 @@ namespace Lethal_Organization
             _objectPooling = objectPooling;
 
             _animator = new Animator<State>(playerSpriteSheet, State.Idle, spriteMapFile, 0.1f);
+
+            _audioManager = audioManager;
 
             gameManager.OnStateChange += OnStateChange;
 
@@ -469,6 +473,7 @@ namespace Lethal_Organization
                             && _onGround && !isDebug)
                     {
                         _animator.SetState(State.Jump);
+                        _audioManager.PlaySFX(AudioManager.SFXID.PlayerJump);
                         _playerState = State.Jump;
                         _velocity.Y += _jumpForce;
                     }
@@ -522,6 +527,7 @@ namespace Lethal_Organization
                     else if ((IsSinglePressed(Keys.W) || IsSinglePressed(Keys.Up) || IsSinglePressed(Keys.Space))
                             && _onGround && !isDebug)
                     {
+                        _audioManager.PlaySFX(AudioManager.SFXID.PlayerJump);
                         _animator.SetState(State.Jump);
                         _playerState = State.Jump;
                         _velocity.Y += _jumpForce;
@@ -600,6 +606,8 @@ namespace Lethal_Organization
               
                 if (_shootTimeCounter <= 0)
                 {
+                    _audioManager.PlaySFX(AudioManager.SFXID.PlayerShoot);
+
                     Bullet bullet = _objectPooling.GetObj(ObjectPooling.ProjectileType.Bullet, _bulletTexture, _level);
                     Vector2 direction = _faceRight ? new Vector2(1,0) : new  Vector2(-1, 0);
                     int dirMultipler = _faceRight ? 1 : -1;
@@ -863,6 +871,7 @@ namespace Lethal_Organization
             {
                 _changeState(GameManager.GameState.Die);
             }
+
         }
 
         private void ChangeColorEffect(GameTime gameTime)

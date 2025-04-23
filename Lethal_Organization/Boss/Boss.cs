@@ -127,6 +127,11 @@ internal class Boss: GameObject
 
     private bool _hasGetHitFrame;
 
+    //SFX
+    private AudioManager _audioManager;
+
+    private Action<AudioManager.SFXID,float, float, float> _playSFX;
+
     //Debug
 
     public Rectangle GroundBox
@@ -207,9 +212,9 @@ internal class Boss: GameObject
     }
 
     public Boss(Texture2D spriteSheet, Texture2D bulletTexture, Texture2D iceSpike,
-        string textureMapFile, 
+        string textureMapFile,
         Player player, Level level,
-        GameManager manager, Random random, ObjectPooling objectPooling)
+        GameManager manager, AudioManager audioManager, Random random, ObjectPooling objectPooling)
     {
         //Class
         this._player = player;
@@ -219,6 +224,10 @@ internal class Boss: GameObject
         this._currentState = State.Die;
         
         texture = spriteSheet;
+
+        _audioManager = audioManager;
+
+        _playSFX = _audioManager.PlaySFX;
         
         _bulletTexture = bulletTexture;
         
@@ -488,6 +497,8 @@ internal class Boss: GameObject
                 OnBossFightEvent();
             }
 
+            _audioManager.PlaySong(AudioManager.SongID.BossSong);
+
             _animator.SetState(State.Revive);
             _animator.SetState(State.Idle);
             _currentState = State.Idle;
@@ -597,13 +608,13 @@ internal class Boss: GameObject
                 switch (_skillSet[i].State)
                 {
                     case State.Spike:
-                        return new SpikeCommand(_spawnBullet, _setAnim, _checkAnimFinish, _spikeNumb, _radius, _getMaxIndex(State.Spike) - 1);
+                        return new SpikeCommand(_playSFX,_spawnBullet, _setAnim, _checkAnimFinish, _spikeNumb, _radius, _getMaxIndex(State.Spike) - 1);
                     
                     case State.Jump:
-                        return new JumpCommand(_spawnSpike, _setAnim, _getMaxIndex, _jumpForce, _gravity, _checkAnimFinish, _checkOnGround);
+                        return new JumpCommand(_playSFX,_spawnSpike, _setAnim, _getMaxIndex, _jumpForce, _gravity, _checkAnimFinish, _checkOnGround);
 
                     case State.Punch:
-                        return new PunchCommand(_speed, _skillSet[i].Damage, _getMaxIndex(State.Punch) - 1,_punchHitBox, _player, _setAnim,
+                        return new PunchCommand(_playSFX,_speed, _skillSet[i].Damage, _getMaxIndex(State.Punch) - 1,_punchHitBox, _player, _setAnim,
                             _checkAnimFinish);
                 }
             }
