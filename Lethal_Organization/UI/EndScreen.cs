@@ -62,6 +62,7 @@ namespace Lethal_Organization.UI
 
         private void Again()
         {
+            _changeState(GameManager.GameState.Reset);
             _changeState(GameManager.GameState.Menu);
         }
     }

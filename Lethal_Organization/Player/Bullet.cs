@@ -218,6 +218,10 @@ internal class Bullet
         _enabled = active;
     }
 
+    /// <summary>
+    /// Deal damage, used by boss, enemy 
+    /// </summary>
+    /// <param name="player">target of bullet</param>
     private void DealDamge(Player player)
     {
         if(player == null)
@@ -235,6 +239,11 @@ internal class Bullet
 
     }
 
+    /// <summary>
+    /// Used by player, deal damage
+    /// </summary>
+    /// <param name="enemyList">target</param>
+    /// <param name="boss">target</param>
     private void DealDamge(List<Enemy> enemyList, Boss boss)
     {
         if(enemyList == null || boss ==null)
@@ -261,6 +270,9 @@ internal class Bullet
         }
     }
 
+    /// <summary>
+    /// Check collsion, disabled bullet when they hit
+    /// </summary>
     private void CheckCollision()
     {
         if (_level == null)
@@ -287,6 +299,10 @@ internal class Bullet
         }
     }
     
+    /// <summary>
+    /// Update the bullet fly
+    /// </summary>
+    /// <param name="gameTime"></param>
     public void Update(GameTime gameTime)
     {
         if (!_enabled)
@@ -379,6 +395,11 @@ internal class Bullet
         }
     }
 
+    /// <summary>
+    /// Collision between circle and rectangle
+    /// </summary>
+    /// <param name="target"></param>
+    /// <returns></returns>
     private bool CollideWith(Rectangle target)
     {
         float closestX = MathHelper.Clamp(_worldPos.Center.X, target.X, target.X + target.Width);

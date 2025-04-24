@@ -13,7 +13,7 @@ namespace Lethal_Organization.UI
 {
     internal class Button: IUpdateable
     {
-        private Color _hoverColor;
+        private Color _hoverColor; 
         
         private float _hoverScale;
         
@@ -21,9 +21,9 @@ namespace Lethal_Organization.UI
 
         private Rectangle _displayPos;
 
-        private Action _toggleOn;
+        private Action _toggleOn; //When first click
 
-        private Action _toggleOff;
+        private Action _toggleOff; //When click again 
 
         private bool _isToggled;
 
@@ -58,6 +58,7 @@ namespace Lethal_Organization.UI
 
         public void Draw(SpriteBatch sb)
         {
+            //Change color, scale when hovered
             if (_isHovered)
             {
                 sb.Draw(_texture, new Vector2(_displayPos.X, _displayPos.Y), null, _hoverColor, 0f, Vector2.Zero, _hoverScale, SpriteEffects.None, 0f);                   

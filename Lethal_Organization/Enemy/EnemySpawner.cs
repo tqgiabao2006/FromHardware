@@ -83,6 +83,10 @@ namespace Lethal_Organization
             }
         }
 
+        /// <summary>
+        /// Load type, position  of the enemy, add to list and spawn it by draw
+        /// </summary>
+        /// <param name="filepath">file path of enemyPosition.txt</param>
         private void LoadPosition(string filepath)
         {
             StreamReader reader = null;

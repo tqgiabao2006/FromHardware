@@ -11,7 +11,6 @@ namespace Lethal_Organization;
 /// <summary>
 /// Collection of tile info
 /// Save to fileIO the layout of level
-/// 
 /// </summary>
 internal class Level: IStateChange
 {
@@ -75,7 +74,6 @@ internal class Level: IStateChange
             return -1;
         }
     }
-
     public int SizeY
     {
         get

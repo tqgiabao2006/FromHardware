@@ -143,6 +143,10 @@ namespace Lethal_Organization
 
         }
 
+        /// <summary>
+        /// Minus hp when get hit, if below 0 => set active: false
+        /// </summary>
+        /// <param name="damage"></param>
         public virtual void GetHit(int damage)
         {
             curHP =  MathHelper.Clamp(curHP - damage, 0, maxHp);
@@ -154,12 +158,20 @@ namespace Lethal_Organization
             }
         }
 
+        /// <summary>
+        /// Set active of game object
+        /// </summary>
+        /// <param name="enabled"></param>
         public void SetActive(bool enabled)
         {
            this.enabled = enabled;
            visible = enabled;
         }
 
+        /// <summary>
+        /// Update the change in hp health bar
+        /// </summary>
+        /// <param name="curHp"></param>
         protected void HPChanged(int curHp)
         {
             onHealthChanged?.Invoke(curHp, maxHp);

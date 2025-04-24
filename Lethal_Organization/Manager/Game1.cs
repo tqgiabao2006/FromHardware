@@ -230,7 +230,7 @@ public class Game1 : Game
 
         _screenWidth = _graphics.GraphicsDevice.Viewport.Width;
 
-        _gameManager = new GameManager(_font);
+        _gameManager = new GameManager();
 
         _objectPool = ObjectPooling.Instance;
 
@@ -287,6 +287,7 @@ public class Game1 : Game
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
+        
         _spriteBatch.Begin(
             SpriteSortMode.Deferred,
             null,
@@ -303,8 +304,6 @@ public class Game1 : Game
 
         _enemySpawner.Draw(_spriteBatch);
         
-        _gameManager.Draw(_spriteBatch);
-
         _boss.Draw(_spriteBatch);
 
    
@@ -314,7 +313,7 @@ public class Game1 : Game
             //Debug-only
             _spriteBatch.DrawString(
             _font,
-            $"On ground: {_player.OnGround} ",
+            $"State: {_gameManager.CurrentState} ",
             new Vector2(10, 10),
             Color.White);
 

@@ -80,7 +80,6 @@ namespace Lethal_Organization.UI
             }
         }
 
-
         public UIManager(AudioManager audioManager, GameManager gameManager, Player player, Boss boss,
             SpriteFont font,
             Texture2D spriteSheet, Texture2D openTheme, Texture2D startGame, Texture2D credit, Texture2D creditMenu, Texture2D tutorial, Texture2D tutorialMenu,
@@ -124,7 +123,10 @@ namespace Lethal_Organization.UI
             _UIs.Add(new Tutorial(audioManager,tutorialMenu, exitButton, screenWidth, screenHeight));    
         }
 
-       
+       /// <summary>
+       /// Show, and hide each UI element when state changes
+       /// </summary>
+       /// <param name="state"></param>
         private void OnStateChange(GameManager.GameState state)
         {
             switch (state)
@@ -142,6 +144,7 @@ namespace Lethal_Organization.UI
                     ShowMenu<PlayerHUB>();
                     ShowMenu<Setting>();
                     HideMenu<YouDie>();
+                    HideMenu<EndScreen>();
                     break;
 
                 case GameManager.GameState.GameOver:
@@ -183,6 +186,10 @@ namespace Lethal_Organization.UI
             }
         }
 
+        /// <summary>
+        /// Show UI element
+        /// </summary>
+        /// <typeparam name="T">type of UI</typeparam>
         private void ShowMenu<T>() where T : UI
         {
             for (int i = 0; i < _UIs.Count; i++)
@@ -196,6 +203,10 @@ namespace Lethal_Organization.UI
             }
         }
 
+        /// <summary>
+        /// Hide UI element
+        /// </summary>
+        /// <typeparam name="T">type of UI</typeparam>
         private void HideMenu<T>() where T : UI
         {
             for (int i = 0; i < _UIs.Count; i++)
@@ -205,7 +216,6 @@ namespace Lethal_Organization.UI
                 {
                     menu.Hide();
                 }
-
             }
         }
 
@@ -214,8 +224,6 @@ namespace Lethal_Organization.UI
             ShowMenu<BossHUB>();
         }
 
-      
-
 
         public void LoadContent(Texture2D spriteSheet, string textureMapFile)
         {
@@ -223,6 +231,10 @@ namespace Lethal_Organization.UI
             LoadTextureMap(textureMapFile);
         }
 
+        /// <summary>
+        /// Load texture in UI Sprite sheet, map rectangle (source image) to each UI type
+        /// </summary>
+        /// <param name="textureMapFile">UI sprite sheet</param>
         private void LoadTextureMap(string textureMapFile)
         {
             StreamReader reader = null;

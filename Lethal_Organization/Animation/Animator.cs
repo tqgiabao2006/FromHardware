@@ -7,6 +7,10 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Lethal_Organization
 {
     //T is State Enum
+    /// <summary>
+    /// Animator clas allow rendering animation features
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal class Animator<T> where T: Enum
     {
         private T _curState;
@@ -38,8 +42,7 @@ namespace Lethal_Organization
         /// <summary>
         /// Used for object with multiply animation need to read from file
         /// </summary>
-        /// <param name="spriteFile"></param>
-
+        /// <param name="spriteFile">file path of the cut frame txt</param>
         public Animator(Texture2D spriteSheet, T state, string spriteText, float secondPerFrame)
         {
             _spriteSheet = spriteSheet;
@@ -59,6 +62,16 @@ namespace Lethal_Organization
             _currentFrame = 0; 
         }
 
+
+        /// <summary>
+        /// Used only for simple object need only 1 loops animation, no need to cut frame
+        /// </summary>
+        /// <param name="spriteSheet">spriteSheet</param>
+        /// <param name="defaultState">defaults state</param>
+        /// <param name="frameWidth">single frame width</param>
+        /// <param name="frameHeight">single frame height</param>
+        /// <param name="secondPerFrame">seconf per frame</param>
+        /// <param name="isLoop">is animastion loop</param>
         public Animator(Texture2D spriteSheet, T defaultState, int frameWidth, int frameHeight, float secondPerFrame, bool isLoop)
         {
             _spriteSheet = spriteSheet;
@@ -88,6 +101,10 @@ namespace Lethal_Organization
             SwitchToState(defaultState);
         }
 
+        /// <summary>
+        /// Need to be called in game object operating this animator
+        /// </summary>
+        /// <param name="gameTime"></param>
         public void Update(GameTime gameTime)
         {
             if(_curAnim == null)
@@ -116,14 +133,13 @@ namespace Lethal_Organization
                 }
             }
 
-
             //Calculate sourece image for frame
             Rectangle animSequence = _curAnim.SourceImage;
             _imageSource = new Rectangle( _currentFrame * _frameWidth, animSequence.Y, _frameWidth, _frameHeight);
             
             _timeCounter = _secondPerFrame;
 
-            //If animation, forced to finish, reach its last frame => switch next state on the queue
+            //If animation, forced to finish, only when it reaches its last frame => switch next state on the queue
             if(!_curAnim.IsLoop                                
                 && _curAnim.ForcedFinish
                 && _currentFrame == _curAnim.MaxIndex - 1  
@@ -145,7 +161,11 @@ namespace Lethal_Organization
             sb.Draw(_spriteSheet, displayPos, _imageSource, color, angle, origin, SpriteEffects.None, 0);
 
         }
-
+        
+        /// <summary>
+        /// Set state of animation
+        /// </summary>
+        /// <param name="state">game object's state</param>
         public void SetState(T  state)
         {    
             //State not change ignore
@@ -166,6 +186,10 @@ namespace Lethal_Organization
             }            
         }
 
+        /// <summary>
+        /// Reset stats, ready for other animation sequence
+        /// </summary>
+        /// <param name="state"></param>
         private void SwitchToState(T state)
         {
             _prevState = _curState;
@@ -179,11 +203,22 @@ namespace Lethal_Organization
             _imageSource = new Rectangle(0, animSequence.Y, _frameWidth, _frameHeight);
         }
 
+        /// <summary>
+        /// Check if animation finish base on compar current frame to the given inex (usually max index - 1)
+        /// </summary>
+        /// <param name="state">state of the checked animation</param>
+        /// <param name="index">frame index</param>
+        /// <returns></returns>
         public bool CheckAnimationFinish(T state, int index)
         {
             return _curState.Equals(state) && _currentFrame >= index;
         }
 
+        /// <summary>
+        /// Get the max index (index count) of a animation
+        /// </summary>
+        /// <param name="state">state of the checked animation</param>
+        /// <returns></returns>
         public int GetMaxIndex(T state)
         {
            if(!_animMap.ContainsKey(state)) 
@@ -193,6 +228,11 @@ namespace Lethal_Organization
 
            return _animMap[state].MaxIndex;
         }
+
+        /// <summary>
+        /// Load texture animation sprite sheet, store rectangle of in texture map array
+        /// </summary>
+        /// <param name="filePath">file path the cut frame text file</param>
         private void LoadTexture(string filePath)
         {
             string line = "";
@@ -209,6 +249,7 @@ namespace Lethal_Organization
                         continue;
                     }
 
+                    //Get frame width, frame height of the WHOLE sequence of animation
                     string[] data = line.Split(',');
                     if(data.Length == 3)
                     {

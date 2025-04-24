@@ -283,18 +283,25 @@ namespace Lethal_Organization
 
             InitializePlayerSprites("playerTileMap");
         }
-       public void OnStateChange(GameManager.GameState state)
+
+        /// <summary>
+        /// Apply changes when state changed
+        /// </summary>
+        /// <param name="state">new state</param>
+        public void OnStateChange(GameManager.GameState state)
         {
             switch (state)
             {
                 case GameManager.GameState.Menu:
                     _lowestFloor = Floor.Floor1;
-                    Respawn();
                     paused = false;
                     visible = false;
                     isDebug = false;
                     break;
 
+                case GameManager.GameState.Reset:
+                    Reset(); 
+                    break;
 
                 case GameManager.GameState.Game:
                     visible = true;
@@ -311,8 +318,8 @@ namespace Lethal_Organization
                     break;
 
                 case GameManager.GameState.Die:
-                    Respawn();
                     paused = true;
+                    Respawn();
                     break;
 
                 case GameManager.GameState.Pause:
@@ -326,8 +333,11 @@ namespace Lethal_Organization
                     isDebug = true;
                     break;
             }
-        } 
+        }
 
+        /// <summary>
+        /// Reset stat again
+        /// </summary>
         private void Respawn()
         {
             curHP = maxHp;
@@ -338,6 +348,16 @@ namespace Lethal_Organization
             _objectPooling.ClearType(ObjectPooling.ProjectileType.Bullet);
             HPChanged(curHP);
         }
+
+        /// <summary>
+        /// Reset stat again + set spawn check point to the first floor when game over
+        /// </summary>
+        private void Reset()
+        {
+            _lowestFloor = Floor.Floor1;
+            Respawn();
+        }
+
         public override void Update(GameTime gameTime)
         {
             if(paused || !visible || !enabled)
@@ -427,6 +447,7 @@ namespace Lethal_Organization
         /// </summary>/
         private void StateMachine(Level level)
         {
+            //Map the y-velocity to max speed value, avoid falling so fast
             if (!_onGround && !isDebug)
             {
                 _velocity.Y = Math.Min(_maxSpeed.Y, _velocity.Y + _gravity);
@@ -506,13 +527,14 @@ namespace Lethal_Organization
                         _playerState = State.Fall;
                     }
 
-
+                    //If not click any =>turn back idle
                     if (_currentKb.GetPressedKeyCount() == 0)
                     {
                         _animator.SetState(State.Idle);
                         _playerState = State.Idle;
                     }
 
+                    //Disable jump force logic, allow move up by W/S
                     if (isDebug)
                     {
                         if ((_currentKb.IsKeyDown(Keys.W) || _currentKb.IsKeyDown(Keys.Up)) && Math.Abs(_velocity.Y) < Math.Abs(_maxSpeed.X))
@@ -532,10 +554,6 @@ namespace Lethal_Organization
                         _playerState = State.Jump;
                         _velocity.Y += _jumpForce;
                     }
-
-                    break;
-
-                case State.Attack:
 
                     break;
 
@@ -559,7 +577,7 @@ namespace Lethal_Organization
                         _faceRight = true;
                     }
 
-
+                    //When fall => set state to fall => this used to map correct animation
                     if (_velocity.Y >= 0 && !isDebug)
                     {
                         _animator.SetState(State.Fall);
@@ -596,6 +614,10 @@ namespace Lethal_Organization
 
         }
 
+        /// <summary>
+        /// Shoot bullet, have shooting speed, to avoid spam shooting
+        /// </summary>
+        /// <param name="gameTime"></param>
         private void Shoot(GameTime gameTime)
         {
             _shootTimeCounter -= (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -625,6 +647,10 @@ namespace Lethal_Organization
             }
         }
         
+        /// <summary>
+        /// Checking collision foreach rectangle in level
+        /// </summary>
+        /// <param name="level"></param>
         public void CollisionHandler(Level level)
         {
             bool groundRayHit = false;
@@ -649,6 +675,8 @@ namespace Lethal_Organization
                         && worldPos.Y < tilePos.Y && !isDebug) //Player on the top of the tile
                      
                     {
+
+                        //Get hit when hit the spike
                         if (_level[i, j].Type == Level.TileType.Spike)
                         {
                             hasCollided = true;
@@ -784,6 +812,11 @@ namespace Lethal_Organization
             }
         }
 
+
+        /// <summary>
+        /// Triggered GetHit by time,  avoid GetHit() multiple frames immiddately after collision
+        /// </summary>
+        /// <param name="gameTime"></param>
         private void BurnHealthOverTime(GameTime gameTime)
         {
             if (_getHit)
@@ -874,6 +907,11 @@ namespace Lethal_Organization
 
         }
 
+
+        /// <summary>
+        /// Apply temporarily red tint to enemy get hit 
+        /// </summary>
+        /// <param name="gameTime"></param>
         private void ChangeColorEffect(GameTime gameTime)
         {
            if(_changeColorGetHit)
@@ -918,8 +956,6 @@ namespace Lethal_Organization
         }
 
 
-
-
         /// <summary>
         /// Check if a key is single pressed
         /// </summary>
@@ -930,6 +966,9 @@ namespace Lethal_Organization
             return (_currentKb.IsKeyDown(key) && _prevKb.IsKeyUp(key));
         }
 
+        /// <summary>
+        /// Save the fursthest level player has travelled, used for respawn
+        /// </summary>
         private void UpdateFurthesLevel()
         {
             int level1Y = 11 * 48;

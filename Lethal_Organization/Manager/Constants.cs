@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Lethal_Organization
 {
+    /// <summary>
+    /// Store every string to load content, read file
+    /// </summary>
     public static class Constants
     {
         //Player

@@ -75,6 +75,10 @@ internal class AudioManager
         gameManager.OnStateChange += OnStateChange;
     }
 
+    /// <summary>
+    /// Play theme song in each game state
+    /// </summary>
+    /// <param name="state"></param>
     public void OnStateChange(GameManager.GameState state)
     {
         switch (state)
@@ -105,6 +109,11 @@ internal class AudioManager
         }
     }
 
+    /// <summary>
+    /// Play song
+    /// </summary>
+    /// <param name="id">song id</param>
+    /// <param name="loop">is loop</param>
     public void PlaySong(SongID id, bool loop = true)
     {
         if (_songs.TryGetValue(id, out var song))
@@ -114,6 +123,13 @@ internal class AudioManager
         }
     }
 
+    /// <summary>
+    /// Play sfx
+    /// </summary>
+    /// <param name="id">SFX type</param>
+    /// <param name="volume">volume</param>
+    /// <param name="pitch">pitch</param>
+    /// <param name="pan">pan</param>
     public void PlaySFX(SFXID id, float volume = 1f, float pitch = 0f, float pan = 0f)
     {
         if (_sfx.TryGetValue(id, out var effect))

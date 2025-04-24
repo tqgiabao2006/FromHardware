@@ -103,6 +103,10 @@ namespace Lethal_Organization
 
         }
 
+        /// <summary>
+        /// Apply changes when state changed
+        /// </summary>
+        /// <param name="state">new state</param>
         public void OnStateChange(GameManager.GameState state)
         {
             switch (state)
@@ -113,7 +117,13 @@ namespace Lethal_Organization
                     isDebug = false;
                     break;
 
+                case GameManager.GameState.Reset:
+                    visible = true;
+                    Respawn(); 
+                    break;
+
                 case GameManager.GameState.Game:
+
                     if(enabled)
                     {
                         visible = true;
@@ -130,6 +140,9 @@ namespace Lethal_Organization
 
                     break;
                 case GameManager.GameState.Die:
+                    paused = true;
+                    visible= false; 
+                    break;
                 case GameManager.GameState.Pause:
                     paused = true;
                     break;
@@ -138,6 +151,16 @@ namespace Lethal_Organization
                     isDebug = true;
                     break;
             }
+        }
+
+        /// <summary>
+        /// Reset stat again
+        /// </summary>
+        private void Respawn()
+        {
+            curHP = 100;
+            enabled = true;
+            visible = true;
         }
 
 
@@ -158,9 +181,11 @@ namespace Lethal_Organization
 
             GetHitEffect(gameTime);
 
+            //Calculate distance between enemy and player
             float dst = Vector2.DistanceSquared(new Vector2(_player.WorldPos.Center.X, _player.WorldPos.Center.Y), new Vector2( worldPos.Center.X, worldPos.Center.Y));
             float xDistance = _player.WorldPos.Center.X - worldPos.Center.X;
             
+            //If enemy face left, right
             _velocity.X = _faceRight ? speed : -speed;
 
             switch (_state)
@@ -187,6 +212,7 @@ namespace Lethal_Organization
                     }
 
             
+                    //Change to chase state if player is close
                     if(Math.Abs(dst) < _chasingRadius * _chasingRadius && !_hasChased)
                     {
                         _state = EnemyState.Chase;
@@ -262,6 +288,10 @@ namespace Lethal_Organization
             }
         }
 
+        /// <summary>
+        /// Allow to display HP when player hit, disable after long time of not getting hit
+        /// </summary>
+        /// <param name="gameTime">Game Time</param>
         private void DisplayHP(GameTime gameTime)
         {
 
@@ -278,6 +308,10 @@ namespace Lethal_Organization
             }
         }
 
+        /// <summary>
+        /// Handle GetHit logic, play sound effect when die, and change color to red
+        /// </summary>
+        /// <param name="damage"></param>
         public override void GetHit(int damage)
         {
             base.GetHit(damage);
@@ -290,6 +324,10 @@ namespace Lethal_Organization
             _audioManager.PlaySFX(AudioManager.SFXID.GetHit);
         }
 
+        /// <summary>
+        /// Apply temporarily red tint to enemy get hit 
+        /// </summary>
+        /// <param name="gameTime"></param>
         private void GetHitEffect(GameTime gameTime)
         {
             if(_changeColorGetHit)

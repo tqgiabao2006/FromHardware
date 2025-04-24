@@ -377,20 +377,23 @@ internal class Boss: GameObject
             }
         }else
         {
-            UpdateHitBox();
-
             StateUpdate();
 
-            GenerateCommand(gameTime);
+            UpdateHitBox();
 
-            ProcessCommand(gameTime);
+            if(_triggered)
+            {
+                GenerateCommand(gameTime);
+
+                ProcessCommand(gameTime);
+            }
         }
         
     }
 
     public void Draw(SpriteBatch sb)
     {
-        if(!enabled)
+        if(!enabled || !visible)
         {
             return;
         }
@@ -439,17 +442,23 @@ internal class Boss: GameObject
         }
     }
 
+    /// <summary>
+    /// Apply changes when state changed
+    /// </summary>
+    /// <param name="state">new state</param>
     private void OnStateChange(GameManager.GameState state)
     {
         switch (state)
         {
             case GameManager.GameState.Menu:
-                Respawn();
                 paused = false;
                 visible = false;
                 isDebug = false;
                 break;
 
+            case GameManager.GameState.Reset:
+                Respawn();
+                break;
             case GameManager.GameState.Game:
                 visible = true;
                 paused = false;
@@ -464,7 +473,6 @@ internal class Boss: GameObject
 
                 break;
             case GameManager.GameState.Die:
-                Respawn();
                 visible = false;
                 paused = true;
                 break;
@@ -481,7 +489,6 @@ internal class Boss: GameObject
     }
     private void StateUpdate()
     { 
-        
         if(_player.WorldPos.X < _hitBox.X)
         {
             _faceRight = false;
@@ -490,6 +497,7 @@ internal class Boss: GameObject
             _faceRight = true;
         }
 
+        //Triggered the initial logic, when player fall into boss zone
         if (!_triggered && _groundBox.Contains(_player.WorldPos))
          {
             if(OnBossFightEvent != null)
@@ -510,6 +518,9 @@ internal class Boss: GameObject
 
     }
 
+    /// <summary>
+    /// Reset stats when play again
+    /// </summary>
     private void Respawn()
     {
         curHP = maxHp;
@@ -517,18 +528,25 @@ internal class Boss: GameObject
         _commandQueue.Clear();
         _curCommand = null;
         _isFree = true;
+        _dying = false;
         SetActive(true);
         _objectPooling.ClearType(ObjectPooling.ProjectileType.BossBullet);
         HPChanged(curHP);
     }
 
+    /// <summary>
+    /// Process command of action in command queue
+    /// </summary>
+    /// <param name="gameTime"></param>
     private void ProcessCommand(GameTime gameTime)
     {
+        //Allows delay time between command executions
         if(_isFree)
         {
             _sinceLastCommand += (float)gameTime.TotalGameTime.TotalSeconds;
         }
 
+        //Execute command
         if (_curCommand != null && _isFree && _sinceLastCommand > _processCommandTimeGap)
         {
             _curCommand.Execute(this);
@@ -536,6 +554,7 @@ internal class Boss: GameObject
             _sinceLastCommand = 0;
         }
 
+        //Update command until it finishes
         if(_curCommand != null)
         {
            _curCommand.Update(this, gameTime);
@@ -551,6 +570,10 @@ internal class Boss: GameObject
 
     }
 
+    /// <summary>
+    /// Genrate command automatically after time
+    /// </summary>
+    /// <param name="gameTime"></param>
     private void GenerateCommand(GameTime gameTime)
     {
         if (_curCommand == null || _curCommand is GetHitCommand) 
@@ -580,6 +603,9 @@ internal class Boss: GameObject
         }
     }
 
+    /// <summary>
+    /// Update hitbox follow wolrd position of the boss
+    /// </summary>
     private void UpdateHitBox()
     {
         _hitBox.X = worldPos.Center.X - worldPos.Width / 8;
@@ -588,8 +614,14 @@ internal class Boss: GameObject
         _hitBox.Height = worldPos.Height;
     }
 
+
+    /// <summary>
+    /// Generate randomly skill (command) in skill set with ratio between them
+    /// </summary>
+    /// <returns></returns>
     private ICommand<Boss> GenerateSkill()
     {
+        //Add sume of all rate
         int sum = 0;
         foreach (Skill<State> skill in _skillSet)
         {
@@ -600,6 +632,7 @@ internal class Boss: GameObject
 
         int accum = 0;
         
+        //Pick randomly base on ratio, after each iterations, increase the edge to choose
         for (int i = 0; i < _skillSet.Count; i++)
         {
             accum += _skillSet[i].Rate;
@@ -623,18 +656,32 @@ internal class Boss: GameObject
         return null;
     }
 
+    /// <summary>
+    /// Spawn bullet (ice spike), used mainly by a SpikeCommand
+    /// </summary>
+    /// <param name="direction">direction of bullet</param>
+    /// <param name="spawnPos">spawn position of bullet</param>
+    /// <param name="radAngle">angle of direction (along x-axis) to rotate the texture</param>
     private void SpawnBullet(Vector2 direction, Vector2 spawnPos, float radAngle)
     {
         Bullet bullet = _objectPooling.GetObj(ObjectPooling.ProjectileType.BossBullet, _bulletTexture, _level);
         bullet.Spawn(Constants.BossBulletSpriteMap,_player,radAngle,spawnPos, direction, _bulletDamge, _bulletSpeed, 48,32, 1,0.05f, _bulletHitBox);
     }
 
+    /// <summary>
+    /// Set animation of the boss
+    /// </summary>
+    /// <param name="state">boss's state</param>
     private void SetAnim(State state)
     {
         _currentState = state;
         _animator.SetState(_currentState);
     }
 
+    /// <summary>
+    /// Get hit logic, handle get animation, and wait for animation of die before disabled
+    /// </summary>
+    /// <param name="damage"></param>
     public override void GetHit(int damage)
     {
         curHP = MathHelper.Clamp(curHP - damage, 0, maxHp);
@@ -656,6 +703,11 @@ internal class Boss: GameObject
 
         _changeColorGetHit = true;
     }
+
+    /// <summary>
+    /// Handle change color effect when get hit
+    /// </summary>
+    /// <param name="gameTime"></param>
     private void ChangeColorEffect(GameTime gameTime)
     {
         if (_changeColorGetHit)
@@ -671,6 +723,10 @@ internal class Boss: GameObject
 
     }
 
+    /// <summary>
+    /// Remap boss into a box, avoid fall out
+    /// </summary>
+    /// <returns></returns>
     private bool SetOnGround()
     {
         if(HitBox.X < _groundBox.X)

@@ -13,6 +13,7 @@ namespace Lethal_Organization.UI
         public bool Visible { get; set ; }
 
         private Texture2D _uiSpriteSheet;
+
         private Rectangle _homeIcon;
 
         private Rectangle _pauseIcon;

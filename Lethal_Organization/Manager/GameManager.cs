@@ -10,8 +10,9 @@ using System.Threading.Tasks;
 
 namespace Lethal_Organization
 {
-    internal class GameManager: IDrawable
+    internal class GameManager
     {
+
         public enum GameState
         {
             Menu,
@@ -19,7 +20,8 @@ namespace Lethal_Organization
             Debug,
             Pause,
             Die,
-            GameOver
+            GameOver,
+            Reset,
         }
 
         public event Action<GameState> OnStateChange = delegate { };
@@ -29,9 +31,10 @@ namespace Lethal_Organization
         private KeyboardState _kbState;
 
         private KeyboardState _prevKbState;
-
-        private SpriteFont _font;
         
+        /// <summary>
+        /// Store any object reacts to change of the state
+        /// </summary>
         public Action<GameState> ChangeState;
 
         public GameState CurrentState
@@ -46,9 +49,8 @@ namespace Lethal_Organization
                 OnStateChange(_currentState);
             }
         }
-        public GameManager(SpriteFont font)
+        public GameManager()
         {
-            _font = font;
             ChangeState = SetState;
         }
 
@@ -67,25 +69,13 @@ namespace Lethal_Organization
                     break;
 
                 case GameState.Game:
-                    if (IsSinglePressed(Keys.Q))
-                    {
-                        CurrentState = GameState.Pause;
-                    }
                     if (IsSinglePressed(Keys.R))
                     {
                         CurrentState = GameState.Debug;
                     }
-                    if (IsSinglePressed(Keys.P))
-                    {
-                        CurrentState = GameState.GameOver;
-                    }
                     break;
 
                 case GameState.Pause:
-                    if (IsSinglePressed(Keys.Q))
-                    {
-                        CurrentState = GameState.Game;
-                    }
                     if (IsSinglePressed(Keys.R))
                     {
                         CurrentState = GameState.Debug;
@@ -97,16 +87,12 @@ namespace Lethal_Organization
                     {
                         CurrentState = GameState.Game;
                     }
-                    if (IsSinglePressed(Keys.Q))
-                    {
-                        CurrentState = GameState.Pause;
-                    }
                     break;
                 case GameState.Die:
                     if (IsSinglePressed(Keys.Enter))
                     {
+                        CurrentState = GameState.Reset;
                         CurrentState = GameState.Game;
-
                     }
                     break;
                 case GameState.GameOver:
@@ -131,14 +117,10 @@ namespace Lethal_Organization
             return (_kbState.IsKeyDown(key) && _prevKbState.IsKeyUp(key));
         }
 
-        public void Draw(SpriteBatch sb)
-        {
-            sb.DrawString(_font,
-               $"{_currentState}",
-               new Vector2(100, 100),
-               Color.White);
-        }
-
+        /// <summary>
+        /// Set state of the game
+        /// </summary>
+        /// <param name="state"></param>
         private void SetState(GameState state)
         {
             CurrentState = state;
