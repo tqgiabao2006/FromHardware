@@ -414,9 +414,12 @@ namespace Lethal_Organization
 
         public override void Draw(SpriteBatch sb)
         {
-            if(visible)
+            Rectangle hitBoxDisplay = new Rectangle(hitBox.X + (int)CameraOffset.X, hitBox.Y + (int)CameraOffset.Y, hitBox.Width, hitBox.Height);
+
+            if (visible)
             {
                 SpriteEffects effect = _faceRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
+
                
                 
                 if(_changeColorGetHit)
@@ -439,6 +442,7 @@ namespace Lethal_Organization
                 CustomDebug.DrawWireRectangle(sb,displayPos, 1f, Color.Aqua);
                 CustomDebug.DrawWireRectangle(sb, worldPos, 1f, Color.Aqua);
                 CustomDebug.DrawWireRectangle(sb, hitBox, 1f, Color.DarkOliveGreen);
+                CustomDebug.DrawWireRectangle(sb, hitBoxDisplay, 3f, Color.DarkOliveGreen);
             }
         }
 
@@ -639,6 +643,12 @@ namespace Lethal_Organization
                     _shootTimeCounter = _shootDelayTime;
                 }
                 
+
+                if(_animator.CheckAnimationFinish(State.Attack, _animator.GetMaxIndex(State.Attack) -1))
+                {
+                    _animator.SetState(State.Idle);
+                }
+
             }
             else if(_mouse.RightButton == ButtonState.Released)
             {
@@ -657,6 +667,76 @@ namespace Lethal_Organization
 
             //die logic
             bool hasCollided = false;
+
+
+            for (int i = 0; i < _enemyList.Count; i++)
+            {
+                if (this.Collides(hitBox, _enemyList[i].WorldPos) && !isDebug && _enemyList[i].Visible && _enemyList[i].Enabled)
+                {
+                    Rectangle collidedArea = this.Collide(hitBox, _enemyList[i].WorldPos);
+
+                    //Check horizontal collsion
+                    if (collidedArea.Width < collidedArea.Height)
+                    {
+                        //Dispose horizontal velocity
+                        if (collidedArea.X > hitBox.X)
+                        {
+                            worldPos.X -= collidedArea.Width;
+                        }
+                        else
+                        {
+                            worldPos.X += collidedArea.Width;
+                        }
+
+                        _velocity.X = 0;
+
+                        //Player takes damage logic
+                        _getHit = true;
+                        _burnDamge = 2;
+                        hasCollided = true;
+                        _getHitBurnTime = 0.2f;
+                    }
+
+                    //Check if hit object over-head
+                    if (hitBox.Y > _enemyList[i].WorldPos.Y && collidedArea.Width > collidedArea.Height)// hit box under the enemy
+                    {
+                        //Dispose vertical velocity
+                        _velocity.Y = 0;
+
+                        worldPos.Y += collidedArea.Height;
+
+                        //Player takes damage logic
+                        _getHit = true;
+                        hasCollided = true;
+                        _burnDamge = 2;
+                        _getHitBurnTime = 0.2f;
+                    }
+
+                    //Player jumps on enemy
+                    //killing it
+                    if ((IsInside(_enemyList[i].WorldPos, _groundRayPoint) || IsInside(_enemyList[i].WorldPos, _lefRayPoint) || IsInside(_enemyList[i].WorldPos, _rightRayPoint)) //Check ray point
+                       && !groundRayHit
+                       && worldPos.Y < _enemyList[i].WorldPos.Y && !isDebug) //Player on the top of the enemy
+
+                    {
+
+                        //Middle ray point and either of the side raypoints
+                        if ((IsInside(_enemyList[i].WorldPos, _groundRayPoint) && (IsInside(_enemyList[i].WorldPos, _lefRayPoint) || IsInside(_enemyList[i].WorldPos, _rightRayPoint))))
+                        {
+                            worldPos.Y -= collidedArea.Height;
+                            //kill enemy logic
+
+                            _enemyList[i].GetHit(100);
+                        }
+                    }
+                }
+            }
+
+            if (!hasCollided)
+            {
+                _getHit = false;
+                _sinceTimeGetHit = 0;
+            }
 
             for (int i = 0; i < level.SizeX; i++)
             {
@@ -741,77 +821,7 @@ namespace Lethal_Organization
                     }
                 }
             }
-
-            for (int i = 0; i < _enemyList.Count; i++)
-            {
-                if (this.Collides(hitBox, _enemyList[i].WorldPos) && !isDebug && _enemyList[i].Visible && _enemyList[i].Enabled)
-                {
-                    Rectangle collidedArea = this.Collide(hitBox, _enemyList[i].WorldPos);
-
-                    //Check horizontal collsion
-                    if (collidedArea.Width < collidedArea.Height)
-                    {
-                        //Dispose horizontal velocity
-                        if (collidedArea.X > hitBox.X)
-                        {
-                            worldPos.X -= collidedArea.Width;
-                        }
-                        else
-                        {
-                            worldPos.X += collidedArea.Width;
-                        }
-
-                        _velocity.X = 0;
-                        
-                        //Player takes damage logic
-                        _getHit = true;
-                        _burnDamge = 2;
-                         hasCollided = true;
-                        _getHitBurnTime = 0.2f;
-                    }
-
-                    //Check if hit object over-head
-                    if (hitBox.Y > _enemyList[i].WorldPos.Y && collidedArea.Width > collidedArea.Height)// hit box under the enemy
-                    {
-                        //Dispose vertical velocity
-                        _velocity.Y = 0;
-
-                        worldPos.Y += collidedArea.Height;
-
-                        //Player takes damage logic
-                        _getHit = true;
-                        hasCollided = true;
-                        _burnDamge = 2;
-                        _getHitBurnTime = 0.2f;
-                    }
-
-                    //Player jumps on enemy
-                    //killing it
-                    if ((IsInside(_enemyList[i].WorldPos, _groundRayPoint) || IsInside(_enemyList[i].WorldPos, _lefRayPoint) || IsInside(_enemyList[i].WorldPos, _rightRayPoint)) //Check ray point
-                       && !groundRayHit
-                       && worldPos.Y < _enemyList[i].WorldPos.Y && !isDebug) //Player on the top of the enemy
-
-                    {
-
-                        //Middle ray point and either of the side raypoints
-                        if ((IsInside(_enemyList[i].WorldPos, _groundRayPoint) && (IsInside(_enemyList[i].WorldPos, _lefRayPoint) || IsInside(_enemyList[i].WorldPos, _rightRayPoint))))
-                        {
-                            worldPos.Y -= collidedArea.Height;
-                            //kill enemy logic
-
-                            _enemyList[i].GetHit(100);
-                        }
-                    }
-                }
-            }
-
-            if(!hasCollided)
-            {
-                _getHit = false;
-                _sinceTimeGetHit = 0;
-            }
         }
-
 
         /// <summary>
         /// Triggered GetHit by time,  avoid GetHit() multiple frames immiddately after collision
@@ -942,8 +952,8 @@ namespace Lethal_Organization
         private void UpdateRaycast()
         {
             _groundRayPoint = new Vector2(hitBox.X + hitBox.Width / 2, hitBox.Y + hitBox.Height / 2 + _groundRayLength);
-            _lefRayPoint = new Vector2(hitBox.X, hitBox.Y + hitBox.Height / 2 + _groundRayLength);
-            _rightRayPoint = new Vector2(hitBox.X + hitBox.Width, hitBox.Y + hitBox.Height / 2 + _groundRayLength);
+            _lefRayPoint = new Vector2(hitBox.X + hitBox.Width/4f, hitBox.Y + hitBox.Height / 2 + _groundRayLength);
+            _rightRayPoint = new Vector2(hitBox.X + hitBox.Width *3/4f, hitBox.Y + hitBox.Height / 2 + _groundRayLength);
         }
 
         /// <summary>

@@ -32,7 +32,7 @@ Main_Block_TopLeft,0,11,Normal
 Main_Block_BotLeft,3,11,Normal
 Main_Block_TopRight,0,17,Normal
 Main_Block_BotRight,3,17,Normal
-Main_SpikeBlock_Right,13,7,Normal
+Main_SpikeBlock_Right,13,7,Spike
 Main_SpikeBlock_Left,13,10,Spike
 =============================================================
 32,64
