@@ -8,23 +8,23 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Lethal_Organization.UI
 {
-    internal class Credits : UI
+    internal class Credits:UI
     {
         public bool Visible { get ; set ; }
 
         private Texture2D _creditMenu;
 
         private Rectangle _displayPos;
-        
+
         private Button _exitButton;
         public Credits(AudioManager audioManager, Texture2D creditMenu, Texture2D exitButton, int screenWidth, int screenHeight)
         {
             _creditMenu = creditMenu;
 
            _displayPos = new Rectangle(screenWidth / 2 - creditMenu.Width / 2, screenHeight / 2 - screenHeight / 2, creditMenu.Width, creditMenu.Height);
-           
+
             Rectangle buttonPos = new Rectangle(_displayPos.Width - exitButton.Width, _displayPos.Y + 200, exitButton.Width, exitButton.Height);
-            
+
             _exitButton = new Button(audioManager, exitButton, buttonPos, Hide);
         }
         public void Draw(SpriteBatch sb)

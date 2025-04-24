@@ -145,6 +145,10 @@ namespace Lethal_Organization.UI
             _changeState(GameManager.GameState.Game);
         }
 
+        private void Credits()
+        {
+
+        }
     
     }
 }
