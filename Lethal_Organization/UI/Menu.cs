@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Lethal_Organization
+namespace Lethal_Organization.UI
 {
     internal class Menu : UI
     {
@@ -21,11 +21,15 @@ namespace Lethal_Organization
 
         private Texture2D _startGameSprite;
 
-        private Texture2D _loadGameSprite;
+        private Texture2D _creditButton;
+
+        private Texture2D _creditMenu;
+
+        private Texture2D _tutorialMenu;
+
+        private Texture2D _tutorialButton;
 
         private Texture2D _exitSprite;
-
-        private Texture2D _optionSprite;
 
         private Texture2D _openScreenSPrite;
 
@@ -38,9 +42,9 @@ namespace Lethal_Organization
 
         private Rectangle _startPos;
 
-        private Rectangle _loadPos;
+        private Rectangle _tutorialPos;
 
-        private Rectangle _optionPos;
+        private Rectangle _creditPos;
 
         private Rectangle _exitPos;
 
@@ -48,51 +52,54 @@ namespace Lethal_Organization
 
         public bool Visible { get ; set ; }
 
-        public Menu(Action<GameManager.GameState> changeState,
-            Texture2D openTheme, Texture2D loadGame, Texture2D startGame, Texture2D exit, Texture2D option,
-            int screenWidth, int screenHeight)
+        public Menu(AudioManager audioManager,Action<GameManager.GameState> changeState,
+            Texture2D openTheme,  Texture2D startGame, Texture2D credit, Texture2D creditMenu, Texture2D tutorial, Texture2D tutorialMenu,
+            Texture2D exit, Texture2D exitButton,
+            int screenWidth, int screenHeight,
+            Action showCreditMenu, Action showTutorialMenu, Action exitGame)
         {
             //Screen size
             _screenHeight = screenHeight;
 
             _screenWidth = screenWidth;
 
-            // 2D
-            
+            //Textur 2D
             _openScreenSPrite = openTheme;
 
-            _loadGameSprite = loadGame;
+            _tutorialButton = tutorial;
+
+            _tutorialMenu = tutorialMenu;
+            
+            _creditButton = credit;
+
+            _creditMenu = creditMenu;
 
             _exitSprite = exit;
-            
-            _optionSprite = option;
 
             _startGameSprite = startGame;
 
             //Calculate menu pos
-
             _menuSpacing = 30;
 
             _startPos = new Rectangle(_screenWidth / 2 - _startGameSprite.Width / 2, _screenHeight / 2, _startGameSprite.Width, _startGameSprite.Height);
 
-           _loadPos = new Rectangle(_screenWidth / 2 - _loadGameSprite.Width / 2, _startPos.Y + _startPos.Height + _menuSpacing, _loadGameSprite.Width, _loadGameSprite.Height);
+           _tutorialPos = new Rectangle(_screenWidth / 2 - _tutorialButton.Width / 2, _startPos.Y + _startPos.Height + _menuSpacing, _tutorialButton.Width, _tutorialButton.Height);
 
-            _optionPos = new Rectangle(_screenWidth / 2 - _optionSprite.Width / 2, _loadPos.Y + _loadPos.Height + _menuSpacing, _optionSprite.Width, _optionSprite.Height);
+            _creditPos = new Rectangle(_screenWidth / 2 - _creditButton.Width / 2, _tutorialPos.Y + _tutorialPos.Height + _menuSpacing, _creditButton.Width, _creditButton.Height);
 
-            _exitPos = new Rectangle(_screenWidth / 2 - _exitSprite.Width / 2, _optionPos.Y + _optionPos.Height + _menuSpacing, _exitSprite.Width, _exitSprite.Height);
-
+            _exitPos = new Rectangle(_screenWidth / 2 - _exitSprite.Width / 2, _creditPos.Y + _creditPos.Height + _menuSpacing, _exitSprite.Width, _exitSprite.Height);
 
             _newButtons = new Button[]
             {
-                new Button(_startGameSprite, _startPos, StartGame),
-                new Button(_loadGameSprite, _loadPos, null),
-                new Button(_optionSprite, _optionPos, null),
-                new Button(_exitSprite, _exitPos, null),
+                new Button(audioManager, _startGameSprite, _startPos, StartGame),
+                new Button(audioManager, _tutorialButton, _tutorialPos, showTutorialMenu),
+                new Button(audioManager, _creditButton, _creditPos, showCreditMenu),
+                new Button(audioManager, _exitSprite, _exitPos,exitGame ),
             };
 
 
             _changeState = changeState;
-            
+       
         }
 
     

@@ -65,6 +65,16 @@ namespace Lethal_Organization
 
         public const string YouDie = "You_Die";
 
+        public const string Credits = "Credits";
+
+        public const string CreditsMenu = "Credit_Menu";
+
+        public const string Tutorial = "Tutorial";
+
+        public const string TutorialMenu = "Tutorial_Menu";
+
+        public const string ExitButton = "Exit_Button";
+
         //Enemy
         public const string GroundEnemySpriteSheet = "EnemySpriteSheet";
 

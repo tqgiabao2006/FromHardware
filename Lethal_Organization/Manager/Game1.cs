@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using Lethal_Organization.UI;
 
 namespace Lethal_Organization;
 
@@ -70,11 +71,7 @@ public class Game1 : Game
 
     private Texture2D _startGameSprite;
 
-    private Texture2D _loadGameSprite;
-
     private Texture2D _exitSprite;
-
-    private Texture2D _optionSprite;
 
     private Texture2D _openScreenSPrite;
 
@@ -84,17 +81,31 @@ public class Game1 : Game
 
     private Texture2D _youDie;
 
+    private Texture2D _credit;
+
+    private Texture2D _creditMenu;
+
+    private Texture2D _tutorial;
+
+    private Texture2D _tutorialMenu;
+
+    private Texture2D _exitButton;
+
     private int _screenWidth;
 
     private int _screenHeight;
 
     //SFX
     private Song _bossSong;
+
     private Song _endSong;
+
     private Song _mainSong;
+
     private Song _openSong;
 
     private SoundEffect _bossJump;
+
     private SoundEffect _buttonClick;
     private SoundEffect _iceCrack;
     private SoundEffect _spikeSound;
@@ -198,15 +209,21 @@ public class Game1 : Game
 
         _exitSprite = Content.Load<Texture2D>(Constants.Exit);
 
-        _optionSprite = Content.Load<Texture2D>(Constants.Options);
+        _tutorial = Content.Load<Texture2D>(Constants.Tutorial);
 
-        _loadGameSprite = Content.Load<Texture2D>(Constants.LoadGame);
+        _tutorialMenu = Content.Load<Texture2D>(Constants.TutorialMenu);
+
+        _credit = Content.Load<Texture2D>(Constants.Credits);
+
+        _creditMenu = Content.Load<Texture2D>( Constants.CreditsMenu);
 
         _againSprite = Content.Load<Texture2D>(Constants.Again);
 
         _endTheme = Content.Load<Texture2D>(Constants.EndTheme);
 
         _youDie = Content.Load<Texture2D>(Constants.YouDie);
+
+        _exitButton = Content.Load<Texture2D>(Constants.ExitButton);
 
         //Window data
         _screenHeight = _graphics.GraphicsDevice.Viewport.Height;
@@ -235,14 +252,14 @@ public class Game1 : Game
 
         _player.GetBossAcess(_boss);
 
-        _uiManager = new UIManager(_gameManager, _player, _boss,
+        _uiManager = new UIManager(_audioManager, _gameManager, _player, _boss,
          _font,
-         _UISprite, _openScreenSPrite, _loadGameSprite, _startGameSprite, _exitSprite, _optionSprite,
-        _youDie, _endTheme, _againSprite
+         _UISprite, _openScreenSPrite,_startGameSprite,_credit, _creditMenu, _tutorial, _tutorialMenu,_exitSprite,
+        _youDie, _endTheme, _againSprite, _exitButton
          , _screenWidth, _screenHeight,
-         Constants.MenuLayout, _gameManager.ChangeState);
+         Constants.MenuLayout, _gameManager.ChangeState, Exit);
 
-        _enemySpawner = new EnemySpawner(_groundEnemySpriteSheet, _flyEnemySpriteSheet, _UISprite, _uiManager[Type.EnemyHealthBar], Constants.EnemyPos,
+        _enemySpawner = new EnemySpawner(_groundEnemySpriteSheet, _flyEnemySpriteSheet, _UISprite, _uiManager[UI.Type.EnemyHealthBar], Constants.EnemyPos,
             _level, _gameManager, _audioManager, _player);
 
         _player.EnemyList = _enemySpawner.EnemyList;

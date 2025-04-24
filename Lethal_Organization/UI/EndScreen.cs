@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Lethal_Organization
+namespace Lethal_Organization.UI
 {
     class EndScreen:UI
     {
@@ -24,7 +24,7 @@ namespace Lethal_Organization
 
         private Action<GameManager.GameState> _changeState;
 
-        public EndScreen(Action<GameManager.GameState> changeState, Texture2D endScreen, Texture2D againTexture, int screenWidth, int screenHeight)
+        public EndScreen(AudioManager audioManager, Action<GameManager.GameState> changeState, Texture2D endScreen, Texture2D againTexture, int screenWidth, int screenHeight)
         {
             _changeState = changeState;
 
@@ -34,7 +34,7 @@ namespace Lethal_Organization
 
             _screenWidth = screenWidth;
 
-            _againButton = new Button(againTexture, new Rectangle(screenWidth/2 - againTexture.Width/2, screenHeight/ 2 - againTexture.Height/2 + 100, againTexture.Width, againTexture.Height), Again);
+            _againButton = new Button(audioManager, againTexture, new Rectangle(screenWidth/2 - againTexture.Width/2, screenHeight/ 2 - againTexture.Height/2 + 100, againTexture.Width, againTexture.Height), Again);
         }
 
       

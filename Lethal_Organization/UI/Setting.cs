@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Lethal_Organization
+namespace Lethal_Organization.UI
 {
     class Setting : UI
     {
@@ -32,7 +32,7 @@ namespace Lethal_Organization
         private Rectangle _homePos;
 
         private Action<GameManager.GameState> _changeState;
-        public Setting(Action<GameManager.GameState> changState,  Texture2D UISpriteSheet, 
+        public Setting(AudioManager audioManager, Action<GameManager.GameState> changState,  Texture2D UISpriteSheet, 
             Rectangle home, Rectangle pause, Rectangle smallButton, Rectangle pressButton, Rectangle hoverButton, 
             int screenWidth, int screenHeight)
         {
@@ -55,9 +55,9 @@ namespace Lethal_Organization
 
             _pausePos = new Rectangle(_homePos.X - smallButton.Width*4 - 10, 10, smallButton.Width * 4, smallButton.Height * 4);
 
-            _paused = new Button(_uiSpriteSheet, _pausePos, Pause, UnPause);
+            _paused = new Button(audioManager,_uiSpriteSheet, _pausePos, Pause, UnPause);
 
-            _home = new Button(_uiSpriteSheet, _homePos, OpenHome);
+            _home = new Button(audioManager,_uiSpriteSheet, _homePos, OpenHome);
 
         }
 

@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.IO;
 
 
-namespace Lethal_Organization
+namespace Lethal_Organization.UI
 {
     public enum Type
     {
@@ -81,13 +81,15 @@ namespace Lethal_Organization
         }
 
 
-        public UIManager(GameManager gameManager, Player player, Boss boss,
+        public UIManager(AudioManager audioManager, GameManager gameManager, Player player, Boss boss,
             SpriteFont font,
-            Texture2D spriteSheet, Texture2D openTheme, Texture2D loadGame, Texture2D startGame, Texture2D exit, Texture2D option,
+            Texture2D spriteSheet, Texture2D openTheme, Texture2D startGame, Texture2D credit, Texture2D creditMenu, Texture2D tutorial, Texture2D tutorialMenu,
+            Texture2D exit,
             Texture2D youDie,
             Texture2D endScreen, Texture2D again,
+            Texture2D exitButton,
             int screenWidth, int screenHeight,
-            string textureMapFile, Action<GameManager.GameState> changeState, int scale = 5)
+            string textureMapFile, Action<GameManager.GameState> changeState, Action exitGame, int scale = 5)
         {
 
             _gameManager = gameManager;
@@ -98,24 +100,28 @@ namespace Lethal_Organization
 
             _UIs = new List<UI>();
 
-           
             _textureMap = new Dictionary<Type, Rectangle>();
 
             LoadContent(spriteSheet, textureMapFile);
 
-            _UIs.Add(new Menu(changeState, openTheme, loadGame, startGame, exit, option, screenWidth, screenHeight));
+            _UIs.Add(new Menu(audioManager,changeState, openTheme, startGame, credit, creditMenu,tutorial, tutorialMenu,exit,exitButton,screenWidth, screenHeight,
+                ShowMenu<Credits>, ShowMenu<Tutorial>, exitGame));
 
             _UIs.Add(new PlayerHUB(player, spriteSheet, _textureMap[Type.HealthBar], _textureMap[Type.HealthBarPlaceholder], _textureMap[Type.PlayerIcon]));
 
-            _UIs.Add(new EndScreen(changeState, endScreen, again, screenWidth, screenHeight));
+            _UIs.Add(new EndScreen(audioManager,changeState, endScreen, again, screenWidth, screenHeight));
 
-            _UIs.Add(new Setting(changeState, spriteSheet, 
+            _UIs.Add(new Setting(audioManager,changeState, spriteSheet, 
                 _textureMap[Type.HomeIcon], _textureMap[Type.PauseIcon], _textureMap[Type.SmallButton], _textureMap[Type.SmallButtonPress], _textureMap[Type.SmallButtonHover],
                 screenWidth, screenHeight));
 
             _UIs.Add(new BossHUB(boss, font, spriteSheet, _textureMap[Type.HealthBar], screenWidth, screenHeight));
 
             _UIs.Add(new YouDie(youDie, font, screenWidth, screenHeight));
+
+            _UIs.Add(new Credits(audioManager,creditMenu, exitButton, screenWidth, screenHeight));
+
+            _UIs.Add(new Tutorial(audioManager,tutorialMenu, exitButton, screenWidth, screenHeight));    
         }
 
        
@@ -207,6 +213,8 @@ namespace Lethal_Organization
         {
             ShowMenu<BossHUB>();
         }
+
+      
 
 
         public void LoadContent(Texture2D spriteSheet, string textureMapFile)

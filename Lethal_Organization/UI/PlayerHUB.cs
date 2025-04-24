@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Diagnostics;
 
-namespace Lethal_Organization
+namespace Lethal_Organization.UI
 {
     class PlayerHUB: UI
     {

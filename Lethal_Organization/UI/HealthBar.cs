@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Lethal_Organization
+namespace Lethal_Organization.UI
 {
     class HealthBar : UI
     {

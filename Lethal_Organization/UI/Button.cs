@@ -9,7 +9,7 @@ using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lethal_Organization
+namespace Lethal_Organization.UI
 {
     internal class Button: IUpdateable
     {
@@ -35,8 +35,11 @@ namespace Lethal_Organization
 
         private bool _isPressed;
 
-        public Button(Texture2D texture, Rectangle displayPos, Action toggleOn, Action toggleOff = null)
+        private AudioManager _audioManager;
+        public Button(AudioManager audioManager, Texture2D texture, Rectangle displayPos, Action toggleOn, Action toggleOff = null)
         {
+            _audioManager = audioManager;
+
             _displayPos = displayPos;
             
             _texture = texture; 
@@ -103,6 +106,7 @@ namespace Lethal_Organization
                 {
                     _toggleOn();
                     _isToggled = true;
+                    _audioManager.PlaySFX(AudioManager.SFXID.ButtonClick);
                 }else if(_isToggled)
                 {
                     if(_toggleOff != null)
@@ -112,7 +116,8 @@ namespace Lethal_Organization
                     {
                         _toggleOn();
                     }
-                    _isToggled=false;
+                    _audioManager.PlaySFX(AudioManager.SFXID.ButtonClick);
+                    _isToggled = false;
                 }
             }
             

@@ -67,7 +67,7 @@ internal class AudioManager
             { SFXID.PlayerShoot, playerShoot },
             { SFXID.Swoosh, swoosh },
             { SFXID.DieSFX, dieSFX },
-            {   SFXID.GetHit, getHit },
+            { SFXID.GetHit, getHit },
         };
 
         MediaPlayer.Volume = 0.5f;
