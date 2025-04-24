@@ -307,7 +307,7 @@ internal class Boss: GameObject
 
         //Position_HitBox
 
-        _groundBox = new Rectangle(4 * 48, 47 * 48, 32 * 48, 14 * 48); // Grid Pos (4,47), Width 32 Node, Height 14 Node
+        _groundBox = new Rectangle(4 * 48, 49 * 48, 32 * 48, 14 * 48); // Grid Pos (4,47), Width 32 Node, Height 14 Node
 
         worldPos = new Rectangle(_groundBox.Center.X,_groundBox.Y + _groundBox.Height - 96 * 3, 192 * 3, 96 *3);           //3 is scale
 

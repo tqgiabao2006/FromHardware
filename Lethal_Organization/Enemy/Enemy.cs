@@ -314,14 +314,19 @@ namespace Lethal_Organization
         /// <param name="damage"></param>
         public override void GetHit(int damage)
         {
-            base.GetHit(damage);
+            curHP =  MathHelper.Clamp(curHP - damage, 0, maxHp);
+            HPChanged(curHP);
+            if(curHP <= 0)
+            {
+                _audioManager.PlaySFX(AudioManager.SFXID.GetHit);
+                SetActive(false);   
+            }
             _getHit = true;
             _timeSinceHit = 0;
 
             _sinceChangeColor = 0;
             _changeColorGetHit = true;
 
-            _audioManager.PlaySFX(AudioManager.SFXID.GetHit);
         }
 
         /// <summary>

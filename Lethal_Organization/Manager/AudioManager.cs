@@ -33,6 +33,8 @@ internal class AudioManager
 
     private readonly Dictionary<SFXID, SoundEffect> _sfx;
 
+    private SoundEffect _dieSFXInstance;
+
     public AudioManager(
         GameManager gameManager,
         Song bossSong,
@@ -84,6 +86,7 @@ internal class AudioManager
         switch (state)
         {
             case GameManager.GameState.Menu:
+               
                 MediaPlayer.Play(_songs[SongID.OpenSong]);
                 break;
 
@@ -97,8 +100,9 @@ internal class AudioManager
                 break;
 
             case GameManager.GameState.Die:
-                MediaPlayer.Play(_songs[SongID.EndSong]);
-                break;
+                MediaPlayer.Stop();
+                PlaySFX(SFXID.DieSFX);
+                break; 
 
             case GameManager.GameState.Pause:
                 
@@ -116,7 +120,7 @@ internal class AudioManager
     /// <param name="loop">is loop</param>
     public void PlaySong(SongID id, bool loop = true)
     {
-        if (_songs.TryGetValue(id, out var song))
+        if (_songs.TryGetValue(id, out Song song))
         {
             MediaPlayer.IsRepeating = loop;
             MediaPlayer.Play(song);
@@ -132,7 +136,7 @@ internal class AudioManager
     /// <param name="pan">pan</param>
     public void PlaySFX(SFXID id, float volume = 1f, float pitch = 0f, float pan = 0f)
     {
-        if (_sfx.TryGetValue(id, out var effect))
+        if (_sfx.TryGetValue(id, out SoundEffect effect))
         {
             effect.Play(volume, pitch, pan);
         }
