@@ -21,6 +21,7 @@ internal class Boss: GameObject
         Fall,
         Die
     }
+
     private bool _isFree;
 
     private State _currentState;
